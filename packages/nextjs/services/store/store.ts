@@ -1,25 +1,28 @@
 import { create } from "zustand";
 import scaffoldConfig from "~~/scaffold.config";
-import { ChainWithAttributes, NETWORKS_EXTRA_DATA } from "~~/utils/scaffold-eth";
+import { ChainWithAttributes } from "~~/utils/scaffold-eth";
+import { translations } from "~~/utils/translations";
 
-/**
- * Zustand Store
- *
- * You can add global state to the app using this useGlobalState, to get & set
- * values from anywhere in the app.
- *
- * Think about it as a global useState.
- */
+type Language = "en" | "zh";
 
-type GlobalState = {
+interface GlobalState {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: typeof translations.en;
+  nativeCurrencyPrice: number;
+  setNativeCurrencyPrice: (newNativeCurrencyPriceState: number) => void;
   targetNetwork: ChainWithAttributes;
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
-};
+}
 
-export const useGlobalState = create<GlobalState>(set => ({
-  targetNetwork: {
-    ...scaffoldConfig.targetNetworks[0],
-    ...NETWORKS_EXTRA_DATA[scaffoldConfig.targetNetworks[0].id],
+export const useGlobalState = create<GlobalState>((set, get) => ({
+  language: "en",
+  setLanguage: (lang: Language) => set({ language: lang }),
+  get t() {
+    return translations[get().language];
   },
+  nativeCurrencyPrice: 0,
+  setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
+  targetNetwork: scaffoldConfig.targetNetworks[0],
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
 }));

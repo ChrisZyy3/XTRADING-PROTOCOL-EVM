@@ -5,34 +5,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
-
-type HeaderMenuLink = {
-  label: string;
-  href: string;
-  icon?: React.ReactNode;
-};
-
-export const menuLinks: HeaderMenuLink[] = [
-  {
-    label: "Home",
-    href: "/",
-  },
-  {
-    label: "Debug Contracts",
-    href: "/debug",
-    icon: <BugAntIcon className="h-4 w-4" />,
-  },
-];
+import { useGlobalState } from "~~/services/store/store";
 
 export const HeaderMenuLinks = () => {
   const pathname = usePathname();
+  const { t } = useGlobalState();
+
+  const links = [
+    { label: t.nav.team, href: "/team" },
+    { label: t.nav.wallet, href: "/wallet" },
+  ];
 
   return (
     <>
-      {menuLinks.map(({ label, href, icon }) => {
+      {links.map(({ label, href }) => {
         const isActive = pathname === href;
         return (
           <li key={href}>
@@ -43,7 +32,6 @@ export const HeaderMenuLinks = () => {
                 isActive ? "bg-secondary shadow-md" : ""
               } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
             >
-              {icon}
               <span>{label}</span>
             </Link>
           </li>
@@ -59,6 +47,7 @@ export const HeaderMenuLinks = () => {
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const { language, setLanguage } = useGlobalState();
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   useOutsideClick(burgerMenuRef, () => {
@@ -66,9 +55,64 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
+    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2 border-b border-white/10">
       <div className="navbar-start w-auto lg:w-1/2">
-        <details className="dropdown" ref={burgerMenuRef}>
+        <Link href="/" passHref className="flex items-center gap-2 ml-4 mr-6 shrink-0">
+          <div className="relative w-10 h-10">
+            <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold leading-tight text-lg tracking-tight text-tcm-green">TCM PROTOCOL</span>
+          </div>
+        </Link>
+        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
+          <HeaderMenuLinks />
+        </ul>
+      </div>
+      <div className="navbar-end grow mr-4 gap-4">
+        {/* Connect Button */}
+        <RainbowKitCustomConnectButton />
+
+        {/* Language Switcher - Globe Icon with Dropdown */}
+        <div className="dropdown dropdown-end">
+          <label tabIndex={0} className="btn btn-ghost btn-circle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"
+              />
+            </svg>
+          </label>
+          <ul
+            tabIndex={0}
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 border border-white/10"
+          >
+            <li>
+              <button onClick={() => setLanguage("en")} className={language === "en" ? "active" : ""}>
+                English
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setLanguage("zh")} className={language === "zh" ? "active" : ""}>
+                中文
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        {/* Faucet (Local only) */}
+        {isLocalNetwork && <FaucetButton />}
+
+        {/* Hamburger Menu (Mobile Only) - Moved to End */}
+        <details className="dropdown dropdown-end" ref={burgerMenuRef}>
           <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
             <Bars3Icon className="h-1/2" />
           </summary>
@@ -81,22 +125,6 @@ export const Header = () => {
             <HeaderMenuLinks />
           </ul>
         </details>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
-          <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold leading-tight">Scaffold-ETH</span>
-            <span className="text-xs">Ethereum dev stack</span>
-          </div>
-        </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
-      </div>
-      <div className="navbar-end grow mr-4">
-        <RainbowKitCustomConnectButton />
-        {isLocalNetwork && <FaucetButton />}
       </div>
     </div>
   );

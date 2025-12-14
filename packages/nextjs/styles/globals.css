@@ -1,121 +1,64 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@plugin "daisyui" {
+  themes: dark;
+}
 
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@plugin "daisyui" {
-  themes:
-    light,
-    dark --prefersdark;
-}
-
-@plugin "daisyui/theme" {
-  name: "light";
-
-  --color-primary: #93bbfb;
-  --color-primary-content: #212638;
-  --color-secondary: #dae8ff;
-  --color-secondary-content: #212638;
-  --color-accent: #93bbfb;
-  --color-accent-content: #212638;
-  --color-neutral: #212638;
-  --color-neutral-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f4f8ff;
-  --color-base-300: #dae8ff;
-  --color-base-content: #212638;
-  --color-info: #93bbfb;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
-
-  --radius-field: 9999rem;
-  --radius-box: 1rem;
-  --tt-tailw: 6px;
-}
-
+/* Custom Theme Override for DaisyUI */
 @plugin "daisyui/theme" {
   name: "dark";
+  --color-base-100: #0D1117; /* Very dark background */
+  --color-base-200: #14191E; /* Slightly lighter for cards */
+  --color-base-300: #1A2027; /* Even lighter */
+  --color-primary: #4ADE80; /* Green-400 */
+  --color-primary-content: #000000;
+  --color-secondary: #1F2937;
+  --color-accent: #22C55E;
+  --color-neutral: #FFFFFF;
+  --color-base-content: #FFFFFF;
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
-
-  --radius-field: 9999rem;
   --radius-box: 1rem;
-
-  --tt-tailw: 6px;
-  --tt-bg: var(--color-primary);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
+:root {
+  --primary-green: 74 222 128;
+}
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-
-  p {
-    margin: 1rem 0;
-  }
-
   body {
     min-height: 100vh;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    margin-bottom: 0.5rem;
-    line-height: 1;
+    background-color: var(--color-base-100);
+    color: white;
+    font-family: 'Inter', sans-serif;
   }
 }
 
-:root,
-[data-theme] {
-  background: var(--color-base-200);
+@layer utilities {
+  .text-tcm-green {
+    color: rgb(var(--primary-green));
+  }
+
+  .bg-tcm-green {
+    background-color: rgb(var(--primary-green));
+  }
+
+  .border-tcm-green {
+    border-color: rgb(var(--primary-green));
+  }
+
+  .card-gradient {
+    background: linear-gradient(180deg, rgba(20,25,30,0.9) 0%, rgba(13,17,23,0.95) 100%);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .btn-tcm {
+    @apply bg-green-400 text-black font-bold px-6 py-2 rounded-full hover:opacity-90 transition-opacity;
+  }
 }
 
-.btn {
-  @apply shadow-md;
-}
-
-.btn.btn-ghost {
-  @apply shadow-none;
-}
-
-.link {
-  text-underline-offset: 2px;
-}
-
-.link:hover {
-  opacity: 80%;
-}
