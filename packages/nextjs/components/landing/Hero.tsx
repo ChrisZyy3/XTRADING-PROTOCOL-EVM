@@ -35,12 +35,13 @@ export const Hero = () => {
 
       <div className="text-center z-10">
         <h1 className="text-5xl md:text-7xl font-bold mb-4 tracking-tighter">
-          <span className="text-white">TCM</span> <span className="text-tcm-green">PROTOCOL</span>
+          <span className="text-white">{t.hero.titleMain}</span>{" "}
+          <span className="text-tcm-green">{t.hero.titleAccent}</span>
         </h1>
         <div className="px-6 py-2 border border-tcm-green/30 rounded-full inline-block bg-black/30 backdrop-blur-sm mb-6">
           <span className="text-tcm-green tracking-[0.2em] text-sm md:text-base">{t.hero.subtitle}</span>
         </div>
-        <p className="text-gray-400 max-w-xl mx-auto px-4">An aggregated ecosystem system</p>
+        <p className="text-gray-400 max-w-xl mx-auto px-4">{t.hero.description}</p>
       </div>
     </div>
   );
