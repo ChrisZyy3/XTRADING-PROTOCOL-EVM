@@ -47,7 +47,7 @@ export const HeaderMenuLinks = () => {
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
-  const { language, setLanguage } = useGlobalState();
+  const { language, setLanguage, t } = useGlobalState();
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   useOutsideClick(burgerMenuRef, () => {
@@ -62,14 +62,16 @@ export const Header = () => {
             <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight text-lg tracking-tight text-tcm-green">TCM PROTOCOL</span>
+            <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-tcm-green">
+              {t.hero.titleMain} {t.hero.titleAccent}
+            </span>
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 gap-4">
+      <div className="navbar-end grow mr-4 gap-2 sm:gap-4">
         {/* Connect Button */}
         <RainbowKitCustomConnectButton />
 

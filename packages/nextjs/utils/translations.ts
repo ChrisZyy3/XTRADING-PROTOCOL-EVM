@@ -1,12 +1,14 @@
 export const translations = {
   en: {
+    hero: {
+      titleMain: "TCM",
+      titleAccent: "protocol",
+      subtitle: "Web3 financial aggregation platform",
+      description: "An aggregated ecosystem system",
+    },
     nav: {
       team: "Team",
       wallet: "Wallet",
-    },
-    hero: {
-      title: "TCM PROTOCOL",
-      subtitle: "Web3 financial aggregation platform",
     },
     wallet: {
       title: "Wallet",
@@ -73,16 +75,29 @@ export const translations = {
     footer: {
       welcome: "Welcome To The TCM Ecosystem",
       rights: "All Rights Reserved",
+      links: {
+        fork: "Fork me",
+        builtWith: "Built with",
+        support: "Support",
+        blockExplorer: "Block Explorer",
+      },
+    },
+    notFound: {
+      title: "Page Not Found",
+      description: "The page you're looking for doesn't exist.",
+      action: "Go Home",
     },
   },
   zh: {
+    hero: {
+      titleMain: "TCM",
+      titleAccent: "协议",
+      subtitle: "Web3金融聚合平台",
+      description: "一个聚合的生态系统",
+    },
     nav: {
       team: "团队",
       wallet: "钱包",
-    },
-    hero: {
-      title: "TCM PROTOCOL",
-      subtitle: "Web3金融聚合平台",
     },
     wallet: {
       title: "钱包",
@@ -149,6 +164,17 @@ export const translations = {
     footer: {
       welcome: "欢迎来到 TCM 生态系统",
       rights: "版权所有",
+      links: {
+        fork: "Fork me",
+        builtWith: "由以下团队打造",
+        support: "支持",
+        blockExplorer: "区块浏览器",
+      },
+    },
+    notFound: {
+      title: "页面未找到",
+      description: "您访问的页面不存在。",
+      action: "返回首页",
     },
   },
 };

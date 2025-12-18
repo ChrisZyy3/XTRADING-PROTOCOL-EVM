@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import scaffoldConfig from "~~/scaffold.config";
 import { ChainWithAttributes } from "~~/utils/scaffold-eth";
 import { translations } from "~~/utils/translations";
@@ -15,14 +16,22 @@ interface GlobalState {
   setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => void;
 }
 
-export const useGlobalState = create<GlobalState>((set, get) => ({
-  language: "en",
-  setLanguage: (lang: Language) => set({ language: lang }),
-  get t() {
-    return translations[get().language];
-  },
-  nativeCurrencyPrice: 0,
-  setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
-  targetNetwork: scaffoldConfig.targetNetworks[0],
-  setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
-}));
+export const useGlobalState = create<GlobalState>()(
+  persist(
+    (set, get) => ({
+      language: "en",
+      setLanguage: (lang: Language) => set({ language: lang }),
+      get t() {
+        return translations[get().language];
+      },
+      nativeCurrencyPrice: 0,
+      setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
+      targetNetwork: scaffoldConfig.targetNetworks[0],
+      setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
+    }),
+    {
+      name: "tcm-global-state",
+      partialize: state => ({ language: state.language }),
+    },
+  ),
+);
