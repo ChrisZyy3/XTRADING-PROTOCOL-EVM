@@ -92,7 +92,7 @@ export const translations = {
   zh: {
     hero: {
       titleMain: "TCM",
-      titleAccent: "PROTOCOL",
+      titleAccent: "协议",
       subtitle: "钱包支付挖矿协议",
       description: "钱包支付挖矿协议",
     },
@@ -127,7 +127,7 @@ export const translations = {
     },
     presale: {
       title: "预售节点",
-      desc: "Presale Package Zone",
+      desc: "预售套餐区",
       list: [
         { name: "超级节点", dip: "100/200", power: "10/11", tc: "10000/12000", price: "10000/12000" },
         { name: "进阶节点", dip: "2000/2200", power: "170/190", tc: "25000/30000", price: "23000/30000" },
@@ -135,10 +135,10 @@ export const translations = {
       ],
       cols: {
         dip: "DIP",
-        power: "POWER",
+        power: "动力",
         tc: "TC",
-        price: "PRICE(U)",
-        buy: "BUY",
+        price: "价格(U)",
+        buy: "购买",
       },
       loading: "加载中",
     },

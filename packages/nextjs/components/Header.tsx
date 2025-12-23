@@ -50,9 +50,24 @@ export const Header = () => {
   const { language, setLanguage, t } = useGlobalState();
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
   useOutsideClick(burgerMenuRef, () => {
     burgerMenuRef?.current?.removeAttribute("open");
   });
+  useOutsideClick(languageDropdownRef, () => {
+    languageDropdownRef?.current?.removeAttribute("open");
+  });
+
+  const handleLanguageChange = (lang: "en" | "zh") => {
+    setLanguage(lang);
+    document.documentElement.lang = lang;
+    languageDropdownRef?.current?.removeAttribute("open");
+  };
+
+  // keep <html lang=""> in sync on initial render
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = language;
+  }
 
   return (
     <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-30 shadow-md shadow-secondary px-0 sm:px-2 border-b border-white/10">
@@ -76,7 +91,7 @@ export const Header = () => {
         <RainbowKitCustomConnectButton />
 
         {/* Language Switcher - Globe Icon with Dropdown */}
-        <div className="dropdown dropdown-end">
+        <div className="dropdown dropdown-end" ref={languageDropdownRef}>
           <label tabIndex={0} className="btn btn-ghost btn-circle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -98,12 +113,12 @@ export const Header = () => {
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 border border-white/10"
           >
             <li>
-              <button onClick={() => setLanguage("en")} className={language === "en" ? "active" : ""}>
+              <button onClick={() => handleLanguageChange("en")} className={language === "en" ? "active" : ""}>
                 English
               </button>
             </li>
             <li>
-              <button onClick={() => setLanguage("zh")} className={language === "zh" ? "active" : ""}>
+              <button onClick={() => handleLanguageChange("zh")} className={language === "zh" ? "active" : ""}>
                 中文
               </button>
             </li>
