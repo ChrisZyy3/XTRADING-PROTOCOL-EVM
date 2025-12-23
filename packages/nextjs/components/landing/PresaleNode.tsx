@@ -19,23 +19,30 @@ export const PresaleNode = () => {
             key={index}
             className="card-gradient rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8"
           >
+            <div className="w-full flex items-center justify-between">
+              <span className="px-3 py-1 rounded-full bg-tcm-green/10 text-tcm-green font-semibold uppercase tracking-wide">
+                {item.name}
+              </span>
+              <span className="text-xs text-gray-400 uppercase">{t.presale.title}</span>
+            </div>
+
             {/* Left: Info */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full md:w-auto flex-grow text-center md:text-left">
               <div className="flex flex-col">
-                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.name}</span>
-                <span className="font-bold text-lg">{item.name}</span>
+                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.dip}</span>
+                <span className="font-bold text-lg">{item.dip}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.power}</span>
+                <span className="font-bold">{item.power}</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.tc}</span>
+                <span className="font-bold">{item.tc}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.price}</span>
                 <span className="font-bold">{item.price}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.tvl}</span>
-                <span className="font-bold">{item.tvl}</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs text-tcm-green mb-1 uppercase">{t.presale.cols.total}</span>
-                <span className="font-bold">{item.total}</span>
               </div>
             </div>
 

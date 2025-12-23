@@ -2,9 +2,9 @@ export const translations = {
   en: {
     hero: {
       titleMain: "TCM",
-      titleAccent: "protocol",
-      subtitle: "Web3 financial aggregation platform",
-      description: "An aggregated ecosystem system",
+      titleAccent: "PROTOCOL",
+      subtitle: "Wallet payment mining protocol",
+      description: "Wallet payment mining protocol",
     },
     nav: {
       team: "Team",
@@ -37,18 +37,17 @@ export const translations = {
     },
     presale: {
       title: "PRESALE NODE",
-      desc: "Financial aggregation",
+      desc: "Presale Package Zone",
       list: [
-        { name: "LP", price: "400U", tvl: "10", total: "10000" },
-        { name: "NODE", price: "200U", tvl: "20.1", total: "2000" },
-        { name: "S-NODE", price: "20.24U", tvl: "0.22", total: "20000" },
-        { name: "G-NODE", price: "400U", tvl: "10.1", total: "100" },
+        { name: "Super Node", dip: "100/200", power: "10/11", tc: "10000/12000", price: "10000/12000" },
+        { name: "Advanced Node", dip: "2000/2200", power: "170/190", tc: "25000/30000", price: "23000/30000" },
+        { name: "Genesis Node", dip: "100/200", power: "10/20", tc: "10000/12000", price: "10000/12000" },
       ],
       cols: {
-        name: "TYPE",
-        price: "PRICE",
-        tvl: "TVL",
-        total: "OUTPUT",
+        dip: "DIP",
+        power: "POWER",
+        tc: "TC",
+        price: "PRICE(U)",
         buy: "BUY",
       },
       loading: "LOADING",
@@ -56,21 +55,23 @@ export const translations = {
     ecological: {
       title: "ECOLOGICAL",
       dao: {
-        title: "TCM DAO",
-        desc: "The core governance community of the platform... (Placeholder for long text)",
+        title: "I TCM DAO",
+        desc: "TCM DAO is the platform's core governance community and decision center. Community members hold TCM tokens to propose, discuss, and vote on major directions and ecological expansion. This empowers every participant with fair decision-making rights, keeping the platform transparent, decentralized, and continuously innovative.",
       },
       pool: {
-        title: "TCM POOL",
-        desc: "Values vary based on user demands... (Placeholder for long text)",
+        title: "I TCM POOL",
+        desc: "TCM Pool provides flexible, shared liquidity services for users worldwide. Participants can add or share liquidity while smart mechanisms calculate and distribute returns. Multi-asset portfolios and shared nodes lower the barrier to entry, maximizing yields with transparent data and security at the core.",
       },
       mall: {
-        title: "TCM MALL",
-        desc: "A comprehensive shopping ecosystem... (Placeholder for long text)",
+        title: "I TCM MALL",
+        desc: "TCM aims to build a business system that blends social engagement, shopping, and services. Users can share community benefits and enjoy seamless on-chain purchasing and offline expansion with innovative product strategies and membership mechanics to grow alongside global partners.",
       },
     },
     app: {
       title: "ECOLOGICAL PARTNER APP",
       download: "Download",
+      ios: "iPhone version",
+      android: "Android version",
     },
     footer: {
       welcome: "Welcome To The TCM Ecosystem",
@@ -91,9 +92,9 @@ export const translations = {
   zh: {
     hero: {
       titleMain: "TCM",
-      titleAccent: "协议",
-      subtitle: "Web3金融聚合平台",
-      description: "一个聚合的生态系统",
+      titleAccent: "PROTOCOL",
+      subtitle: "钱包支付挖矿协议",
+      description: "钱包支付挖矿协议",
     },
     nav: {
       team: "团队",
@@ -126,40 +127,41 @@ export const translations = {
     },
     presale: {
       title: "预售节点",
-      desc: "金融聚合",
+      desc: "Presale Package Zone",
       list: [
-        { name: "LP", price: "400U", tvl: "10", total: "10000" },
-        { name: "节点", price: "200U", tvl: "20.1", total: "2000" },
-        { name: "超级节点", price: "20.24U", tvl: "0.22", total: "20000" },
-        { name: "创世节点", price: "400U", tvl: "10.1", total: "100" },
+        { name: "超级节点", dip: "100/200", power: "10/11", tc: "10000/12000", price: "10000/12000" },
+        { name: "进阶节点", dip: "2000/2200", power: "170/190", tc: "25000/30000", price: "23000/30000" },
+        { name: "创世节点", dip: "100/200", power: "10/20", tc: "10000/12000", price: "10000/12000" },
       ],
       cols: {
-        name: "类型",
-        price: "价格",
-        tvl: "TVL",
-        total: "产量",
-        buy: "购买",
+        dip: "DIP",
+        power: "POWER",
+        tc: "TC",
+        price: "PRICE(U)",
+        buy: "BUY",
       },
       loading: "加载中",
     },
     ecological: {
       title: "生态应用",
       dao: {
-        title: "TCM DAO",
-        desc: "平台的的核心治理社区... (中文长文本占位符)",
+        title: "I TCM DAO",
+        desc: "TCM DAO是平台的核心治理社区，为长期发展提供决策中心。社区成员通过持有TCM代币进行治理、提案、讨论与投票，共同决定平台的重大方向与生态拓展。DAO的价值在于为社区赋能，让所有参与者享有公平的决策权，确保平台透明、去中心化并持续创新，为生态提供稳定的治理基础。",
       },
       pool: {
-        title: "TCM POOL",
-        desc: "根据用户需求变化的价值... (中文长文本占位符)",
+        title: "I TCM POOL",
+        desc: "TCM Pool为全球用户提供灵活、共享的流动性服务。用户可以添加或共享流动性，收益由系统智能计算并分配。平台支持多资产组合与节点共享，降低参与门槛，实现收益最大化。TCM Pool以安全审计和透明数据为基础，让用户放心参与并享受持续的资产增值。",
       },
       mall: {
-        title: "TCM MALL",
-        desc: "一个综合购物生态系统... (中文长文本占位符)",
+        title: "I TCM MALL",
+        desc: "TCM立志打造集社交、购物与服务为一体的商业体系。用户可分享社区利益，实现链上购物与线下拓展的无缝衔接。凭借创新的产品策略和会员机制，用户不仅能够购买到心仪商品，还能享受更多权益，与全球伙伴共同成长。",
       },
     },
     app: {
-      title: "生态合作伙伴 APP",
+      title: "生态伙伴APP",
       download: "下载",
+      ios: "iPhone版本",
+      android: "Android版本",
     },
     footer: {
       welcome: "欢迎来到 TCM 生态系统",
