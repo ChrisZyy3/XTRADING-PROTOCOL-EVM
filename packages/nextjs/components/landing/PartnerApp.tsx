@@ -13,7 +13,7 @@ export const PartnerApp = () => {
         {/* Circle Graphic Placeholder */}
         <div className="w-48 h-48 rounded-full border border-tcm-green/30 flex items-center justify-center relative mb-12 animate-pulse-slow">
           <div className="absolute w-[80%] h-[80%] border border-tcm-green/50 rounded-full animate-spin-slow"></div>
-          <span className="text-4xl text-tcm-green">⬇</span>
+          <span className="text-4xl text-tcm-green">TCM</span>
         </div>
 
         <div className="flex flex-col gap-4 w-full max-w-xs">
