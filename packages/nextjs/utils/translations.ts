@@ -3,6 +3,7 @@ export const translations = {
     hero: {
       titleMain: "TCM",
       titleAccent: "PROTOCOL",
+      badge: "WEB3 - RWA",
       subtitle: "Wallet payment mining protocol",
       description: "Wallet payment mining protocol",
     },
@@ -39,17 +40,19 @@ export const translations = {
       title: "PRESALE NODE",
       desc: "Presale Package Zone",
       list: [
-        { name: "Super Node", dip: "100/200", power: "10/11", tc: "10000/12000", price: "10000/12000" },
-        { name: "Advanced Node", dip: "2000/2200", power: "170/190", tc: "25000/30000", price: "23000/30000" },
-        { name: "Genesis Node", dip: "100/200", power: "10/20", tc: "10000/12000", price: "10000/12000" },
+        { name: "Genesis", dip: "Genesis", power: "1000000", tc: "7000", price: "10000.00" },
+        { name: "Super", dip: "Super", power: "500000", tc: "35000", price: "5000.00" },
+        { name: "City", dip: "City", power: "250000", tc: "17500", price: "2500.00" },
+        { name: "Community", dip: "Community", power: "100000", tc: "7000", price: "1000.00" },
       ],
       cols: {
-        dip: "DIP",
+        dip: "DID",
         power: "POWER",
         tc: "TC",
-        price: "PRICE(U)",
+        price: "PRICE (U)",
         buy: "BUY",
       },
+      progress: "PROGRESS",
       loading: "LOADING",
     },
     ecological: {
@@ -75,6 +78,7 @@ export const translations = {
     },
     footer: {
       welcome: "Welcome To The TCM Ecosystem",
+      subtitle: "TCM Protocol Web3-Rwa",
       rights: "All Rights Reserved",
       links: {
         fork: "Fork me",
@@ -93,6 +97,7 @@ export const translations = {
     hero: {
       titleMain: "TCM",
       titleAccent: "协议",
+      badge: "WEB3 - RWA",
       subtitle: "钱包支付挖矿协议",
       description: "钱包支付挖矿协议",
     },
@@ -129,17 +134,19 @@ export const translations = {
       title: "预售节点",
       desc: "预售套餐区",
       list: [
-        { name: "超级节点", dip: "100/200", power: "10/11", tc: "10000/12000", price: "10000/12000" },
-        { name: "进阶节点", dip: "2000/2200", power: "170/190", tc: "25000/30000", price: "23000/30000" },
-        { name: "创世节点", dip: "100/200", power: "10/20", tc: "10000/12000", price: "10000/12000" },
+        { name: "Genesis", dip: "Genesis", power: "1000000", tc: "7000", price: "10000.00" },
+        { name: "Super", dip: "Super", power: "500000", tc: "35000", price: "5000.00" },
+        { name: "City", dip: "City", power: "250000", tc: "17500", price: "2500.00" },
+        { name: "Community", dip: "Community", power: "100000", tc: "7000", price: "1000.00" },
       ],
       cols: {
-        dip: "DIP",
+        dip: "DID",
         power: "动力",
         tc: "TC",
         price: "价格(U)",
         buy: "购买",
       },
+      progress: "进度",
       loading: "加载中",
     },
     ecological: {
@@ -165,6 +172,7 @@ export const translations = {
     },
     footer: {
       welcome: "欢迎来到 TCM 生态系统",
+      subtitle: "TCM Protocol Web3-Rwa",
       rights: "版权所有",
       links: {
         fork: "Fork me",
