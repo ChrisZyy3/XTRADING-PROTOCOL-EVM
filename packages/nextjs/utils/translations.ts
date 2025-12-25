@@ -37,8 +37,8 @@ export const translations = {
       noData: "- NO MORE DATA -",
     },
     presale: {
-      title: "PRESALE NODE",
-      desc: "Presale Package Zone",
+      title: "/ PRESALE NODE",
+      desc: "Presale package Zone",
       list: [
         { name: "Genesis", dip: "Genesis", power: "1000000", tc: "7000", price: "10000.00" },
         { name: "Super", dip: "Super", power: "500000", tc: "35000", price: "5000.00" },
@@ -56,7 +56,7 @@ export const translations = {
       loading: "LOADING",
     },
     ecological: {
-      title: "ECOLOGICAL",
+      title: "/ ECOLOGICAL",
       dao: {
         title: "I TCM DAO",
         desc: "TCM DAO is the platform's core governance community and decision center. Community members hold TCM tokens to propose, discuss, and vote on major directions and ecological expansion. This empowers every participant with fair decision-making rights, keeping the platform transparent, decentralized, and continuously innovative.",
@@ -71,10 +71,11 @@ export const translations = {
       },
     },
     app: {
-      title: "ECOLOGICAL PARTNER APP",
+      title: "生态伙伴APP",
+      subtitle: "Ecological partner App",
       download: "Download",
-      ios: "iPhone version",
-      android: "Android version",
+      ios: "App Store",
+      android: "Android",
     },
     footer: {
       welcome: "Welcome To The TCM Ecosystem",
@@ -134,19 +135,19 @@ export const translations = {
       title: "预售节点",
       desc: "预售套餐区",
       list: [
-        { name: "Genesis", dip: "Genesis", power: "1000000", tc: "7000", price: "10000.00" },
-        { name: "Super", dip: "Super", power: "500000", tc: "35000", price: "5000.00" },
-        { name: "City", dip: "City", power: "250000", tc: "17500", price: "2500.00" },
-        { name: "Community", dip: "Community", power: "100000", tc: "7000", price: "1000.00" },
+        { name: "Genesis", dip: "创世节点", power: "1000000", tc: "7000", price: "10000.00" },
+        { name: "Super", dip: "超级节点", power: "500000", tc: "35000", price: "5000.00" },
+        { name: "City", dip: "城市节点", power: "250000", tc: "17500", price: "2500.00" },
+        { name: "Community", dip: "社区节点", power: "100000", tc: "7000", price: "1000.00" },
       ],
       cols: {
         dip: "DID",
-        power: "动力",
+        power: "POWER",
         tc: "TC",
-        price: "价格(U)",
-        buy: "购买",
+        price: "PRICE (U)",
+        buy: "BUY",
       },
-      progress: "进度",
+      progress: "PROGRESS",
       loading: "加载中",
     },
     ecological: {
@@ -166,12 +167,13 @@ export const translations = {
     },
     app: {
       title: "生态伙伴APP",
-      download: "下载",
-      ios: "iPhone版本",
-      android: "Android版本",
+      subtitle: "Ecological partner App",
+      download: "Download",
+      ios: "App Store",
+      android: "Android",
     },
     footer: {
-      welcome: "欢迎来到 TCM 生态系统",
+      welcome: "Welcome To The TCM Ecosystem",
       subtitle: "TCM Protocol Web3-Rwa",
       rights: "版权所有",
       links: {
@@ -182,7 +184,7 @@ export const translations = {
       },
     },
     notFound: {
-      title: "页面未找到",
+      title: "Page Not Found",
       description: "您访问的页面不存在。",
       action: "返回首页",
     },
