@@ -37,7 +37,7 @@ export const translations = {
       noData: "- NO MORE DATA -",
     },
     presale: {
-      title: "/ PRESALE NODE",
+      title: "PRESALE NODE",
       desc: "Presale package Zone",
       list: [
         { name: "Genesis", dip: "Genesis", power: "1000000", tc: "7000", price: "10000.00" },
