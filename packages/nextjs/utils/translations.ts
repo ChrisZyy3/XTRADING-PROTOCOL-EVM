@@ -4,8 +4,8 @@ export const translations = {
       titleMain: "TCM",
       titleAccent: "PROTOCOL",
       badge: "WEB3 - RWA",
-      subtitle: "Wallet payment mining protocol",
-      description: "Wallet payment mining protocol",
+      subtitle: "Wallet Payment Mining Protocol",
+      description: "Wallet Payment Mining Protocol",
     },
     nav: {
       team: "Team",
@@ -58,16 +58,16 @@ export const translations = {
     ecological: {
       title: "/ ECOLOGICAL",
       dao: {
-        title: "I TCM DAO",
-        desc: "TCM DAO is the platform's core governance community and decision center. Community members hold TCM tokens to propose, discuss, and vote on major directions and ecological expansion. This empowers every participant with fair decision-making rights, keeping the platform transparent, decentralized, and continuously innovative.",
+        title: "TCM DAO",
+        desc: "Global node recruitment, co building community consensus TC MALL DAO officially launched a node recruitment plan for the world, covering four levels: genesis nodes, super nodes, advanced nodes, and dividend nodes, aiming to gather global blockchain enthusiasts and builders to jointly build a decentralized autonomous ecosystem. Through the node network, TC MALL DAO will build a highly consensus community system, where node members can participate in ecological governance, obtain equity incentives, and deeply participate in project decision-making. Whether technical contributors, resource integrators or ecological participants, they can find suitable roles and work together to promote XTG's ecological globalization.",
       },
       pool: {
-        title: "I TCM POOL",
-        desc: "TCM Pool provides flexible, shared liquidity services for users worldwide. Participants can add or share liquidity while smart mechanisms calculate and distribute returns. Multi-asset portfolios and shared nodes lower the barrier to entry, maximizing yields with transparent data and security at the core.",
+        title: "TCM POOL",
+        desc: "The TCM protocol, as the underlying payment network linking encrypted wallets, exchanges, and global merchants, will build a WEB3 highway for the encrypted world and commodity circulation, pioneering two core algorithms: circulation mining and circulation destruction. One of them is \"circulation is mining\", which has created a unique mechanism of global circulation transfer and mining, supporting multiple EVM wallets worldwide. Users can start mining by transferring tokens, and 10% of each transfer is released as mining pool tokens through a computing power protocol, thus achieving wealth effects of more circulation and more computing power with more payments. The second is' circulation is destruction ', where 10% of each transfer goes directly into the black hole, and the 10% released computing power is also destroyed simultaneously. As the number of payers increases, tokens become increasingly scarce, creating a strong deflationary effect that drives the continuous rise of TCM value and brings considerable returns to investors.",
       },
       mall: {
-        title: "I TCM MALL",
-        desc: "TCM aims to build a business system that blends social engagement, shopping, and services. Users can share community benefits and enjoy seamless on-chain purchasing and offline expansion with innovative product strategies and membership mechanics to grow alongside global partners.",
+        title: "TCM MALL",
+        desc: "TCM is striving to build a globally leading WEB3 mall payment system, constructing a decentralized, efficient, and secure cross-border circulation payment network. This system deeply integrates blockchain technology, breaks through traditional payment barriers, supports real-time settlement of multiple currencies and automatic execution of smart contracts, and provides a low transaction fee and high transparency trading environment for global merchants. Through distributed ledger technology, the system ensures that every cross-border trade fund transfer is traceable and tamper proof, while relying on encryption algorithms to safeguard user privacy and data security.",
       },
     },
     app: {
@@ -153,15 +153,15 @@ export const translations = {
     ecological: {
       title: "生态应用",
       dao: {
-        title: "I TCM DAO",
+        title: "TCM DAO",
         desc: "TCM DAO是平台的核心治理社区，为长期发展提供决策中心。社区成员通过持有TCM代币进行治理、提案、讨论与投票，共同决定平台的重大方向与生态拓展。DAO的价值在于为社区赋能，让所有参与者享有公平的决策权，确保平台透明、去中心化并持续创新，为生态提供稳定的治理基础。",
       },
       pool: {
-        title: "I TCM POOL",
+        title: "TCM POOL",
         desc: "TCM Pool为全球用户提供灵活、共享的流动性服务。用户可以添加或共享流动性，收益由系统智能计算并分配。平台支持多资产组合与节点共享，降低参与门槛，实现收益最大化。TCM Pool以安全审计和透明数据为基础，让用户放心参与并享受持续的资产增值。",
       },
       mall: {
-        title: "I TCM MALL",
+        title: "TCM MALL",
         desc: "TCM立志打造集社交、购物与服务为一体的商业体系。用户可分享社区利益，实现链上购物与线下拓展的无缝衔接。凭借创新的产品策略和会员机制，用户不仅能够购买到心仪商品，还能享受更多权益，与全球伙伴共同成长。",
       },
     },

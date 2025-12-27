@@ -9,7 +9,7 @@ export const PresaleNode = () => {
         <div className="flex flex-col items-center mb-12 text-center">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[#27E903] text-3xl font-bold">/</span>
-            <h2 className="text-3xl font-bold uppercase tracking-widest text-[#27E903]">{t.presale.title}</h2>
+            <h2 className="text-3xl font-bold uppercase tracking-widest text-white">{t.presale.title}</h2>
           </div>
           <p className="text-gray-400 text-sm tracking-wide">{t.presale.desc}</p>
         </div>
