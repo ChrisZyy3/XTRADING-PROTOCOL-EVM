@@ -50,19 +50,34 @@ export const Header = () => {
   const { language, setLanguage, t } = useGlobalState();
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
   useOutsideClick(burgerMenuRef, () => {
     burgerMenuRef?.current?.removeAttribute("open");
   });
+  useOutsideClick(languageDropdownRef, () => {
+    languageDropdownRef?.current?.removeAttribute("open");
+  });
+
+  const handleLanguageChange = (lang: "en" | "zh") => {
+    setLanguage(lang);
+    document.documentElement.lang = lang;
+    languageDropdownRef?.current?.removeAttribute("open");
+  };
+
+  // keep <html lang=""> in sync on initial render
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = language;
+  }
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-30 shadow-md shadow-secondary px-0 sm:px-2 border-b border-white/10">
+    <div className="sticky lg:static top-0 navbar bg-black min-h-0 shrink-0 justify-between z-30 shadow-md shadow-secondary px-0 sm:px-2 border-b border-white/10">
       <div className="navbar-start w-auto lg:w-1/2">
         <Link href="/" passHref className="flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="relative w-10 h-10">
             <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-tcm-green">
+            <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-white">
               {t.hero.titleMain} {t.hero.titleAccent}
             </span>
           </div>
@@ -76,7 +91,7 @@ export const Header = () => {
         <RainbowKitCustomConnectButton />
 
         {/* Language Switcher - Globe Icon with Dropdown */}
-        <div className="dropdown dropdown-end">
+        <div className="dropdown dropdown-end" ref={languageDropdownRef}>
           <label tabIndex={0} className="btn btn-ghost btn-circle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -95,15 +110,15 @@ export const Header = () => {
           </label>
           <ul
             tabIndex={0}
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-32 border border-white/10"
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-black rounded-box w-32 border border-white/10"
           >
             <li>
-              <button onClick={() => setLanguage("en")} className={language === "en" ? "active" : ""}>
+              <button onClick={() => handleLanguageChange("en")} className={language === "en" ? "active" : ""}>
                 English
               </button>
             </li>
             <li>
-              <button onClick={() => setLanguage("zh")} className={language === "zh" ? "active" : ""}>
+              <button onClick={() => handleLanguageChange("zh")} className={language === "zh" ? "active" : ""}>
                 中文
               </button>
             </li>
@@ -119,7 +134,7 @@ export const Header = () => {
             <Bars3Icon className="h-1/2" />
           </summary>
           <ul
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow-sm bg-base-100 rounded-box w-52"
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow-sm bg-black rounded-box w-52 border border-white/10"
             onClick={() => {
               burgerMenuRef?.current?.removeAttribute("open");
             }}

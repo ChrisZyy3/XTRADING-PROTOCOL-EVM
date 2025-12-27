@@ -17,6 +17,62 @@
 
 ![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
 
+## 项目首页需求（当前页面）
+
+适用范围：`packages/nextjs/app/page.tsx` 及 `packages/nextjs/components/landing/*`。
+
+### 目标与定位
+
+- 展示 TCM Protocol/DApp 的品牌形象与核心卖点。
+- 提供预售节点入口、生态模块简介、合作应用入口与基础社交信息。
+- 首屏强调视觉冲击与主品牌标题，移动端可读性优先。
+
+### 页面结构
+
+1. Hero 首屏
+   - 背景：中心光晕 + 漂浮元素 + 3D 手机占位视觉。
+   - 文案：主标题拆分为主标题与强调标题，配合副标题与说明文案。
+2. Presale Node
+   - 标题与说明文案。
+   - 预售列表卡片：名称、价格、TVL、总量 + 进度条 + 购买按钮。
+3. Ecological
+   - 三段生态模块：DAO、Pool、Mall。
+   - 每段包含标题、描述与图形占位。
+4. Partner App
+   - 标题 + 圆形占位动画。
+   - 两个下载按钮（iPhone/Android）。
+5. Footer
+   - 欢迎语、社交入口占位、版权信息。
+
+### 交互与行为
+
+- 页面为单页滚动结构，区块包含锚点 `#presale`、`#ecological`。
+- 购买按钮与下载按钮先作为 UI 入口（后续接入实际链接/功能）。
+- 交易、钱包连接功能不在当前页面范围内。
+
+### 文案与数据来源
+
+文案由 `useGlobalState()` 的 `t` 对象提供，需满足以下字段：
+
+- `hero`: `titleMain`, `titleAccent`, `subtitle`, `description`
+- `presale`: `title`, `desc`, `cols`(name/price/tvl/total/buy), `list`(name/price/tvl/total)
+- `ecological`: `title`, `dao`(title/desc), `pool`(title/desc), `mall`(title/desc)
+- `app`: `title`
+- `footer`: `welcome`, `rights`
+
+### 视觉与体验
+
+- 深色主题，主色为绿色（`text-tcm-green`/`bg-tcm-green`）。
+- 采用渐变卡片、发光、轻量动画（pulse/spin/bounce）。
+- 桌面端保持居中宽度（max-w-4xl），移动端优先可读性与间距。
+
+### 验收标准
+
+- 页面自上而下包含 5 个区块并可在移动端正常浏览。
+- 预售列表可渲染多条数据且按钮可点击（无报错）。
+- 文案不为空时，所有区块文字正确渲染。
+- 动画与背景效果不影响布局稳定性。
+
 ## Requirements
 
 Before you begin, you need to install the following tools:

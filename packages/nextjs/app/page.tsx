@@ -1,20 +1,18 @@
 "use client";
 
 import type { NextPage } from "next";
-import { Ecological } from "~~/components/landing/Ecological";
-import { Hero } from "~~/components/landing/Hero";
-import { Footer, PartnerApp } from "~~/components/landing/PartnerApp";
-import { PresaleNode } from "~~/components/landing/PresaleNode";
+import { FigmaLanding } from "~~/components/landing/FigmaLanding";
 
 const Home: NextPage = () => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Hero />
-      <PresaleNode />
-      <Ecological />
-      <PartnerApp />
-      <Footer />
-    </div>
+    //     <div className="flex flex-col min-h-screen">
+    //   <Hero />
+    //   <PresaleNode />
+    //   <Ecological />
+    //   <PartnerApp />
+    //   <Footer />
+    // </div>
+    <FigmaLanding />
   );
 };
 
