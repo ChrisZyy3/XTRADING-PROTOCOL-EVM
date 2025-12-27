@@ -77,7 +77,7 @@ export const Header = () => {
             <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-tcm-green">
+            <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-white">
               {t.hero.titleMain} {t.hero.titleAccent}
             </span>
           </div>

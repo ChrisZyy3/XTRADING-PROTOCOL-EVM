@@ -19,8 +19,8 @@ interface GlobalState {
 export const useGlobalState = create<GlobalState>()(
   persist(
     (set, get) => ({
-      language: "en",
-      t: translations.en,
+      language: "zh",
+      t: translations.zh,
       setLanguage: (lang: Language) => set({ language: lang, t: translations[lang] }),
       nativeCurrencyPrice: 0,
       setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
