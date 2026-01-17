@@ -19,11 +19,9 @@ interface GlobalState {
 export const useGlobalState = create<GlobalState>()(
   persist(
     (set, get) => ({
-      language: "en",
-      setLanguage: (lang: Language) => set({ language: lang }),
-      get t() {
-        return translations[get().language];
-      },
+      language: "zh",
+      t: translations.zh,
+      setLanguage: (lang: Language) => set({ language: lang, t: translations[lang] }),
       nativeCurrencyPrice: 0,
       setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
       targetNetwork: scaffoldConfig.targetNetworks[0],
@@ -32,6 +30,11 @@ export const useGlobalState = create<GlobalState>()(
     {
       name: "tcm-global-state",
       partialize: state => ({ language: state.language }),
+      onRehydrateStorage: () => state => {
+        if (state) {
+          state.t = translations[state.language];
+        }
+      },
     },
   ),
 );
