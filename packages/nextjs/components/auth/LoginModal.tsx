@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccount, useConnect } from "wagmi";
 import { useLogin, useRegister } from "~~/hooks/api/useAuth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -11,18 +10,7 @@ interface LoginModalProps {
 }
 
 export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
-  const { address: connectedAddress, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const [manualAddress, setManualAddress] = useState("");
-
-  // Decide which address to use: connected one or manually typed one
-  // If connected, we prefer the connected address and lock the input?
-  // User Requirement: "Includes login info... currently wallet address + password"
-  // So we should populate with connected address if available, but maybe allow edit if logic permits?
-  // For safety, if connected, let's use that one. If not, allow typing.
-  const targetAddress = isConnected ? connectedAddress : manualAddress;
 
   // Login State
   const { mutate: login, isPending: isLoginPending } = useLogin();
@@ -32,22 +20,23 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const { mutate: register, isPending: isRegisterPending } = useRegister();
   const [registerData, setRegisterData] = useState({
     username: "",
-    email: "",
     password: "",
+    refer: "",
   });
+  const [loginUsername, setLoginUsername] = useState("");
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setLoginPassword("");
-      setRegisterData({ username: "", email: "", password: "" });
-      setManualAddress("");
+      setRegisterData({ username: "", password: "", refer: "" });
+      setLoginUsername("");
     }
   }, [isOpen]);
 
   const handleLogin = () => {
-    if (!targetAddress) {
-      notification.error("Please enter your wallet address");
+    if (!loginUsername) {
+      notification.error("Please enter your username");
       return;
     }
     if (!loginPassword) {
@@ -56,7 +45,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     }
 
     login(
-      { address: targetAddress, password: loginPassword },
+      { username: loginUsername, password: loginPassword },
       {
         onSuccess: () => {
           onClose();
@@ -66,33 +55,21 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   };
 
   const handleRegister = () => {
-    if (!targetAddress) {
-      notification.error("Please enter your wallet address");
-      return;
-    }
-    if (!registerData.username || registerData.username.length <= 4) {
-      notification.error("Username must be longer than 4 characters");
+    if (!registerData.username || registerData.username.length <= 8) {
+      notification.error("Username must be longer than 8 characters");
       return;
     }
 
-    // Simple email regex for validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!registerData.email || !emailRegex.test(registerData.email)) {
-      notification.error("Please enter a valid email address");
-      return;
-    }
-
-    if (!registerData.password || registerData.password.length <= 6) {
-      notification.error("Password must be longer than 6 characters");
+    if (!registerData.password || registerData.password.length < 8) {
+      notification.error("Password must be at least 8 characters");
       return;
     }
 
     register(
       {
-        address: targetAddress,
         username: registerData.username,
-        email: registerData.email,
         password: registerData.password,
+        refer: registerData.refer, // Optional
       },
       {
         onSuccess: () => {
@@ -100,15 +77,6 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         },
       },
     );
-  };
-
-  const handleConnectWallet = () => {
-    // Try to connect with the first available connector (usually MetaMask/Injected)
-    // Or just open the rainbowkit modal?
-    // Since we replaced the button, we might need to invoke RainbowKit's modal programmatically if we want that experience.
-    // But here, let's just use standard wagmi connect for simplicity or ask user to connect.
-    const connector = connectors[0];
-    if (connector) connect({ connector });
   };
 
   if (!isOpen) return null;
@@ -149,37 +117,37 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
         {/* Content */}
         <div className="flex flex-col gap-4">
-          {/* Wallet Address Input */}
-          <div className="form-control">
-            <label className="label py-1">
-              <span className="label-text text-white/80 text-xs uppercase tracking-wider">Wallet Address</span>
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={targetAddress || ""}
-                onChange={e => !isConnected && setManualAddress(e.target.value)}
-                placeholder="0x..."
-                disabled={isConnected}
-                className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm pl-3 pr-10"
-              />
-            </div>
-          </div>
-
           {activeTab === "login" ? (
             // Login Form
-            <div className="form-control">
-              <label className="label py-1">
-                <span className="label-text text-white/80 text-xs uppercase tracking-wider">Password</span>
-              </label>
-              <input
-                type="password"
-                placeholder="Enter password"
-                className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                value={loginPassword}
-                onChange={e => setLoginPassword(e.target.value)}
-              />
-            </div>
+            <>
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">Username</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={loginUsername}
+                    onChange={e => setLoginUsername(e.target.value)}
+                    placeholder="Enter username"
+                    className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">Password</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter password"
+                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                />
+              </div>
+            </>
           ) : (
             // Register Form
             <>
@@ -189,34 +157,38 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Username"
+                  placeholder="Set username (min 9 chars)"
                   className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.username}
                   onChange={e => setRegisterData({ ...registerData, username: e.target.value })}
                 />
               </div>
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">Email</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={registerData.email}
-                  onChange={e => setRegisterData({ ...registerData, email: e.target.value })}
-                />
-              </div>
+
               <div className="form-control">
                 <label className="label py-1">
                   <span className="label-text text-white/80 text-xs uppercase tracking-wider">Password</span>
                 </label>
                 <input
                   type="password"
-                  placeholder="Set password"
+                  placeholder="Set password (min 8 chars)"
                   className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.password}
                   onChange={e => setRegisterData({ ...registerData, password: e.target.value })}
+                />
+              </div>
+
+              <div className="form-control">
+                <label className="label py-1">
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                    Referral Code (Optional)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Referral Address/Code"
+                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  value={registerData.refer}
+                  onChange={e => setRegisterData({ ...registerData, refer: e.target.value })}
                 />
               </div>
             </>
@@ -227,7 +199,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <button
                 className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
                 onClick={handleLogin}
-                disabled={isLoginPending || !targetAddress}
+                disabled={isLoginPending || !loginUsername}
               >
                 {isLoginPending ? "Logging in..." : "Login"}
               </button>
@@ -235,7 +207,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               <button
                 className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
                 onClick={handleRegister}
-                disabled={isRegisterPending || !targetAddress}
+                disabled={isRegisterPending || !registerData.username}
               >
                 {isRegisterPending ? "Creating Account..." : "Register"}
               </button>

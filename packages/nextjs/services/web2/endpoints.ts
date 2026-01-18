@@ -4,6 +4,7 @@ import {
   AuthResponse,
   BalanceResponse,
   BuyNodeRequest,
+  BuyNodeResponse,
   DepositAddressResponse,
   DividendOverviewResponse,
   DividendRecord,
@@ -14,7 +15,9 @@ import {
   RegisterRequest,
   TransferRecord,
   TransferRequest,
+  TransferResponse,
   WithdrawRequest,
+  WithdrawResponse,
 } from "~~/types/api";
 
 /**
@@ -38,7 +41,7 @@ export const assetEndpoints = {
     return apiClient.get("/balance");
   },
   // 链下转账
-  transfer: async (data: TransferRequest): Promise<ApiResponse<null>> => {
+  transfer: async (data: TransferRequest): Promise<ApiResponse<TransferResponse>> => {
     return apiClient.post("/transfer", data);
   },
   // 转账历史
@@ -56,7 +59,7 @@ export const nodeEndpoints = {
     return apiClient.get("/node/types");
   },
   // 购买节点
-  buyNode: async (data: BuyNodeRequest): Promise<ApiResponse<null>> => {
+  buyNode: async (data: BuyNodeRequest): Promise<ApiResponse<BuyNodeResponse>> => {
     return apiClient.post("/node/buy", data);
   },
   // 获取算力
@@ -74,7 +77,7 @@ export const paymentEndpoints = {
     return apiClient.post("/deposit/address");
   },
   // 申请提现
-  applyWithdraw: async (data: WithdrawRequest): Promise<ApiResponse<null>> => {
+  applyWithdraw: async (data: WithdrawRequest): Promise<ApiResponse<WithdrawResponse>> => {
     return apiClient.post("/withdraw/apply", data);
   },
 };

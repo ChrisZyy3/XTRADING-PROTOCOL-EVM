@@ -133,14 +133,16 @@ const NodesSection = () => {
       {/* Hashpower */}
       <div className="mb-6 p-4 bg-accent/10 rounded-lg border border-accent/20">
         <p>
-          <strong>Total Hashpower:</strong> {hashpower?.data?.total_hash_power || "0"}
+          <strong>Total Hashpower:</strong> {hashpower?.data?.total_hashpower || "0"}
         </p>
-        <p>
-          <strong>Effective Hashpower:</strong> {hashpower?.data?.effective_hash_power || "0"}
-        </p>
-        <p>
-          <strong>Node Hashpower:</strong> {hashpower?.data?.node_hash_power || "0"}
-        </p>
+        <div className="mt-2">
+          <strong>Node Details:</strong>
+          {hashpower?.data?.nodes?.map((node: any, idx: number) => (
+            <div key={idx} className="pl-4 text-xs">
+              {node.node_type}: {node.hashpower} (Count: {node.count})
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Node List */}
@@ -148,9 +150,9 @@ const NodesSection = () => {
         {nodeTypes?.data?.map((node: any) => (
           <div key={node.type} className="card bg-base-300 p-4 flex flex-col items-center">
             <h3 className="font-bold text-lg">{node.name}</h3>
-            <p className="text-sm my-2">Price: {node.usd_amount} USDT</p>
-            <p className="text-xs text-gray-400 mb-4">+ {node.hash_power} Hashpower</p>
-            <p className="text-xs text-warning mb-2">Locked: {node.tcm_locked} TCM</p>
+            <p className="text-sm my-2">Price: {node.price ? Number(node.price) / 1e18 : 0} USDT</p>
+            <p className="text-xs text-gray-400 mb-4">+ {node.hashpower} Hashpower</p>
+            <p className="text-xs text-warning mb-2">Locked: {node.tcm_locked || 0} TCM</p>
             <button
               className="btn btn-sm btn-accent w-full"
               onClick={() => buyNode({ node_type: node.type })}
@@ -174,7 +176,15 @@ const PaymentSection = () => {
 
   const handleWithdraw = () => {
     if (!withdrawAddr || !withdrawAmount) return;
-    withdraw({ to_address: withdrawAddr, amount: withdrawAmount });
+    withdraw(
+      { to_address: withdrawAddr, amount: withdrawAmount },
+      {
+        onSuccess: res => {
+          notification.success(`Withdraw successful! Tx: ${res.data.tx_hash.slice(0, 8)}...`);
+          // Could also show a modal or detailed status
+        },
+      },
+    );
   };
 
   return (
@@ -191,7 +201,8 @@ const PaymentSection = () => {
           {addrData?.data && (
             <div className="p-2 bg-black/50 rounded font-mono text-sm break-all">
               {addrData.data.address} <br />
-              <span className="text-xs text-gray-500">Chain: {addrData.data.chain}</span>
+              <span className="text-xs text-gray-500">Chain: {addrData.data.chain}</span> <br />
+              <span className="text-xs text-yellow-500">Memo: {addrData.data.memo}</span>
             </div>
           )}
         </div>
@@ -250,8 +261,8 @@ const DividendsSection = () => {
             <tr>
               <th>ID</th>
               <th>Amount</th>
-              <th>Token</th>
-              <th>Reason</th>
+              <th>Status</th>
+              <th>Time</th>
             </tr>
           </thead>
           <tbody>
@@ -259,8 +270,8 @@ const DividendsSection = () => {
               <tr key={record.id}>
                 <td>{record.id}</td>
                 <td>{record.amount}</td>
-                <td>{record.token_type}</td>
-                <td>{record.reason}</td>
+                <td>{record.status === 1 ? "Completed" : "Pending"}</td>
+                <td>{new Date(record.created_at).toLocaleString()}</td>
               </tr>
             ))}
           </tbody>

@@ -54,26 +54,30 @@ export interface AuthResponse {
  * 登录请求参数接口
  */
 export interface LoginRequest {
-  /** 钱包地址 */
-  address: string;
+  /** 用户名 */
+  username?: string;
   /** 密码 (明文) */
   password?: string;
   /** 签名 (未来支持钱包签名登录) */
   signature?: string;
+  /** 钱包地址 */
+  address?: string;
 }
 
 /**
  * 注册请求参数接口
  */
 export interface RegisterRequest {
-  /** 钱包地址 */
-  address: string;
   /** 用户名 */
   username: string;
-  /** 邮箱 */
-  email: string;
   /** 密码 */
   password?: string;
+  /** 推荐人地址 (可选) */
+  refer?: string;
+  /** 钱包地址 */
+  address?: string;
+  /** 邮箱 */
+  email?: string;
 }
 
 // --- 业务模块类型定义 ---
@@ -123,11 +127,11 @@ export interface TransferRecord {
 export interface NodeType {
   type: string; // 'genesis' | 'super' | 'city' | 'community'
   name: string;
-  usd_amount: string; // USDT 价格
-  tcm_locked: string; // 质押 TCM
-  hash_power: number; // 增加的算力 (number type based on JSON)
-  ref_reward: string;
-  swap_dividend: string;
+  price: string; // USDT 价格 (Wei)
+  tcm_locked?: string; // 质押 TCM (V2 docs didn't mention this, keeping optional or removing if confirmed removed? Docs kept implicit or removed? Docs only showed price, hashpower, dividend_rate. Keeping as optional for safety or strictly following docs? Docs: "code, message, data: [{type, name, price, hashpower, dividend_rate}]". refer_reward and swap_dividend seem gone too. Let's strictly follow V2 for data we USE, but keep others optional if code relies on them, OR update code. Let's update code to display what we have.)
+  // Let's stick to what V2 returns:
+  hashpower: number;
+  dividend_rate: number;
 }
 
 /**
@@ -138,16 +142,25 @@ export interface BuyNodeRequest {
 }
 
 /**
+ * 购买节点响应
+ */
+export interface BuyNodeResponse {
+  node_id: number;
+  node_type: string;
+  price: string;
+  hashpower: number;
+}
+
+/**
  * 算力信息响应
  */
 export interface HashpowerResponse {
-  id: number;
-  user_id: number;
-  total_hash_power: string;
-  effective_hash_power: string;
-  node_hash_power: string;
-  hold_hash_power: string;
-  updated_at: string;
+  total_hashpower: number;
+  nodes: {
+    node_type: string;
+    count: number;
+    hashpower: number;
+  }[];
 }
 
 /**
@@ -156,6 +169,7 @@ export interface HashpowerResponse {
 export interface DepositAddressResponse {
   address: string;
   chain: string; // e.g., 'ERC20' or 'TRC20'
+  memo: string; // Memo for deposit match (e.g. for CEX or specific bridge) - V2 addition
 }
 
 /**
@@ -167,13 +181,38 @@ export interface WithdrawRequest {
 }
 
 /**
+ * 提现申请响应
+ */
+export interface WithdrawResponse {
+  id: number;
+  to_address: string;
+  amount: string;
+  fee: string;
+  actual_amount: string;
+  status: number;
+  created_at: string;
+  tx_hash: string;
+}
+
+/**
+ * 转账响应
+ */
+export interface TransferResponse {
+  transaction_id: number;
+  from_address: string;
+  to_address: string;
+  amount: string;
+  burn_amount: string;
+  receive_amount: string;
+}
+
+/**
  * 分红记录
  */
 export interface DividendRecord {
   id: number;
   amount: string;
-  token_type: string; // 'TCM' or 'USDT'
-  reason: string;
+  status: number; // 0=pending?, 1=released?
   created_at: string;
 }
 
@@ -182,6 +221,6 @@ export interface DividendRecord {
  */
 export interface DividendOverviewResponse {
   dividend_count: number;
-  dividends: any[]; // 暂时 unknown，视具体 array 内容而定
+  dividends: DividendRecord[];
   pending_dividend: string;
 }

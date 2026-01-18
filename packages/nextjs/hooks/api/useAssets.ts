@@ -16,8 +16,9 @@ export const useTransfer = () => {
 
   return useMutation({
     mutationFn: (data: TransferRequest) => assetEndpoints.transfer(data),
-    onSuccess: () => {
-      notification.success("Transfer successful!");
+    onSuccess: response => {
+      const { burn_amount, receive_amount } = response.data;
+      notification.success(`Transfer successful! Burned: ${burn_amount}, Received: ${receive_amount}`);
       queryClient.invalidateQueries({ queryKey: ["balance"] });
       queryClient.invalidateQueries({ queryKey: ["transferHistory"] });
     },

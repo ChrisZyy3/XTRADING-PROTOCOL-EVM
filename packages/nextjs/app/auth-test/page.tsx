@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { NextPage } from "next";
 import { useLogin, useRegister } from "~~/hooks/api/useAuth";
 import { useAuthStore } from "~~/services/store/authStore";
+import { notification } from "~~/utils/scaffold-eth";
 
 const AuthTestPage: NextPage = () => {
   const { token, user, isAuthenticated, logout } = useAuthStore();
@@ -25,6 +26,10 @@ const AuthTestPage: NextPage = () => {
   };
 
   const handleRegister = () => {
+    if (formData.username.length <= 8) {
+      notification.error("Username must be longer than 8 characters");
+      return;
+    }
     register({
       address: formData.address,
       username: formData.username,
