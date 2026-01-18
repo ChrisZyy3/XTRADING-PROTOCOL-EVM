@@ -4160,6 +4160,7 @@ __metadata:
     "@types/node": ^18.19.50
     "@types/react": ^19.0.7
     abitype: 1.0.6
+    axios: ^1.13.2
     bgipfs: ^0.0.12
     blo: ^1.2.0
     burner-connector: 0.0.20
@@ -7893,7 +7894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.2":
+"axios@npm:^1.12.2, axios@npm:^1.13.2":
   version: 1.13.2
   resolution: "axios@npm:1.13.2"
   dependencies:
