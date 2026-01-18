@@ -1,25 +1,94 @@
 import { apiClient } from "~~/services/api/client";
-import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest } from "~~/types/api";
+import {
+  ApiResponse,
+  AuthResponse,
+  BalanceResponse,
+  BuyNodeRequest,
+  DepositAddressResponse,
+  DividendOverviewResponse,
+  DividendRecord,
+  HashpowerResponse,
+  LoginRequest,
+  NodeType,
+  PaginationResponse,
+  RegisterRequest,
+  TransferRecord,
+  TransferRequest,
+  WithdrawRequest,
+} from "~~/types/api";
 
 /**
  * 认证相关 API 接口封装
  */
 export const authEndpoints = {
-  /**
-   * 用户登录
-   * @param data 登录参数 (地址, 密码)
-   * @returns Promise<ApiResponse<AuthResponse>>
-   */
   login: async (data: LoginRequest): Promise<ApiResponse<AuthResponse>> => {
     return apiClient.post("/login", data);
   },
-
-  /**
-   * 用户注册
-   * @param data 注册参数 (地址, 用户名, 邮箱, 密码)
-   * @returns Promise<ApiResponse<AuthResponse>>
-   */
   register: async (data: RegisterRequest): Promise<ApiResponse<AuthResponse>> => {
     return apiClient.post("/register", data);
+  },
+};
+
+/**
+ * 资产相关 API
+ */
+export const assetEndpoints = {
+  // 获取余额
+  getBalance: async (): Promise<ApiResponse<BalanceResponse>> => {
+    return apiClient.get("/balance");
+  },
+  // 链下转账
+  transfer: async (data: TransferRequest): Promise<ApiResponse<null>> => {
+    return apiClient.post("/transfer", data);
+  },
+  // 转账历史
+  getTransferHistory: async (page = 1, pageSize = 10): Promise<ApiResponse<PaginationResponse<TransferRecord>>> => {
+    return apiClient.get("/transfer/history", { params: { page, pageSize } });
+  },
+};
+
+/**
+ * 节点与算力 API
+ */
+export const nodeEndpoints = {
+  // 获取节点类型
+  getNodeTypes: async (): Promise<ApiResponse<NodeType[]>> => {
+    return apiClient.get("/node/types");
+  },
+  // 购买节点
+  buyNode: async (data: BuyNodeRequest): Promise<ApiResponse<null>> => {
+    return apiClient.post("/node/buy", data);
+  },
+  // 获取算力
+  getHashpower: async (): Promise<ApiResponse<HashpowerResponse>> => {
+    return apiClient.get("/hashpower");
+  },
+};
+
+/**
+ * 充值与提现 API
+ */
+export const paymentEndpoints = {
+  // 获取充值地址
+  getDepositAddress: async (): Promise<ApiResponse<DepositAddressResponse>> => {
+    return apiClient.post("/deposit/address");
+  },
+  // 申请提现
+  applyWithdraw: async (data: WithdrawRequest): Promise<ApiResponse<null>> => {
+    return apiClient.post("/withdraw/apply", data);
+  },
+};
+
+/**
+ * 分红模块 API
+ */
+export const dividendEndpoints = {
+  // 查询分红概览
+  getDividend: async (): Promise<ApiResponse<DividendOverviewResponse>> => {
+    return apiClient.get("/dividend");
+  },
+  // 分红历史
+  getDividendHistory: async (page = 1, pageSize = 10): Promise<ApiResponse<PaginationResponse<DividendRecord>>> => {
+    return apiClient.get("/dividend/history", { params: { page, pageSize } });
   },
 };

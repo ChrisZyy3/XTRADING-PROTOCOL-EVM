@@ -14,6 +14,16 @@ export interface ApiResponse<T = any> {
 }
 
 /**
+ * 分页响应数据接口
+ */
+export interface PaginationResponse<T> {
+  list: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/**
  * 认证响应数据接口
  */
 export interface AuthResponse {
@@ -64,4 +74,114 @@ export interface RegisterRequest {
   email: string;
   /** 密码 */
   password?: string;
+}
+
+// --- 业务模块类型定义 ---
+
+/**
+ * 余额响应接口
+ */
+export interface BalanceResponse {
+  /** TCM 余额 */
+  tcm_balance: string;
+  /** USDT 余额 */
+  usdt_balance: string;
+  /** 锁仓 TCM */
+  locked_tcm: string;
+}
+
+/**
+ * 转账请求参数 (链下)
+ */
+export interface TransferRequest {
+  /** 接收方地址 */
+  to_address: string;
+  /** 金额 (18位小数的整数形字符串) */
+  amount: string;
+  /** 备注 */
+  memo?: string;
+}
+
+/**
+ * 转账记录详情
+ */
+export interface TransferRecord {
+  id: number;
+  from_address: string;
+  to_address: string;
+  amount: string;
+  actual_amount: string; // 扣除手续费后的实际到账
+  fee: string; // 手续费
+  memo?: string;
+  status: number; // 1: 成功, 0: 失败
+  created_at: string;
+}
+
+/**
+ * 节点类型信息
+ */
+export interface NodeType {
+  type: string; // 'genesis' | 'super' | 'city' | 'community'
+  name: string;
+  usd_amount: string; // USDT 价格
+  tcm_locked: string; // 质押 TCM
+  hash_power: number; // 增加的算力 (number type based on JSON)
+  ref_reward: string;
+  swap_dividend: string;
+}
+
+/**
+ * 购买节点请求
+ */
+export interface BuyNodeRequest {
+  node_type: string;
+}
+
+/**
+ * 算力信息响应
+ */
+export interface HashpowerResponse {
+  id: number;
+  user_id: number;
+  total_hash_power: string;
+  effective_hash_power: string;
+  node_hash_power: string;
+  hold_hash_power: string;
+  updated_at: string;
+}
+
+/**
+ * 充值地址响应
+ */
+export interface DepositAddressResponse {
+  address: string;
+  chain: string; // e.g., 'ERC20' or 'TRC20'
+}
+
+/**
+ * 提现申请请求
+ */
+export interface WithdrawRequest {
+  to_address: string;
+  amount: string;
+}
+
+/**
+ * 分红记录
+ */
+export interface DividendRecord {
+  id: number;
+  amount: string;
+  token_type: string; // 'TCM' or 'USDT'
+  reason: string;
+  created_at: string;
+}
+
+/**
+ * 分红页面概览响应
+ */
+export interface DividendOverviewResponse {
+  dividend_count: number;
+  dividends: any[]; // 暂时 unknown，视具体 array 内容而定
+  pending_dividend: string;
 }

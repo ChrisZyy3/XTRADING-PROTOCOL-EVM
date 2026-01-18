@@ -1,7 +1,32 @@
+import { useState } from "react";
+import { LoginModal } from "~~/components/auth/LoginModal";
+import { useBuyNode, useNodeTypes } from "~~/hooks/api/useNodes";
+import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
+import { notification } from "~~/utils/scaffold-eth";
 
 export const PresaleNode = () => {
-  const { t } = useGlobalState();
+  const { t, language } = useGlobalState();
+  const { data: nodeTypes, isLoading } = useNodeTypes();
+  const { mutate: buyNode, isPending: isBuying } = useBuyNode();
+  const { isAuthenticated } = useAuthStore();
+
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [buyingNodeType, setBuyingNodeType] = useState<string | null>(null);
+
+  const handleBuy = (nodeType: string) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    setBuyingNodeType(nodeType);
+    buyNode(
+      { node_type: nodeType },
+      {
+        onSettled: () => setBuyingNodeType(null),
+      },
+    );
+  };
 
   return (
     <div id="presale" className="w-full py-16">
@@ -15,44 +40,56 @@ export const PresaleNode = () => {
         </div>
 
         <div className="grid gap-8">
-          {t.presale.list.map((item, index) => (
-            <div
-              key={index}
-              className="rounded-2xl bg-[#061F19] border-[3px] border-[#203731] shadow-[0_12px_30px_rgba(0,0,0,0.4)] overflow-hidden"
-            >
-              <div className="bg-[#27E903] text-black uppercase text-xs md:text-sm font-bold tracking-[0.2em] px-6 py-3 grid grid-cols-4 text-center">
-                <span>{t.presale.cols.dip}</span>
-                <span>{t.presale.cols.power}</span>
-                <span>{t.presale.cols.tc}</span>
-                <span>{t.presale.cols.price}</span>
-              </div>
-
-              <div className="px-6 py-6">
-                <div className="grid grid-cols-4 text-sm md:text-base text-center">
-                  <span className="text-[#27E903] font-semibold">{item.dip}</span>
-                  <span>{item.power}</span>
-                  <span>{item.tc}</span>
-                  <span>{item.price}</span>
+          {isLoading ? (
+            <div className="text-center text-white/50">Loading Nodes...</div>
+          ) : (
+            nodeTypes?.data?.map((item: any, index: number) => (
+              <div
+                key={index}
+                className="rounded-2xl bg-[#061F19] border-[3px] border-[#203731] shadow-[0_12px_30px_rgba(0,0,0,0.4)] overflow-hidden"
+              >
+                <div className="bg-[#27E903] text-black uppercase text-xs md:text-sm font-bold tracking-[0.2em] px-6 py-3 grid grid-cols-4 text-center">
+                  <span>DID</span>
+                  <span>POWER</span>
+                  <span>TC</span>
+                  <span>PRICE (U)</span>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between gap-6 bg-[#0A1813] p-2 rounded-xl">
-                  <div className="flex-1 flex flex-col gap-2 min-w-0">
-                    <span className="text-xs text-gray-500 tracking-widest uppercase text-left">
-                      {t.presale.progress}
+                <div className="px-6 py-6">
+                  <div className="grid grid-cols-4 text-sm md:text-base text-center text-white">
+                    <span className="text-[#27E903] font-semibold uppercase">
+                      {language === "zh" ? item.name : item.type}
                     </span>
-                    <div className="w-full h-2 rounded-full bg-[repeating-linear-gradient(135deg,_#0b1512_0,_#0b1512_6px,_#101c17_6px,_#101c17_12px)] border border-[#142721] overflow-hidden">
-                      <div className="h-full bg-[#27E903] w-[60%]"></div>
-                    </div>
+                    <span>{item.hash_power}</span>
+                    <span>{item.tcm_locked}</span>
+                    <span>{item.usd_amount}</span>
                   </div>
-                  <button className="flex-shrink-0 bg-[#27E903] text-black font-bold px-8 py-3 rounded-md shadow-[0_0_12px_rgba(74,222,128,0.6)]">
-                    {t.presale.cols.buy}
-                  </button>
+
+                  <div className="mt-6 flex items-center justify-between gap-6 bg-[#0A1813] p-2 rounded-xl">
+                    <div className="flex-1 flex flex-col gap-2 min-w-0 invisible">
+                      {/* Progress Hidden as per request */}
+                      <span className="text-xs text-gray-500 tracking-widest uppercase text-left">
+                        {t.presale.progress}
+                      </span>
+                      <div className="w-full h-2 rounded-full bg-[#101c17] border border-[#142721] overflow-hidden">
+                        <div className="h-full bg-[#27E903] w-[0%]"></div>
+                      </div>
+                    </div>
+                    <button
+                      className="flex-shrink-0 bg-[#27E903] hover:bg-[#27E903]/80 text-black font-bold px-8 py-3 rounded-md shadow-[0_0_12px_rgba(74,222,128,0.6)] disabled:bg-gray-600 disabled:text-gray-400"
+                      onClick={() => handleBuy(item.type)}
+                      disabled={isBuying && buyingNodeType === item.type}
+                    >
+                      {isBuying && buyingNodeType === item.type ? "BUYING..." : t.presale.cols.buy}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );
 };

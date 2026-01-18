@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { ChevronLeftIcon, CubeIcon, Square2StackIcon, UsersIcon } from "@heroicons/react/24/outline";
+import { useBalance } from "~~/hooks/api/useAssets";
 import { useGlobalState } from "~~/services/store/store";
 
 export default function WalletPage() {
   const { t } = useGlobalState();
+  const { data: balanceData, isLoading } = useBalance();
+
+  const usdtBalance = balanceData?.data?.usdt_balance || "0.00";
+  const tcmBalance = balanceData?.data?.tcm_balance || "0.00";
 
   return (
     <div className="flex flex-col flex-grow w-full bg-[#051113] min-h-screen px-4 py-6">
@@ -27,7 +32,9 @@ export default function WalletPage() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[#4ADE80] font-bold text-xl">100.00</div>
+              <div className="text-[#4ADE80] font-bold text-xl">
+                {isLoading ? <span className="loading loading-spinner loading-xs"></span> : usdtBalance}
+              </div>
             </div>
           </div>
         </div>
@@ -41,7 +48,9 @@ export default function WalletPage() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white font-bold text-xl">100.00</div>
+              <div className="text-white font-bold text-xl">
+                {isLoading ? <span className="loading loading-spinner loading-xs"></span> : tcmBalance}
+              </div>
             </div>
           </div>
         </div>
