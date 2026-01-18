@@ -10,6 +10,7 @@ export const translations = {
     nav: {
       team: "Team",
       wallet: "Wallet",
+      transfer: "Transfer",
     },
     wallet: {
       title: "Wallet",
@@ -105,6 +106,7 @@ export const translations = {
     nav: {
       team: "团队",
       wallet: "钱包",
+      transfer: "转账",
     },
     wallet: {
       title: "钱包",
