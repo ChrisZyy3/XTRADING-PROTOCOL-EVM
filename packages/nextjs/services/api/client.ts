@@ -3,7 +3,7 @@ import { useAuthStore } from "~~/services/store/authStore";
 import { notification } from "~~/utils/scaffold-eth";
 
 // 从环境变量读取 API 基础路径，默认 fallback 到 localhost
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8081/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://103.47.82.211:8081/api/v1";
 
 /**
  * 创建 Axios 实例，配置基础 URL 和请求头
