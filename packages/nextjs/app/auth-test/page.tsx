@@ -33,7 +33,6 @@ const AuthTestPage: NextPage = () => {
     register({
       address: formData.address,
       username: formData.username,
-      email: formData.email,
       password: formData.password,
     });
   };

@@ -30,6 +30,10 @@ export const authEndpoints = {
   register: async (data: RegisterRequest): Promise<ApiResponse<AuthResponse>> => {
     return apiClient.post("/register", data);
   },
+  // 获取用户资料
+  getProfile: async (): Promise<ApiResponse<AuthResponse["user"]>> => {
+    return apiClient.get("/user/profile");
+  },
 };
 
 /**
@@ -74,7 +78,7 @@ export const nodeEndpoints = {
 export const paymentEndpoints = {
   // 获取充值地址
   getDepositAddress: async (): Promise<ApiResponse<DepositAddressResponse>> => {
-    return apiClient.post("/deposit/address");
+    return apiClient.get("/deposit/address");
   },
   // 申请提现
   applyWithdraw: async (data: WithdrawRequest): Promise<ApiResponse<WithdrawResponse>> => {

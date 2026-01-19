@@ -31,14 +31,10 @@ export interface AuthResponse {
   token: string;
   /** 用户信息 */
   user: {
-    /** 用户ID */
-    id: number;
-    /** 钱包地址 */
+    /** 钱包地址 (主键) */
     address: string;
     /** 用户名 */
-    username?: string;
-    /** 邮箱 */
-    email?: string;
+    username: string;
     /** 随机数 */
     nonce?: number;
     /** 状态 */
@@ -75,9 +71,7 @@ export interface RegisterRequest {
   /** 推荐人地址 (可选) */
   refer?: string;
   /** 钱包地址 */
-  address?: string;
-  /** 邮箱 */
-  email?: string;
+  address?: string; // 实际上注册时后端会自动从 chain 获取或生成，或者通过参数传？Doc says register body needs username, password, refer. Address is in response.
 }
 
 // --- 业务模块类型定义 ---
@@ -124,14 +118,19 @@ export interface TransferRecord {
 /**
  * 节点类型信息
  */
+/**
+ * 节点类型信息
+ */
 export interface NodeType {
   type: string; // 'genesis' | 'super' | 'city' | 'community'
   name: string;
-  price: string; // USDT 价格 (Wei)
-  tcm_locked?: string; // 质押 TCM (V2 docs didn't mention this, keeping optional or removing if confirmed removed? Docs kept implicit or removed? Docs only showed price, hashpower, dividend_rate. Keeping as optional for safety or strictly following docs? Docs: "code, message, data: [{type, name, price, hashpower, dividend_rate}]". refer_reward and swap_dividend seem gone too. Let's strictly follow V2 for data we USE, but keep others optional if code relies on them, OR update code. Let's update code to display what we have.)
-  // Let's stick to what V2 returns:
-  hashpower: number;
-  dividend_rate: number;
+  usd_amount: string; // V4: price renamed to usd_amount
+  tcm_locked: string; // V4: restored
+  hash_power: number; // V4: renamed from hashpower
+  ref_reward: string; // V4: new
+  swap_dividend: string; // V4: new
+  price?: string; // Compat: keep optional if needed or remove if confident
+  hashpower?: number; // Compat
 }
 
 /**
@@ -168,8 +167,8 @@ export interface HashpowerResponse {
  */
 export interface DepositAddressResponse {
   address: string;
-  chain: string; // e.g., 'ERC20' or 'TRC20'
-  memo: string; // Memo for deposit match (e.g. for CEX or specific bridge) - V2 addition
+  // chain removed in V3 docs example
+  memo?: string; // V3 示例有 memo
 }
 
 /**

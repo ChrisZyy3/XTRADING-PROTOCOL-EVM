@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { formatEther } from "viem";
 import { LoginModal } from "~~/components/auth/LoginModal";
 import { useBuyNode, useNodeTypes } from "~~/hooks/api/useNodes";
 import { useAuthStore } from "~~/services/store/authStore";
@@ -60,9 +59,9 @@ export const PresaleNode = () => {
                     <span className="text-[#27E903] font-semibold uppercase">
                       {language === "zh" ? item.name : item.type}
                     </span>
-                    <span>{item.hashpower}</span>
+                    <span>{item.hash_power || item.hashpower}</span>
                     <span>{item.tcm_locked || "-"}</span>
-                    <span>{item.price ? formatEther(BigInt(item.price)) : "0"}</span>
+                    <span>{item.usd_amount || item.price || "0"}</span>
                   </div>
 
                   <div className="mt-6 flex items-center justify-between gap-6 bg-[#0A1813] p-2 rounded-xl">

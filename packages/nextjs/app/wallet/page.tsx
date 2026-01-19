@@ -1,16 +1,33 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeftIcon, CubeIcon, Square2StackIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { useBalance } from "~~/hooks/api/useAssets";
+import { useUserProfile } from "~~/hooks/api/useAuth";
+import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
+import { notification } from "~~/utils/scaffold-eth";
 
 export default function WalletPage() {
+  const { user } = useAuthStore();
   const { t } = useGlobalState();
   const { data: balanceData, isLoading } = useBalance();
+  const { mutate: fetchProfile } = useUserProfile();
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const usdtBalance = balanceData?.data?.usdt_balance || "0.00";
   const tcmBalance = balanceData?.data?.tcm_balance || "0.00";
+
+  const copyAddress = () => {
+    if (user?.address) {
+      navigator.clipboard.writeText(user.address);
+      notification.success("Address copied!");
+    }
+  };
 
   return (
     <div className="flex flex-col flex-grow w-full bg-[#051113] min-h-screen px-4 py-6">
@@ -21,6 +38,26 @@ export default function WalletPage() {
             <ChevronLeftIcon className="w-5 h-5" />
           </Link>
           <h1 className="text-2xl font-bold text-white">{t.wallet.title}</h1>
+        </div>
+
+        {/* Profile Card */}
+        <div className="card bg-[#09181a] border border-white/10 shadow-sm mb-6">
+          <div className="card-body p-4">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-full bg-[#27E903]/20 flex items-center justify-center text-[#27E903]">
+                <UsersIcon className="w-6 h-6" />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <h2 className="text-lg font-bold text-white truncate">{user?.username || "Guest"}</h2>
+                <div className="flex items-center gap-2 text-gray-400 text-xs">
+                  <span className="truncate">{user?.address || "No Address"}</span>
+                  <button onClick={copyAddress} className="btn btn-ghost btn-xs text-[#27E903] p-0 min-h-0 h-auto">
+                    <Square2StackIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* USDT Card */}

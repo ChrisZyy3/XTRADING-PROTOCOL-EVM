@@ -54,3 +54,19 @@ export const useRegister = () => {
     },
   });
 };
+
+/**
+ * 获取用户资料 Hook
+ */
+export const useUserProfile = () => {
+  const { setAuth, token } = useAuthStore();
+
+  return useMutation({
+    mutationFn: () => authEndpoints.getProfile(),
+    onSuccess: response => {
+      if (token) {
+        setAuth({ token, user: response.data });
+      }
+    },
+  });
+};

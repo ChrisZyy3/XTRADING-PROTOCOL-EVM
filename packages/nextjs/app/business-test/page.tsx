@@ -201,7 +201,6 @@ const PaymentSection = () => {
           {addrData?.data && (
             <div className="p-2 bg-black/50 rounded font-mono text-sm break-all">
               {addrData.data.address} <br />
-              <span className="text-xs text-gray-500">Chain: {addrData.data.chain}</span> <br />
               <span className="text-xs text-yellow-500">Memo: {addrData.data.memo}</span>
             </div>
           )}

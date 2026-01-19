@@ -38,7 +38,9 @@ export const AuthButton = () => {
         </div>
         <div className="flex flex-col items-start hidden sm:flex">
           <span className="text-xs font-bold">{user?.username || "User"}</span>
-          <span className="text-[10px] opacity-70">ID: {user?.id}</span>
+          <span className="text-[10px] opacity-70">
+            Addr: {user?.address?.slice(0, 6)}...{user?.address?.slice(-4)}
+          </span>
         </div>
       </label>
       <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40">

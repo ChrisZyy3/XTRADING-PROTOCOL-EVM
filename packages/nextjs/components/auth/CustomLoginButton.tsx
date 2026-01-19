@@ -22,7 +22,9 @@ export const CustomLoginButton = () => {
           </div>
           <div className="flex flex-col items-start hidden sm:flex">
             <span className="text-xs font-bold text-white">{user.username || "User"}</span>
-            <span className="text-[10px] text-gray-400">ID: {user.id}</span>
+            <span className="text-[10px] text-gray-400">
+              {user.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : ""}
+            </span>
           </div>
         </label>
         <ul
