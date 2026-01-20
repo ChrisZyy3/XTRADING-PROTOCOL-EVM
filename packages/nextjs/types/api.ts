@@ -80,12 +80,18 @@ export interface RegisterRequest {
  * 余额响应接口
  */
 export interface BalanceResponse {
-  /** TCM 余额 */
+  /** 记录ID */
+  id: number;
+  /** 区块链地址 */
+  address: string;
+  /** TCM 余额 (wei单位,18位小数) */
   tcm_balance: string;
   /** USDT 余额 */
   usdt_balance: string;
   /** 锁仓 TCM */
   locked_tcm: string;
+  /** 更新时间 */
+  updated_at: string;
 }
 
 /**
@@ -104,15 +110,28 @@ export interface TransferRequest {
  * 转账记录详情
  */
 export interface TransferRecord {
+  /** 交易ID */
   id: number;
+  /** 发送方地址 */
   from_address: string;
+  /** 接收方地址 */
   to_address: string;
+  /** 转账金额 (wei单位) */
   amount: string;
-  actual_amount: string; // 扣除手续费后的实际到账
-  fee: string; // 手续费
+  /** 销毁金额 (20%) */
+  burn_amount: string;
+  /** 实际到账金额 (80%) */
+  receive_amount: string;
+  /** 交易类型: transfer=转账, deposit=充值, withdraw=提现 */
+  tx_type: string;
+  /** 状态: 0=pending, 1=completed, 2=failed */
+  status: number;
+  /** 转账备注 */
   memo?: string;
-  status: number; // 1: 成功, 0: 失败
+  /** 创建时间 */
   created_at: string;
+  /** 更新时间 */
+  updated_at: string;
 }
 
 /**
@@ -141,25 +160,49 @@ export interface BuyNodeRequest {
 }
 
 /**
- * 购买节点响应
+ * 购买节点响应 / 节点记录
  */
 export interface BuyNodeResponse {
-  node_id: number;
+  /** 节点ID */
+  id: number;
+  /** 拥有者地址 */
+  address: string;
+  /** 节点类型: genesis, super, city, community */
   node_type: string;
-  price: string;
-  hashpower: number;
+  /** 支付的美元金额 */
+  usd_amount: string;
+  /** 锁仓的TCM数量 */
+  tcm_locked: string;
+  /** 算力值 */
+  hash_power: string;
+  /** 下线节点数量 */
+  ref_count: number;
+  /** 状态: 1=激活, 0=过期 */
+  status: number;
+  /** 过期时间 (2年有效期) */
+  expires_at: string;
+  /** 创建时间 */
+  created_at: string;
 }
 
 /**
  * 算力信息响应
  */
 export interface HashpowerResponse {
-  total_hashpower: number;
-  nodes: {
-    node_type: string;
-    count: number;
-    hashpower: number;
-  }[];
+  /** 记录ID */
+  id: number;
+  /** 区块链地址 */
+  address: string;
+  /** 总算力 */
+  total_hash_power: string;
+  /** 有效算力 */
+  effective_hash_power: string;
+  /** 节点算力 */
+  node_hash_power: string;
+  /** 持币算力 */
+  hold_hash_power: string;
+  /** 更新时间 */
+  updated_at: string;
 }
 
 /**
@@ -183,14 +226,16 @@ export interface WithdrawRequest {
  * 提现申请响应
  */
 export interface WithdrawResponse {
-  id: number;
-  to_address: string;
-  amount: string;
-  fee: string;
-  actual_amount: string;
-  status: number;
-  created_at: string;
+  /** 提现记录ID */
+  withdraw_id: number;
+  /** 链上交易哈希 */
   tx_hash: string;
+  /** 提现金额 (wei单位) */
+  amount: string;
+  /** 手续费 (10%) */
+  fee: string;
+  /** 实际到账金额 */
+  actual_amount: string;
 }
 
 /**
@@ -209,10 +254,20 @@ export interface TransferResponse {
  * 分红记录
  */
 export interface DividendRecord {
+  /** 分红记录ID */
   id: number;
+  /** 用户地址 */
+  address: string;
+  /** 分红金额 (wei单位) */
   amount: string;
-  status: number; // 0=pending?, 1=released?
+  /** 分红类型: hash_power=算力分红, hold=持币分红, swap=Swap分红, ref=推荐奖励 */
+  dividend_type: string;
+  /** 状态: 0=未领取, 1=已领取 */
+  status: number;
+  /** 创建时间 */
   created_at: string;
+  /** 更新时间 */
+  updated_at: string;
 }
 
 /**
@@ -222,4 +277,38 @@ export interface DividendOverviewResponse {
   dividend_count: number;
   dividends: DividendRecord[];
   pending_dividend: string;
+}
+
+/**
+ * 节点记录 (用于节点列表和算力历史)
+ * 与 BuyNodeResponse 结构相同
+ */
+export type NodeRecord = BuyNodeResponse;
+
+/**
+ * 提现历史记录
+ */
+export interface WithdrawRecord {
+  /** 提现记录ID */
+  id: number;
+  /** 提现用户地址 */
+  address: string;
+  /** 接收地址 */
+  to_address: string;
+  /** 提现金额 (wei单位) */
+  amount: string;
+  /** 手续费 (10%) */
+  fee: string;
+  /** 实际到账金额 */
+  actual_amount: string;
+  /** 链上交易哈希 */
+  tx_hash: string;
+  /** 状态: 0=pending, 1=processing, 2=completed, 3=failed */
+  status: number;
+  /** 处理时间 */
+  processed_at: string;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
 }

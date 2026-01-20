@@ -7,7 +7,8 @@ export const useBalance = () => {
   return useQuery({
     queryKey: ["balance"],
     queryFn: () => assetEndpoints.getBalance(),
-    refetchInterval: 10000, // Refresh every 10s
+    // 移除自动刷新,避免持续调用接口
+    // refetchInterval: 10000, // Refresh every 10s
   });
 };
 

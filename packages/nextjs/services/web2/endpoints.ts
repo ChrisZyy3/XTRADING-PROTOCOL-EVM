@@ -10,12 +10,14 @@ import {
   DividendRecord,
   HashpowerResponse,
   LoginRequest,
+  NodeRecord,
   NodeType,
   PaginationResponse,
   RegisterRequest,
   TransferRecord,
   TransferRequest,
   TransferResponse,
+  WithdrawRecord,
   WithdrawRequest,
   WithdrawResponse,
 } from "~~/types/api";
@@ -66,9 +68,17 @@ export const nodeEndpoints = {
   buyNode: async (data: BuyNodeRequest): Promise<ApiResponse<BuyNodeResponse>> => {
     return apiClient.post("/node/buy", data);
   },
+  // 获取我的节点列表
+  getNodeList: async (): Promise<ApiResponse<NodeRecord[]>> => {
+    return apiClient.get("/node/list");
+  },
   // 获取算力
   getHashpower: async (): Promise<ApiResponse<HashpowerResponse>> => {
     return apiClient.get("/hashpower");
+  },
+  // 算力历史 (节点购买历史)
+  getHashpowerHistory: async (page = 1, pageSize = 10): Promise<ApiResponse<PaginationResponse<NodeRecord>>> => {
+    return apiClient.get("/hashpower/history", { params: { page, pageSize } });
   },
 };
 
@@ -76,13 +86,17 @@ export const nodeEndpoints = {
  * 充值与提现 API
  */
 export const paymentEndpoints = {
-  // 获取充值地址
+  // 获取充值地址 (POST 方法)
   getDepositAddress: async (): Promise<ApiResponse<DepositAddressResponse>> => {
-    return apiClient.get("/deposit/address");
+    return apiClient.post("/deposit/address");
   },
   // 申请提现
   applyWithdraw: async (data: WithdrawRequest): Promise<ApiResponse<WithdrawResponse>> => {
     return apiClient.post("/withdraw/apply", data);
+  },
+  // 提现历史
+  getWithdrawHistory: async (): Promise<ApiResponse<WithdrawRecord[]>> => {
+    return apiClient.get("/withdraw/history");
   },
 };
 

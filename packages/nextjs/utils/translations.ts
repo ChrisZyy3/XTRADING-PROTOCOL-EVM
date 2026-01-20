@@ -94,6 +94,34 @@ export const translations = {
       description: "The page you're looking for doesn't exist.",
       action: "Go Home",
     },
+    auth: {
+      // 登录弹窗标题 (Login modal titles)
+      welcomeBack: "Welcome Back",
+      createAccount: "Create Account",
+      // 标签页 (Tabs)
+      login: "Login",
+      register: "Register",
+      // 表单标签 (Form labels)
+      username: "USERNAME",
+      password: "PASSWORD",
+      referralCode: "Referral Code (Optional)",
+      // 占位符 (Placeholders)
+      enterUsername: "Enter username",
+      enterPassword: "Enter password",
+      setUsername: "Set username (min 9 chars)",
+      setPassword: "Set password (min 8 chars)",
+      referralAddress: "Referral Address/Code",
+      // 按钮文本 (Button text)
+      loginButton: "Login",
+      registerButton: "Register",
+      loggingIn: "Logging in...",
+      creatingAccount: "Creating Account...",
+      // 验证消息 (Validation messages)
+      pleaseEnterUsername: "Please enter your username",
+      pleaseEnterPassword: "Please enter your password",
+      usernameTooShort: "Username must be longer than 8 characters",
+      passwordTooShort: "Password must be at least 8 characters",
+    },
   },
   zh: {
     hero: {
@@ -189,6 +217,34 @@ export const translations = {
       title: "Page Not Found",
       description: "您访问的页面不存在。",
       action: "返回首页",
+    },
+    auth: {
+      // 登录弹窗标题 (Login modal titles)
+      welcomeBack: "欢迎回来",
+      createAccount: "创建账户",
+      // 标签页 (Tabs)
+      login: "登录",
+      register: "注册",
+      // 表单标签 (Form labels)
+      username: "用户名",
+      password: "密码",
+      referralCode: "推荐码 (可选)",
+      // 占位符 (Placeholders)
+      enterUsername: "输入用户名",
+      enterPassword: "输入密码",
+      setUsername: "设置用户名 (最少9个字符)",
+      setPassword: "设置密码 (最少8个字符)",
+      referralAddress: "推荐地址/推荐码",
+      // 按钮文本 (Button text)
+      loginButton: "登录",
+      registerButton: "注册",
+      loggingIn: "登录中...",
+      creatingAccount: "创建账户中...",
+      // 验证消息 (Validation messages)
+      pleaseEnterUsername: "请输入用户名",
+      pleaseEnterPassword: "请输入密码",
+      usernameTooShort: "用户名必须超过8个字符",
+      passwordTooShort: "密码必须至少8个字符",
     },
   },
 };

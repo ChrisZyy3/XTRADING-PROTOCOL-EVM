@@ -4,11 +4,9 @@ import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { hardhat } from "viem/chains";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import { CustomLoginButton } from "~~/components/auth/CustomLoginButton";
-import { FaucetButton } from "~~/components/scaffold-eth";
-import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 
 export const HeaderMenuLinks = () => {
@@ -47,8 +45,6 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
-  const { targetNetwork } = useTargetNetwork();
-  const isLocalNetwork = targetNetwork.id === hardhat.id;
   const { language, setLanguage, t } = useGlobalState();
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
@@ -126,9 +122,6 @@ export const Header = () => {
             </li>
           </ul>
         </div>
-
-        {/* Faucet (Local only) */}
-        {isLocalNetwork && <FaucetButton />}
 
         {/* Hamburger Menu (Mobile Only) - Moved to End */}
         <details className="dropdown dropdown-end" ref={burgerMenuRef}>

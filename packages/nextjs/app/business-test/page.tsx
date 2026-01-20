@@ -132,16 +132,19 @@ const NodesSection = () => {
 
       {/* Hashpower */}
       <div className="mb-6 p-4 bg-accent/10 rounded-lg border border-accent/20">
-        <p>
-          <strong>Total Hashpower:</strong> {hashpower?.data?.total_hashpower || "0"}
-        </p>
-        <div className="mt-2">
-          <strong>Node Details:</strong>
-          {hashpower?.data?.nodes?.map((node: any, idx: number) => (
-            <div key={idx} className="pl-4 text-xs">
-              {node.node_type}: {node.hashpower} (Count: {node.count})
-            </div>
-          ))}
+        <div className="grid grid-cols-2 gap-2">
+          <p>
+            <strong>Total Hashpower:</strong> {hashpower?.data?.total_hash_power || "0"}
+          </p>
+          <p>
+            <strong>Effective Hashpower:</strong> {hashpower?.data?.effective_hash_power || "0"}
+          </p>
+          <p>
+            <strong>Node Hashpower:</strong> {hashpower?.data?.node_hash_power || "0"}
+          </p>
+          <p>
+            <strong>Hold Hashpower:</strong> {hashpower?.data?.hold_hash_power || "0"}
+          </p>
         </div>
       </div>
 
@@ -150,8 +153,8 @@ const NodesSection = () => {
         {nodeTypes?.data?.map((node: any) => (
           <div key={node.type} className="card bg-base-300 p-4 flex flex-col items-center">
             <h3 className="font-bold text-lg">{node.name}</h3>
-            <p className="text-sm my-2">Price: {node.price ? Number(node.price) / 1e18 : 0} USDT</p>
-            <p className="text-xs text-gray-400 mb-4">+ {node.hashpower} Hashpower</p>
+            <p className="text-sm my-2">Price: {node.usd_amount || 0} USD</p>
+            <p className="text-xs text-gray-400 mb-4">+ {node.hash_power} Hashpower</p>
             <p className="text-xs text-warning mb-2">Locked: {node.tcm_locked || 0} TCM</p>
             <button
               className="btn btn-sm btn-accent w-full"
