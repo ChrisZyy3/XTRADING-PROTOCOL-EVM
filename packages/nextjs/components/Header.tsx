@@ -17,6 +17,7 @@ export const HeaderMenuLinks = () => {
     { label: t.nav.team, href: "/team" },
     { label: t.nav.wallet, href: "/wallet" },
     { label: t.nav.transfer, href: "/transfer" },
+    { label: t.nav.deposit, href: "/deposit" },
   ];
 
   return (

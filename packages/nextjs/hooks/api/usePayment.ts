@@ -23,3 +23,14 @@ export const useWithdraw = () => {
     },
   });
 };
+
+/**
+ * 获取提现历史 Hook
+ * Get withdraw history hook
+ */
+export const useWithdrawHistory = () => {
+  return useQuery({
+    queryKey: ["withdrawHistory"],
+    queryFn: () => paymentEndpoints.getWithdrawHistory(),
+  });
+};
