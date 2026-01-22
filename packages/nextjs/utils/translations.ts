@@ -12,6 +12,10 @@ export const translations = {
       wallet: "Wallet",
       transfer: "Transfer",
       deposit: "Deposit",
+      dividend: "Dividend",
+    },
+    header: {
+      refresh: "Refresh",
     },
     wallet: {
       title: "Wallet",
@@ -56,6 +60,10 @@ export const translations = {
       },
       progress: "PROGRESS",
       loading: "LOADING",
+      confirmTitle: "Confirm Purchase",
+      confirmDesc: "Confirm to purchase node:",
+      confirmCancel: "Cancel",
+      confirmOk: "Confirm",
     },
     ecological: {
       title: "/ ECOLOGICAL",
@@ -122,9 +130,11 @@ export const translations = {
       pleaseEnterPassword: "Please enter your password",
       usernameTooShort: "Username must be longer than 8 characters",
       passwordTooShort: "Password must be at least 8 characters",
+      logoutSuccess: "Logged out successfully",
     },
     deposit: {
       title: "Deposit & Withdraw",
+      loginPrompt: "Please log in to access deposit and withdraw features.",
       depositSection: {
         title: "Deposit",
         getAddress: "Get Deposit Address",
@@ -162,6 +172,27 @@ export const translations = {
         statusFailed: "Failed",
       },
     },
+    dividend: {
+      title: "Dividends",
+      loginPrompt: "Please log in to view dividends.",
+      loading: "Loading...",
+      overview: {
+        title: "Overview",
+        count: "Dividend Count",
+        pending: "Pending Dividend",
+      },
+      history: {
+        title: "Dividend History",
+        id: "ID",
+        type: "Type",
+        amount: "Amount",
+        status: "Status",
+        time: "Time",
+        noData: "No dividend history",
+        statusPending: "Pending",
+        statusCompleted: "Completed",
+      },
+    },
   },
   zh: {
     hero: {
@@ -176,6 +207,10 @@ export const translations = {
       wallet: "钱包",
       transfer: "转账",
       deposit: "充值",
+      dividend: "分红",
+    },
+    header: {
+      refresh: "刷新",
     },
     wallet: {
       title: "钱包",
@@ -220,6 +255,10 @@ export const translations = {
       },
       progress: "PROGRESS",
       loading: "加载中",
+      confirmTitle: "确认购买",
+      confirmDesc: "确认购买节点：",
+      confirmCancel: "取消",
+      confirmOk: "确认",
     },
     ecological: {
       title: "/ ECOLOGICAL",
@@ -286,9 +325,11 @@ export const translations = {
       pleaseEnterPassword: "请输入密码",
       usernameTooShort: "用户名必须超过8个字符",
       passwordTooShort: "密码必须至少8个字符",
+      logoutSuccess: "退出登录成功",
     },
     deposit: {
       title: "充值与提现",
+      loginPrompt: "请先登录后使用充值和提现功能",
       depositSection: {
         title: "充值",
         getAddress: "获取充值地址",
@@ -324,6 +365,27 @@ export const translations = {
         statusProcessing: "处理中",
         statusCompleted: "已完成",
         statusFailed: "失败",
+      },
+    },
+    dividend: {
+      title: "分红",
+      loginPrompt: "请先登录后查看分红",
+      loading: "加载中...",
+      overview: {
+        title: "分红概览",
+        count: "分红次数",
+        pending: "待领取分红",
+      },
+      history: {
+        title: "分红历史",
+        id: "ID",
+        type: "类型",
+        amount: "金额",
+        status: "状态",
+        time: "时间",
+        noData: "暂无分红记录",
+        statusPending: "待领取",
+        statusCompleted: "已领取",
       },
     },
   },

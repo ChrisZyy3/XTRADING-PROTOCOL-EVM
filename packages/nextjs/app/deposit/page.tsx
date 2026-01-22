@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useDepositAddress, useWithdraw, useWithdrawHistory } from "~~/hooks/api/usePayment";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
@@ -9,13 +10,22 @@ import { notification } from "~~/utils/scaffold-eth";
 export default function DepositPage() {
   const { isAuthenticated } = useAuthStore();
   const { t } = useGlobalState();
+  const queryClient = useQueryClient();
+  const wasAuthenticated = useRef(isAuthenticated);
+
+  useEffect(() => {
+    if (wasAuthenticated.current && !isAuthenticated) {
+      queryClient.removeQueries({ queryKey: ["withdrawHistory"] });
+    }
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated, queryClient]);
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <h1 className="text-4xl font-bold mb-8 text-center text-[#39FF14]">{t.deposit.title}</h1>
 
       {!isAuthenticated ? (
-        <div className="text-center text-xl text-gray-500">{t.auth.pleaseEnterUsername}</div>
+        <div className="text-center text-xl text-gray-500">{t.deposit.loginPrompt}</div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <DepositSection />

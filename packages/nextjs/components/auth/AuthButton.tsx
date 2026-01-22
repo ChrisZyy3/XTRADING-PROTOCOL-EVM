@@ -2,19 +2,30 @@
 
 import { useState } from "react";
 import { LoginModal } from "./LoginModal";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useAuthStore } from "~~/services/store/authStore";
+import { useGlobalState } from "~~/services/store/store";
+import { notification } from "~~/utils/scaffold-eth";
 
 export const AuthButton = () => {
   const { address } = useAccount();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { t } = useGlobalState();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // If wallet not connected, don't show anything (Header handles wallet connect)
   if (!address) {
     return null;
   }
+
+  const handleLogout = () => {
+    logout();
+    queryClient.clear();
+    notification.success(t.auth.logoutSuccess);
+  };
 
   // If wallet connected but not authenticated with backend
   if (!isAuthenticated) {
@@ -45,7 +56,7 @@ export const AuthButton = () => {
       </label>
       <ul tabIndex={0} className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-40">
         <li>
-          <a onClick={() => logout()} className="text-error">
+          <a onClick={handleLogout} className="text-error">
             <ArrowRightOnRectangleIcon className="w-4 h-4" />
             Logout
           </a>

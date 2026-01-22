@@ -10,6 +10,13 @@ export const useNodeTypes = () => {
   });
 };
 
+export const useNodeStock = () => {
+  return useQuery({
+    queryKey: ["node-stock"],
+    queryFn: () => nodeEndpoints.getNodeStock(),
+  });
+};
+
 export const useBuyNode = () => {
   const queryClient = useQueryClient();
 

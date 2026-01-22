@@ -18,6 +18,7 @@ export const HeaderMenuLinks = () => {
     { label: t.nav.wallet, href: "/wallet" },
     { label: t.nav.transfer, href: "/transfer" },
     { label: t.nav.deposit, href: "/deposit" },
+    { label: t.nav.dividend, href: "/dividend" },
   ];
 
   return (
@@ -47,7 +48,6 @@ export const HeaderMenuLinks = () => {
  */
 export const Header = () => {
   const { language, setLanguage, t } = useGlobalState();
-
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
   useOutsideClick(burgerMenuRef, () => {

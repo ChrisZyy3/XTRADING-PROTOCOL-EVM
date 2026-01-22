@@ -11,6 +11,7 @@ import {
   HashpowerResponse,
   LoginRequest,
   NodeRecord,
+  NodeStockResponse,
   NodeType,
   PaginationResponse,
   RegisterRequest,
@@ -65,6 +66,9 @@ export const nodeEndpoints = {
     return apiClient.get("/node/types");
   },
   // 购买节点
+  getNodeStock: async (): Promise<ApiResponse<NodeStockResponse>> => {
+    return apiClient.get("/node/stock");
+  },
   buyNode: async (data: BuyNodeRequest): Promise<ApiResponse<BuyNodeResponse>> => {
     return apiClient.post("/node/buy", data);
   },

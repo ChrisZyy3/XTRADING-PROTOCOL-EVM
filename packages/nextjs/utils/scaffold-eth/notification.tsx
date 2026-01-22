@@ -62,7 +62,7 @@ const Notification = ({
       </div>
     ),
     {
-      duration: status === "loading" ? Infinity : duration,
+      duration,
       position,
     },
   );

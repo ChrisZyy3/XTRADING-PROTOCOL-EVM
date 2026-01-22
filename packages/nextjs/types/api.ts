@@ -79,20 +79,20 @@ export interface RegisterRequest {
 /**
  * 余额响应接口
  */
-export interface BalanceResponse {
-  /** 记录ID */
+export interface BalanceInfo {
   id: number;
-  /** 区块链地址 */
   address: string;
-  /** TCM 余额 (wei单位,18位小数) */
   tcm_balance: string;
-  /** USDT 余额 */
   usdt_balance: string;
-  /** 锁仓 TCM */
   locked_tcm: string;
-  /** 更新时间 */
+  pool_injected_tcm?: string;
   updated_at: string;
 }
+
+export type BalanceResponse = Partial<BalanceInfo> & {
+  balance?: BalanceInfo;
+  on_chain_tcm_balance?: string;
+};
 
 /**
  * 转账请求参数 (链下)
@@ -155,6 +155,20 @@ export interface NodeType {
 /**
  * 购买节点请求
  */
+export interface NodeStockByType {
+  type: string;
+  total: number;
+  sold: number;
+  remaining: number;
+}
+
+export interface NodeStockResponse {
+  total: number;
+  sold: number;
+  remaining: number;
+  by_type: NodeStockByType[];
+}
+
 export interface BuyNodeRequest {
   node_type: string;
 }

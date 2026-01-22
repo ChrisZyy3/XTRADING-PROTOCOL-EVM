@@ -41,6 +41,7 @@ const AssetsSection = () => {
 
   const [transferTo, setTransferTo] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
+  const balance = balanceData?.data?.balance ?? balanceData?.data;
 
   const handleTransfer = () => {
     if (!transferTo || !transferAmount) return;
@@ -55,15 +56,15 @@ const AssetsSection = () => {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="stat bg-black/30 rounded-lg">
           <div className="stat-title">TCM Balance</div>
-          <div className="stat-value text-primary">{balanceData?.data?.tcm_balance || "0"}</div>
+          <div className="stat-value text-primary">{balance?.tcm_balance || "0"}</div>
         </div>
         <div className="stat bg-black/30 rounded-lg">
           <div className="stat-title">USDT Balance</div>
-          <div className="stat-value text-success">{balanceData?.data?.usdt_balance || "0"}</div>
+          <div className="stat-value text-success">{balance?.usdt_balance || "0"}</div>
         </div>
         <div className="stat bg-black/30 rounded-lg">
           <div className="stat-title">Locked TCM</div>
-          <div className="stat-value text-warning">{balanceData?.data?.locked_tcm || "0"}</div>
+          <div className="stat-value text-warning">{balance?.locked_tcm || "0"}</div>
         </div>
       </div>
 

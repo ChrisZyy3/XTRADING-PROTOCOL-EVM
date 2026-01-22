@@ -2,15 +2,26 @@
 
 import { useState } from "react";
 import { LoginModal } from "./LoginModal";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useConnect } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useAuthStore } from "~~/services/store/authStore";
+import { useGlobalState } from "~~/services/store/store";
+import { notification } from "~~/utils/scaffold-eth";
 
 export const CustomLoginButton = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const { t } = useGlobalState();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    queryClient.clear();
+    notification.success(t.auth.logoutSuccess);
+  };
 
   // If authenticated, show User Profile (similar to previous AuthButton)
   if (isAuthenticated && user) {
@@ -32,7 +43,7 @@ export const CustomLoginButton = () => {
           className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-black rounded-box w-40 border border-white/10"
         >
           <li>
-            <a onClick={() => logout()} className="text-error hover:bg-white/5">
+            <a onClick={handleLogout} className="text-error hover:bg-white/5">
               <ArrowRightOnRectangleIcon className="w-4 h-4" />
               Logout
             </a>

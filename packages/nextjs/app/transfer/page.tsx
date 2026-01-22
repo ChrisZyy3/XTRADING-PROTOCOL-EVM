@@ -1,23 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronLeftIcon, ClockIcon, PaperAirplaneIcon, WalletIcon } from "@heroicons/react/24/outline";
+import { useQueryClient } from "@tanstack/react-query";
+import { ArrowPathIcon, ChevronLeftIcon, ClockIcon, PaperAirplaneIcon, WalletIcon } from "@heroicons/react/24/outline";
 import { useBalance, useTransfer, useTransferHistory } from "~~/hooks/api/useAssets";
+import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export default function TransferPage() {
   const { t } = useGlobalState();
+  const { isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
   const { data: balanceData, isLoading: isBalanceLoading } = useBalance();
   const { mutate: transfer, isPending: isTransferPending } = useTransfer();
   const { data: historyData, isLoading: isHistoryLoading } = useTransferHistory(1, 10);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
 
-  const tcmBalance = balanceData?.data?.tcm_balance || "0.00";
-  const usdtBalance = balanceData?.data?.usdt_balance || "0.00";
+  const balance = balanceData?.data?.balance ?? balanceData?.data;
+  const tcmBalance = balance?.tcm_balance || "0.00";
+  const usdtBalance = balance?.usdt_balance || "0.00";
+  const wasAuthenticated = useRef(isAuthenticated);
+
+  useEffect(() => {
+    if (!wasAuthenticated.current && isAuthenticated) {
+      queryClient.invalidateQueries({ queryKey: ["balance"] });
+      queryClient.invalidateQueries({ queryKey: ["transferHistory"] });
+    }
+    if (wasAuthenticated.current && !isAuthenticated) {
+      queryClient.removeQueries({ queryKey: ["balance"] });
+      queryClient.removeQueries({ queryKey: ["transferHistory"] });
+      setToAddress("");
+      setAmount("");
+    }
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated, queryClient]);
+
+  const handleRefresh = async () => {
+    if (!isAuthenticated) {
+      notification.error(t.deposit.loginPrompt);
+      return;
+    }
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["balance"] }),
+        queryClient.refetchQueries({ queryKey: ["transferHistory"] }),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const handleTransfer = () => {
     if (!toAddress || !amount) {
@@ -32,16 +70,27 @@ export default function TransferPage() {
     <div className="flex flex-col flex-grow w-full bg-[#051113] min-h-screen px-4 py-6 font-sans text-white">
       <div className="max-w-2xl mx-auto w-full space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link
-            href="/"
-            className="btn btn-circle btn-ghost btn-sm bg-[#121c1e] text-white hover:bg-[#1a2628] border border-white/5"
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="btn btn-circle btn-ghost btn-sm bg-[#121c1e] text-white hover:bg-[#1a2628] border border-white/5"
+            >
+              <ChevronLeftIcon className="w-5 h-5" />
+            </Link>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              Transfer Assets
+            </h1>
+          </div>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            className="btn btn-ghost btn-circle bg-[#121c1e] text-white hover:bg-[#1a2628] border border-white/5"
+            aria-label={t.header.refresh}
+            title={t.header.refresh}
           >
-            <ChevronLeftIcon className="w-5 h-5" />
-          </Link>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Transfer Assets
-          </h1>
+            <ArrowPathIcon className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`} />
+          </button>
         </div>
 
         {/* Balance Cards */}

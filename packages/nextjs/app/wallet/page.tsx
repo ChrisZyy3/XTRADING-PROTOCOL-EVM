@@ -1,26 +1,63 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeftIcon, CubeIcon, Square2StackIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { useBalance } from "~~/hooks/api/useAssets";
 import { useUserProfile } from "~~/hooks/api/useAuth";
+import { useNodeList } from "~~/hooks/api/useNode";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export default function WalletPage() {
-  const { user } = useAuthStore();
-  const { t } = useGlobalState();
+  const { user, isAuthenticated } = useAuthStore();
+  const { t, language } = useGlobalState();
+  const queryClient = useQueryClient();
+  const wasAuthenticated = useRef(isAuthenticated);
   const { data: balanceData, isLoading } = useBalance();
+  const { data: nodeData, isLoading: isNodeLoading } = useNodeList();
   const { mutate: fetchProfile } = useUserProfile();
 
   useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
+    if (isAuthenticated) {
+      fetchProfile();
+    }
+  }, [fetchProfile, isAuthenticated]);
 
-  const usdtBalance = balanceData?.data?.usdt_balance || "0.00";
-  const tcmBalance = balanceData?.data?.tcm_balance || "0.00";
+  useEffect(() => {
+    if (wasAuthenticated.current && !isAuthenticated) {
+      queryClient.removeQueries({ queryKey: ["balance"] });
+      queryClient.removeQueries({ queryKey: ["node-list"] });
+    }
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated, queryClient]);
+
+  const balance = balanceData?.data?.balance ?? balanceData?.data;
+  const usdtBalance = balance?.usdt_balance || "0.00";
+  const tcmBalance = balance?.tcm_balance || "0.00";
+
+  // Get the first active node (or handle multiple if design allows, currently assuming single summary)
+  const firstNode = nodeData?.data?.[0];
+
+  // Calculate total referral count across all nodes
+  const totalRefCount = nodeData?.data?.reduce((acc, curr) => acc + curr.ref_count, 0) || 0;
+
+  // Format node type display
+  const displayNodeType = firstNode
+    ? language === "zh"
+      ? firstNode.node_type === "genesis"
+        ? "创世节点"
+        : firstNode.node_type === "super"
+          ? "超级节点"
+          : firstNode.node_type === "city"
+            ? "城市节点"
+            : firstNode.node_type === "community"
+              ? "社区节点"
+              : firstNode.node_type
+      : firstNode.node_type.charAt(0).toUpperCase() + firstNode.node_type.slice(1) + " Node"
+    : t.wallet.assets.node;
 
   const copyAddress = () => {
     if (user?.address) {
@@ -101,7 +138,9 @@ export default function WalletPage() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white font-bold">{t.wallet.assets.node}</div>
+              <div className="text-white font-bold">
+                {isNodeLoading ? <span className="loading loading-spinner loading-xs"></span> : displayNodeType}
+              </div>
             </div>
           </div>
         </div>
@@ -115,7 +154,9 @@ export default function WalletPage() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white font-bold text-xl">10</div>
+              <div className="text-white font-bold text-xl">
+                {isNodeLoading ? <span className="loading loading-spinner loading-xs"></span> : totalRefCount}
+              </div>
             </div>
           </div>
         </div>
