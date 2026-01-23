@@ -39,3 +39,10 @@ export const useHashpower = () => {
     queryFn: () => nodeEndpoints.getHashpower(),
   });
 };
+
+export const useHashpowerHistory = (page = 1, pageSize = 10) => {
+  return useQuery({
+    queryKey: ["hashpowerHistory", page, pageSize],
+    queryFn: () => nodeEndpoints.getHashpowerHistory(page, pageSize),
+  });
+};

@@ -13,9 +13,29 @@ export const translations = {
       transfer: "Transfer",
       deposit: "Deposit",
       dividend: "Dividend",
+      hashpower: "Hashpower",
     },
     header: {
       refresh: "Refresh",
+    },
+    hashpower: {
+      title: "Hashpower",
+      loginPrompt: "Please log in to view hashpower.",
+      stats: {
+        total: "Total Hashpower",
+        effective: "Effective Hashpower",
+        node: "Node Hashpower",
+        hold: "Hold Hashpower",
+      },
+      history: {
+        title: "Hashpower History",
+        id: "ID",
+        type: "Type",
+        amount: "Amount",
+        status: "Status",
+        time: "Time",
+        noData: "No hashpower history",
+      },
     },
     wallet: {
       title: "Wallet",
@@ -196,8 +216,8 @@ export const translations = {
   },
   zh: {
     hero: {
-      titleMain: "TCM",
-      titleAccent: "Protocol",
+      titleMain: "XTrading-Protocol",
+      titleAccent: "",
       badge: "WEB3 - RWA",
       subtitle: "Wallet payement mining protocol",
       description: "Wallet payement mining protocol",
@@ -208,9 +228,29 @@ export const translations = {
       transfer: "转账",
       deposit: "充值",
       dividend: "分红",
+      hashpower: "算力",
     },
     header: {
       refresh: "刷新",
+    },
+    hashpower: {
+      title: "算力",
+      loginPrompt: "请先登录后查看算力",
+      stats: {
+        total: "总算力",
+        effective: "有效算力",
+        node: "节点算力",
+        hold: "持币算力",
+      },
+      history: {
+        title: "算力历史",
+        id: "ID",
+        type: "类型",
+        amount: "数额",
+        status: "状态",
+        time: "时间",
+        noData: "暂无算力记录",
+      },
     },
     wallet: {
       title: "钱包",
