@@ -48,9 +48,9 @@ export const AuthButton = () => {
           <UserCircleIcon className="w-5 h-5 text-primary" />
         </div>
         <div className="flex flex-col items-start hidden sm:flex">
-          <span className="text-xs font-bold">{user?.username || "User"}</span>
+          <span className="text-xs font-bold">{user?.void_account || "User"}</span>
           <span className="text-[10px] opacity-70">
-            Addr: {user?.address?.slice(0, 6)}...{user?.address?.slice(-4)}
+            Addr: {user?.void_address?.slice(0, 6)}...{user?.void_address?.slice(-4)}
           </span>
         </div>
       </label>

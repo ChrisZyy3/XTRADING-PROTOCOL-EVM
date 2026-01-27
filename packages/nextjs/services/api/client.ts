@@ -3,7 +3,7 @@ import { useAuthStore } from "~~/services/store/authStore";
 import { notification } from "~~/utils/scaffold-eth";
 
 // 从环境变量读取 API 基础路径，默认 fallback 到 localhost
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://103.47.82.211:8081/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://103.47.82.211:8080/api/v1";
 
 /**
  * 创建 Axios 实例，配置基础 URL 和请求头
@@ -43,8 +43,8 @@ apiClient.interceptors.response.use(
     // 我们直接返回 response.data 给调用方，方便使用
     const res = response.data;
 
-    // 检查业务状态码 (非 200 视为错误)
-    if (res.code !== 200) {
+    // 检查业务状态码 (0 视为成功)
+    if (res.code !== 0) {
       notification.error(res.message || "Request Error");
       return Promise.reject(new Error(res.message || "Error"));
     }

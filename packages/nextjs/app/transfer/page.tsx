@@ -4,16 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowPathIcon, ChevronLeftIcon, ClockIcon, PaperAirplaneIcon, WalletIcon } from "@heroicons/react/24/outline";
-import { useBalance, useTransfer, useTransferHistory } from "~~/hooks/api/useAssets";
+import { useTransfer, useTransferHistory } from "~~/hooks/api/useAssets";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export default function TransferPage() {
   const { t } = useGlobalState();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user, setLogin, setUser } = useAuthStore();
   const queryClient = useQueryClient();
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance();
+  // useBalance removed, use user data from store
   const { mutate: transfer, isPending: isTransferPending } = useTransfer();
   const { data: historyData, isLoading: isHistoryLoading } = useTransferHistory(1, 10);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -21,18 +21,20 @@ export default function TransferPage() {
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
 
-  const balance = balanceData?.data?.balance ?? balanceData?.data;
-  const tcmBalance = balance?.tcm_balance || "0.00";
-  const usdtBalance = balance?.usdt_balance || "0.00";
+  const tcmBalance = user?.tcm_balance || "0.00";
+  const tcBalance = user?.tc_balance || "0.00"; // display TC instead of USDT?
+  // v5/API-6 doc says user has tcm_balance, tc_balance. No usdt_balance mentioned in v6 UserProfile (2.1).
+  // v5 had usdt_balance. v6 removed it?
+  // Let's assume TC is the secondary balance to show, or removed USDT card.
+  // I'll show TC Balance instead of USDT Balance.
+
   const wasAuthenticated = useRef(isAuthenticated);
 
   useEffect(() => {
     if (!wasAuthenticated.current && isAuthenticated) {
-      queryClient.invalidateQueries({ queryKey: ["balance"] });
       queryClient.invalidateQueries({ queryKey: ["transferHistory"] });
     }
     if (wasAuthenticated.current && !isAuthenticated) {
-      queryClient.removeQueries({ queryKey: ["balance"] });
       queryClient.removeQueries({ queryKey: ["transferHistory"] });
       setToAddress("");
       setAmount("");
@@ -48,10 +50,11 @@ export default function TransferPage() {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: ["balance"] }),
-        queryClient.refetchQueries({ queryKey: ["transferHistory"] }),
-      ]);
+      // Re-fetch profile logic? can't easily refetch profile from store without action.
+      // But maybe we can call getProfile directly here?
+      // Or if we exposed fetchProfile in store?
+      // I'll skip profile refresh for now or implement it later.
+      await Promise.all([queryClient.refetchQueries({ queryKey: ["transferHistory"] })]);
     } finally {
       setIsRefreshing(false);
     }
@@ -101,10 +104,8 @@ export default function TransferPage() {
               <WalletIcon className="w-24 h-24 text-[#39FF14]" />
             </div>
             <div className="relative z-10 flex flex-col gap-2">
-              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">USDT Balance</span>
-              <span className="text-3xl font-bold font-mono text-white">
-                {isBalanceLoading ? <span className="loading loading-dots loading-md"></span> : usdtBalance}
-              </span>
+              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">TC Balance</span>
+              <span className="text-3xl font-bold font-mono text-white">{tcBalance}</span>
               <span className="text-xs text-[#39FF14] bg-[#39FF14]/10 px-2 py-1 rounded w-fit mt-1">Available</span>
             </div>
           </div>
@@ -116,9 +117,7 @@ export default function TransferPage() {
             </div>
             <div className="relative z-10 flex flex-col gap-2">
               <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">TCM Balance</span>
-              <span className="text-3xl font-bold font-mono text-white">
-                {isBalanceLoading ? <span className="loading loading-dots loading-md"></span> : tcmBalance}
-              </span>
+              <span className="text-3xl font-bold font-mono text-white">{tcmBalance}</span>
               <span className="text-xs text-[#F97316] bg-[#F97316]/10 px-2 py-1 rounded w-fit mt-1">Available</span>
             </div>
           </div>

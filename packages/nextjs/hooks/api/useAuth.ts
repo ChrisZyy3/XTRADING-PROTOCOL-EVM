@@ -9,7 +9,8 @@ import { notification } from "~~/utils/scaffold-eth";
  * 使用 useMutation 处理登录请求
  */
 export const useLogin = () => {
-  const setAuth = useAuthStore(state => state.setAuth);
+  const setLogin = useAuthStore(state => state.setLogin);
+  const setUser = useAuthStore(state => state.setUser);
 
   return useMutation({
     /**
@@ -21,8 +22,17 @@ export const useLogin = () => {
      * 成功回调
      * 保存 auth 信息到全局 store，并弹出提示
      */
-    onSuccess: response => {
-      setAuth(response.data);
+    onSuccess: async response => {
+      // Set token and basic info
+      setLogin(response.data.token, response.data.address);
+
+      // Fetch full profile immediately
+      try {
+        const profileRes = await authEndpoints.getProfile();
+        setUser(profileRes.data);
+      } catch (e) {
+        console.error("Failed to fetch profile after login", e);
+      }
       notification.success("Login successful!");
     },
     onError: (error: any) => {
@@ -36,7 +46,8 @@ export const useLogin = () => {
  * 注册 Hook
  */
 export const useRegister = () => {
-  const setAuth = useAuthStore(state => state.setAuth);
+  const setLogin = useAuthStore(state => state.setLogin);
+  const setUser = useAuthStore(state => state.setUser);
 
   return useMutation({
     /**
@@ -44,9 +55,17 @@ export const useRegister = () => {
      * @param data RegisterRequest
      */
     mutationFn: (data: RegisterRequest) => authEndpoints.register(data),
-    onSuccess: response => {
+    onSuccess: async response => {
       // 注册成功后直接自动登录
-      setAuth(response.data);
+      setLogin(response.data.token, response.data.address);
+
+      // Fetch full profile immediately
+      try {
+        const profileRes = await authEndpoints.getProfile();
+        setUser(profileRes.data);
+      } catch (e) {
+        console.error("Failed to fetch profile after register", e);
+      }
       notification.success("Registration successful!");
     },
     onError: (error: any) => {
@@ -55,17 +74,15 @@ export const useRegister = () => {
   });
 };
 
-/**
- * 获取用户资料 Hook
- */
 export const useUserProfile = () => {
-  const { setAuth, token } = useAuthStore();
+  const setUser = useAuthStore(state => state.setUser);
+  const token = useAuthStore(state => state.token);
 
   return useMutation({
     mutationFn: () => authEndpoints.getProfile(),
     onSuccess: response => {
       if (token) {
-        setAuth({ token, user: response.data });
+        setUser(response.data);
       }
     },
   });

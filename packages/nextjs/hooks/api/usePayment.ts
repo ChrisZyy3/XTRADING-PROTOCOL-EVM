@@ -1,22 +1,50 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { paymentEndpoints } from "~~/services/web2/endpoints";
-import { WithdrawRequest } from "~~/types/api";
+import { withdrawEndpoints } from "~~/services/web2/endpoints";
+import { InjectPoolRequest, WithdrawRequest } from "~~/types/api";
 import { notification } from "~~/utils/scaffold-eth";
 
-export const useDepositAddress = () => {
-  return useMutation({
-    mutationFn: () => paymentEndpoints.getDepositAddress(),
+// Removed useDepositAddress as it is obsolete.
+
+/**
+ * Check Injection Status
+ */
+export const useInjectionStatus = () => {
+  return useQuery({
+    queryKey: ["injectionStatus"],
+    queryFn: () => withdrawEndpoints.getInjectionStatus(),
   });
 };
 
-export const useWithdraw = () => {
+/**
+ * Inject Pool
+ */
+export const useInjectPool = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: WithdrawRequest) => paymentEndpoints.applyWithdraw(data),
+    mutationFn: (data: InjectPoolRequest) => withdrawEndpoints.injectPool(data),
     onSuccess: () => {
-      notification.success("Withdrawal application submitted!");
-      queryClient.invalidateQueries({ queryKey: ["balance"] });
+      notification.success("Injection successful!");
+      queryClient.invalidateQueries({ queryKey: ["injectionStatus"] });
+      // Balance changed
+    },
+    onError: (error: any) => {
+      console.error("Injection failed", error);
+    },
+  });
+};
+
+/**
+ * Request Withdraw (Step 2)
+ */
+export const useRequestWithdraw = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: WithdrawRequest) => withdrawEndpoints.requestWithdraw(data),
+    onSuccess: () => {
+      notification.success("Withdrawal request submitted!");
+      queryClient.invalidateQueries({ queryKey: ["withdrawHistory"] });
     },
     onError: (error: any) => {
       console.error("Withdraw failed", error);
@@ -25,12 +53,11 @@ export const useWithdraw = () => {
 };
 
 /**
- * 获取提现历史 Hook
  * Get withdraw history hook
  */
-export const useWithdrawHistory = () => {
+export const useWithdrawHistory = (page = 1, limit = 20) => {
   return useQuery({
-    queryKey: ["withdrawHistory"],
-    queryFn: () => paymentEndpoints.getWithdrawHistory(),
+    queryKey: ["withdrawHistory", page, limit],
+    queryFn: () => withdrawEndpoints.getHistory(page, limit),
   });
 };

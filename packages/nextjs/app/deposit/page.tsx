@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDepositAddress, useWithdraw, useWithdrawHistory } from "~~/hooks/api/usePayment";
+import { ArrowPathIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { useInjectPool, useInjectionStatus, useRequestWithdraw, useWithdrawHistory } from "~~/hooks/api/usePayment";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export default function DepositPage() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { t } = useGlobalState();
   const queryClient = useQueryClient();
   const wasAuthenticated = useRef(isAuthenticated);
@@ -16,6 +17,10 @@ export default function DepositPage() {
   useEffect(() => {
     if (wasAuthenticated.current && !isAuthenticated) {
       queryClient.removeQueries({ queryKey: ["withdrawHistory"] });
+      queryClient.removeQueries({ queryKey: ["injectionStatus"] });
+    }
+    if (!wasAuthenticated.current && isAuthenticated) {
+      queryClient.invalidateQueries({ queryKey: ["injectionStatus"] });
     }
     wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, queryClient]);
@@ -28,8 +33,12 @@ export default function DepositPage() {
         <div className="text-center text-xl text-gray-500">{t.deposit.loginPrompt}</div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <DepositSection />
+          {/* Deposit Section now just shows user address */}
+          <DepositAddressSection userAddress={user?.void_address || ""} />
+
+          {/* Withdraw Section handles Injection + Withdraw Request */}
           <WithdrawSection />
+
           <div className="lg:col-span-2">
             <WithdrawHistorySection />
           </div>
@@ -39,18 +48,13 @@ export default function DepositPage() {
   );
 }
 
-/**
- * 充值区域组件 - Deposit Section
- * 显示充值地址和复制功能
- */
-const DepositSection = () => {
+const DepositAddressSection = ({ userAddress }: { userAddress: string }) => {
   const { t } = useGlobalState();
-  const { mutate: getAddress, data: addressData, isPending } = useDepositAddress();
   const [copied, setCopied] = useState(false);
 
-  const handleCopyAddress = () => {
-    if (addressData?.data?.address) {
-      navigator.clipboard.writeText(addressData.data.address);
+  const handleCopy = () => {
+    if (userAddress) {
+      navigator.clipboard.writeText(userAddress);
       setCopied(true);
       notification.success(t.deposit.depositSection.copied);
       setTimeout(() => setCopied(false), 2000);
@@ -60,234 +64,193 @@ const DepositSection = () => {
   return (
     <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
       <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.depositSection.title}</h2>
+      <p className="mb-4 text-gray-400 text-sm">Transfer TCM to your address to deposit.</p>
 
-      {!addressData ? (
-        <button
-          className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold"
-          onClick={() => getAddress()}
-          disabled={isPending}
-        >
-          {isPending ? "..." : t.deposit.depositSection.getAddress}
-        </button>
-      ) : (
-        <div className="space-y-4">
-          <div>
-            <label className="label">
-              <span className="label-text text-white/80">{t.deposit.depositSection.yourAddress}</span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={addressData.data.address}
-                readOnly
-                className="input input-bordered flex-1 bg-black/50 border-white/10 text-white font-mono text-sm"
-              />
-              <button
-                className="btn btn-square bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none"
-                onClick={handleCopyAddress}
-              >
-                {copied ? "✓" : "📋"}
-              </button>
-            </div>
-          </div>
-
-          {addressData.data.memo && (
-            <div className="alert alert-warning bg-yellow-500/10 border-yellow-500/20">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <div>
-                <div className="font-bold">{t.deposit.depositSection.memo}</div>
-                <div className="text-sm">{addressData.data.memo}</div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-/**
- * 提现区域组件 - Withdraw Section
- * 提现表单,包含地址、金额输入和手续费计算
- */
-const WithdrawSection = () => {
-  const { t } = useGlobalState();
-  const { mutate: withdraw, isPending } = useWithdraw();
-  const [toAddress, setToAddress] = useState("");
-  const [amount, setAmount] = useState("");
-
-  // 计算手续费和实际到账金额 (Calculate fee and actual amount)
-  const calculateFee = (amt: string) => {
-    try {
-      const amountBigInt = BigInt(amt || "0");
-      const fee = (amountBigInt * BigInt(10)) / BigInt(100); // 10%
-      const actual = amountBigInt - fee;
-      return {
-        fee: fee.toString(),
-        actual: actual.toString(),
-      };
-    } catch {
-      return { fee: "0", actual: "0" };
-    }
-  };
-
-  const { fee, actual } = calculateFee(amount);
-
-  const handleSubmit = () => {
-    if (!toAddress) {
-      notification.error(t.deposit.withdrawSection.pleaseEnterAddress);
-      return;
-    }
-    if (!amount || amount === "0") {
-      notification.error(t.deposit.withdrawSection.pleaseEnterAmount);
-      return;
-    }
-
-    withdraw(
-      { to_address: toAddress, amount },
-      {
-        onSuccess: () => {
-          setToAddress("");
-          setAmount("");
-        },
-      },
-    );
-  };
-
-  return (
-    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.withdrawSection.title}</h2>
-
-      <div className="space-y-4">
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-white/80">{t.deposit.withdrawSection.toAddress}</span>
-          </label>
-          <input
-            type="text"
-            placeholder="0x..."
-            className="input input-bordered bg-black/50 border-white/10 focus:border-[#39FF14] text-white"
-            value={toAddress}
-            onChange={e => setToAddress(e.target.value)}
-          />
-        </div>
-
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text text-white/80">{t.deposit.withdrawSection.amount}</span>
-          </label>
-          <input
-            type="text"
-            placeholder="1000000000000000000"
-            className="input input-bordered bg-black/50 border-white/10 focus:border-[#39FF14] text-white font-mono"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-          />
-        </div>
-
-        {amount && amount !== "0" && (
-          <div className="bg-black/30 p-4 rounded-lg space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-white/60">{t.deposit.withdrawSection.fee}</span>
-              <span className="text-white font-mono">{fee}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/60">{t.deposit.withdrawSection.actualAmount}</span>
-              <span className="text-[#39FF14] font-mono font-bold">{actual}</span>
-            </div>
-          </div>
-        )}
-
-        <button
-          className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold"
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
-          {isPending ? t.deposit.withdrawSection.submitting : t.deposit.withdrawSection.submit}
+      <div className="flex gap-2 items-center bg-black/50 p-3 rounded-lg border border-white/10">
+        <div className="flex-1 font-mono text-white break-all text-sm">{userAddress || "Loading..."}</div>
+        <button onClick={handleCopy} className="btn btn-ghost btn-sm text-[#39FF14]">
+          {copied ? "✓" : <DocumentDuplicateIcon className="w-5 h-5" />}
         </button>
       </div>
     </div>
   );
 };
 
-/**
- * 提现历史组件 - Withdraw History Section
- * 显示提现记录表格
- */
-const WithdrawHistorySection = () => {
-  const { t } = useGlobalState();
-  const { data: historyData } = useWithdrawHistory();
+const WithdrawSection = () => {
+  const { t } = useGlobalState(); // Ensure translations exist for new labels or use defaults
+  const { data: injectionData, isLoading: isInjectionLoading, refetch: refetchInjection } = useInjectionStatus();
+  const { mutate: injectPool, isPending: isInjecting } = useInjectPool();
+  const { mutate: requestWithdraw, isPending: isRequesting } = useRequestWithdraw();
 
-  const getStatusBadge = (status: number) => {
-    const statusMap = {
-      0: { text: t.deposit.history.statusPending, class: "badge-warning" },
-      1: { text: t.deposit.history.statusProcessing, class: "badge-info" },
-      2: { text: t.deposit.history.statusCompleted, class: "badge-success" },
-      3: { text: t.deposit.history.statusFailed, class: "badge-error" },
-    };
-    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap[0];
-    return <span className={`badge ${statusInfo.class}`}>{statusInfo.text}</span>;
+  // Withdraw Form State
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+
+  // Injection Form State
+  const [injectAmount, setInjectAmount] = useState("");
+
+  const status = injectionData?.data;
+  // status: { has_injected, required_amount, injected_amount, remaining }
+
+  const handleInject = () => {
+    if (!injectAmount) return;
+    injectPool(
+      { amount: injectAmount },
+      {
+        onSuccess: () => {
+          setInjectAmount("");
+          refetchInjection();
+        },
+      },
+    );
   };
 
-  const history = historyData?.data || [];
+  const handleWithdraw = () => {
+    if (!withdrawAmount || !withdrawAddress) {
+      notification.error("Please fill all fields");
+      return;
+    }
+    requestWithdraw(
+      { amount: withdrawAmount, destination_address: withdrawAddress },
+      {
+        onSuccess: () => {
+          setWithdrawAmount("");
+          setWithdrawAddress("");
+        },
+      },
+    );
+  };
+
+  if (isInjectionLoading)
+    return <div className="card bg-base-100 shadow-xl border border-gray-700 p-6 animate-pulse h-64"></div>;
 
   return (
     <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.history.title}</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-[#39FF14]">{t.deposit.withdrawSection.title}</h2>
+        <button onClick={() => refetchInjection()} className="btn btn-ghost btn-xs">
+          <ArrowPathIcon className="w-4 h-4" />
+        </button>
+      </div>
 
+      {!status?.has_injected ? (
+        // Injection Required State
+        <div className="space-y-4">
+          <div className="alert alert-warning">
+            <span>You must inject 20% to the base pool before withdrawing.</span>
+          </div>
+          <div className="stats shadow bg-black/30 w-full">
+            <div className="stat place-items-center">
+              <div className="stat-title">Remaining to Inject</div>
+              <div className="stat-value text-warning text-lg font-mono">{status?.remaining || "0"}</div>
+            </div>
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Injection Amount</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={injectAmount}
+              onChange={e => setInjectAmount(e.target.value)}
+              placeholder={status?.remaining}
+            />
+          </div>
+
+          <button
+            className="btn btn-warning w-full font-bold"
+            onClick={handleInject}
+            disabled={isInjecting || !injectAmount}
+          >
+            {isInjecting ? "Injecting..." : "Inject to Pool"}
+          </button>
+        </div>
+      ) : (
+        // Withdraw Form State
+        <div className="space-y-4">
+          <div className="alert alert-success bg-[#39FF14]/10 text-[#39FF14] border-[#39FF14]/20 py-2">
+            <span>✓ Base Pool Injected</span>
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">To Address</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full font-mono"
+              value={withdrawAddress}
+              onChange={e => setWithdrawAddress(e.target.value)}
+              placeholder="0x..."
+            />
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Amount</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full font-mono"
+              value={withdrawAmount}
+              onChange={e => setWithdrawAmount(e.target.value)}
+              placeholder="0.00"
+            />
+          </div>
+
+          <button
+            className="btn btn-primary w-full bg-[#39FF14] border-none text-black font-bold hover:bg-[#32e612]"
+            onClick={handleWithdraw}
+            disabled={isRequesting}
+          >
+            {isRequesting ? "Submitting..." : "Request Withdraw"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const WithdrawHistorySection = () => {
+  const { t } = useGlobalState();
+  const { data: historyData } = useWithdrawHistory();
+  const withdrawals = historyData?.data?.withdrawals || [];
+
+  return (
+    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6 mt-6">
+      <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.history.title}</h2>
       <div className="overflow-x-auto">
-        <table className="table table-zebra">
+        <table className="table">
           <thead>
             <tr>
-              <th>{t.deposit.history.id}</th>
-              <th>{t.deposit.history.to}</th>
-              <th>{t.deposit.history.amount}</th>
-              <th>{t.deposit.history.fee}</th>
-              <th>{t.deposit.history.actual}</th>
-              <th>{t.deposit.history.txHash}</th>
-              <th>{t.deposit.history.status}</th>
-              <th>{t.deposit.history.time}</th>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Address</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {history.length === 0 ? (
+            {withdrawals.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center text-gray-500">
-                  {t.deposit.history.noData}
+                <td colSpan={5} className="text-center text-gray-500">
+                  No history
                 </td>
               </tr>
             ) : (
-              history.map((record: any) => (
-                <tr key={record.id}>
-                  <td>{record.id}</td>
-                  <td className="font-mono text-xs">{record.to_address.slice(0, 10)}...</td>
-                  <td className="font-mono text-xs">{record.amount}</td>
-                  <td className="font-mono text-xs">{record.fee}</td>
-                  <td className="font-mono text-xs">{record.actual_amount}</td>
-                  <td className="font-mono text-xs">
-                    <a
-                      href={`https://etherscan.io/tx/${record.tx_hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link link-primary"
-                    >
-                      {record.tx_hash.slice(0, 10)}...
-                    </a>
+              withdrawals.map((item: any) => (
+                <tr key={item.request_id}>
+                  <td>{item.request_id}</td>
+                  <td>{new Date(item.created_at * 1000).toLocaleString()}</td>
+                  <td className="font-mono">{item.amount}</td>
+                  <td className="font-mono text-xs">{item.destination_address}</td>
+                  <td>
+                    <span className={`badge ${item.status === "completed" ? "badge-success" : "badge-warning"}`}>
+                      {item.status}
+                    </span>
                   </td>
-                  <td>{getStatusBadge(record.status)}</td>
-                  <td className="text-xs">{new Date(record.created_at).toLocaleString()}</td>
                 </tr>
               ))
             )}

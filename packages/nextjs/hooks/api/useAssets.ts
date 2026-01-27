@@ -1,16 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "~~/services/store/authStore";
 import { assetEndpoints } from "~~/services/web2/endpoints";
 import { TransferRequest } from "~~/types/api";
 import { notification } from "~~/utils/scaffold-eth";
-
-export const useBalance = () => {
-  return useQuery({
-    queryKey: ["balance"],
-    queryFn: () => assetEndpoints.getBalance(),
-    // 移除自动刷新,避免持续调用接口
-    // refetchInterval: 10000, // Refresh every 10s
-  });
-};
 
 export const useTransfer = () => {
   const queryClient = useQueryClient();
@@ -18,10 +10,12 @@ export const useTransfer = () => {
   return useMutation({
     mutationFn: (data: TransferRequest) => assetEndpoints.transfer(data),
     onSuccess: response => {
-      const { burn_amount, receive_amount } = response.data;
-      notification.success(`Transfer successful! Burned: ${burn_amount}, Received: ${receive_amount}`);
-      queryClient.invalidateQueries({ queryKey: ["balance"] });
+      const { burned_amount, to_amount, mining_pool_amount, from_hashrate } = response.data;
+      notification.success(
+        `Transfer success! Burn: ${burned_amount}, To: ${to_amount}, Pool: ${mining_pool_amount}, HP+: ${from_hashrate}`,
+      );
       queryClient.invalidateQueries({ queryKey: ["transferHistory"] });
+      // Suggest refetching profile somehow?
     },
     onError: (error: any) => {
       console.error("Transfer failed", error);
@@ -29,9 +23,9 @@ export const useTransfer = () => {
   });
 };
 
-export const useTransferHistory = (page = 1, pageSize = 10) => {
+export const useTransferHistory = (page = 1, limit = 20) => {
   return useQuery({
-    queryKey: ["transferHistory", page, pageSize],
-    queryFn: () => assetEndpoints.getTransferHistory(page, pageSize),
+    queryKey: ["transferHistory", page, limit],
+    queryFn: () => assetEndpoints.getTransferHistory(page, limit),
   });
 };

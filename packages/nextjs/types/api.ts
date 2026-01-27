@@ -3,14 +3,12 @@
  * @template T 数据类型
  */
 export interface ApiResponse<T = any> {
-  /** 状态码，200 表示成功 */
+  /** 状态码，0 表示成功 */
   code: number;
   /** 响应消息 */
   message: string;
   /** 响应数据 */
   data: T;
-  /** 时间戳 */
-  timestamp: number;
 }
 
 /**
@@ -20,309 +18,229 @@ export interface PaginationResponse<T> {
   list: T[];
   total: number;
   page: number;
-  pageSize: number;
+  limit: number;
 }
 
+//Path: packages/nextjs/types/api.ts
 /**
- * 认证响应数据接口
+ * 认证响应
  */
 export interface AuthResponse {
-  /** JWT 令牌 */
   token: string;
-  /** 用户信息 */
-  user: {
-    /** 钱包地址 (主键) */
-    address: string;
-    /** 用户名 */
-    username: string;
-    /** 随机数 */
-    nonce?: number;
-    /** 状态 */
-    status?: number;
-    /** 创建时间 */
-    created_at?: string;
-    /** 更新时间 */
-    updated_at?: string;
-  };
+  address: string;
+  session_id: string;
+  expires_at: number;
 }
 
 /**
- * 登录请求参数接口
+ * 用户个人信息
+ */
+export interface UserProfile {
+  id: number;
+  void_account: string;
+  void_address: string;
+  tcm_balance: string;
+  tc_balance: string;
+  total_hashrate: string;
+  status: string;
+}
+
+/**
+ * 登录请求参数
  */
 export interface LoginRequest {
-  /** 用户名 */
-  username?: string;
-  /** 密码 (明文) */
-  password?: string;
-  /** 签名 (未来支持钱包签名登录) */
-  signature?: string;
-  /** 钱包地址 */
-  address?: string;
+  account: string;
+  password: string;
 }
 
 /**
- * 注册请求参数接口
+ * 注册请求参数
  */
 export interface RegisterRequest {
-  /** 用户名 */
-  username: string;
-  /** 密码 */
-  password?: string;
-  /** 推荐人地址 (可选) */
+  account: string;
+  password: string;
   refer?: string;
-  /** 钱包地址 */
-  address?: string; // 实际上注册时后端会自动从 chain 获取或生成，或者通过参数传？Doc says register body needs username, password, refer. Address is in response.
 }
 
-// --- 业务模块类型定义 ---
+// --- 转账模块 ---
 
-/**
- * 余额响应接口
- */
-export interface BalanceInfo {
-  id: number;
-  address: string;
-  tcm_balance: string;
-  usdt_balance: string;
-  locked_tcm: string;
-  pool_injected_tcm?: string;
-  updated_at: string;
-}
-
-export type BalanceResponse = Partial<BalanceInfo> & {
-  balance?: BalanceInfo;
-  on_chain_tcm_balance?: string;
-};
-
-/**
- * 转账请求参数 (链下)
- */
 export interface TransferRequest {
-  /** 接收方地址 */
   to_address: string;
-  /** 金额 (18位小数的整数形字符串) */
   amount: string;
-  /** 备注 */
-  memo?: string;
 }
 
-/**
- * 转账记录详情
- */
-export interface TransferRecord {
-  /** 交易ID */
-  id: number;
-  /** 发送方地址 */
+export interface TransferResponse {
+  tx_id: string;
   from_address: string;
-  /** 接收方地址 */
   to_address: string;
-  /** 转账金额 (wei单位) */
   amount: string;
-  /** 销毁金额 (20%) */
-  burn_amount: string;
-  /** 实际到账金额 (80%) */
-  receive_amount: string;
-  /** 交易类型: transfer=转账, deposit=充值, withdraw=提现 */
-  tx_type: string;
-  /** 状态: 0=pending, 1=completed, 2=failed */
-  status: number;
-  /** 转账备注 */
-  memo?: string;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
+  burned_amount: string;
+  to_amount: string;
+  mining_pool_amount: string;
+  from_hashrate: string;
+  to_hashrate: string;
 }
 
-/**
- * 节点类型信息
- */
-/**
- * 节点类型信息
- */
-export interface NodeType {
-  type: string; // 'genesis' | 'super' | 'city' | 'community'
-  name: string;
-  usd_amount: string; // V4: price renamed to usd_amount
-  tcm_locked: string; // V4: restored
-  hash_power: number; // V4: renamed from hashpower
-  ref_reward: string; // V4: new
-  swap_dividend: string; // V4: new
-  price?: string; // Compat: keep optional if needed or remove if confident
-  hashpower?: number; // Compat
+export interface TransferRecord {
+  tx_id: string;
+  from_address: string;
+  to_address: string;
+  amount: string;
+  created_at: number;
 }
 
-/**
- * 购买节点请求
- */
-export interface NodeStockByType {
-  type: string;
-  total: number;
-  sold: number;
-  remaining: number;
+// --- 节点模块 ---
+
+export interface NodeTier {
+  id: number;
+  tier_name: string; // genesis, super, api...
+  display_name: string;
+  tier_requirement: string; // Price in TCM or USD? V6 doc says "tier_requirement" but description says "持币要求"? Check doc. It says "tier_requirement" and "usd_amount" is gone? v6 doc: tier_requirement
+  // doc v6 says: tier_requirement: string, total_slots, available_slots, tc_bonus, tcm_bonus, flow_reward_rate, fee_reward_rate
+  total_slots: number;
+  available_slots: number;
+  tc_bonus: string;
+  tcm_bonus: string;
+  flow_reward_rate: string;
+  fee_reward_rate: string;
 }
 
-export interface NodeStockResponse {
-  total: number;
-  sold: number;
-  remaining: number;
-  by_type: NodeStockByType[];
+export interface NodeAvailableResponse {
+  tiers: NodeTier[];
 }
 
 export interface BuyNodeRequest {
-  node_type: string;
+  tier_name: string;
 }
 
-/**
- * 购买节点响应 / 节点记录
- */
 export interface BuyNodeResponse {
-  /** 节点ID */
+  node_holding_id: number;
+  node_tier_id: number;
+  tc_bonus: string;
+  tcm_bonus: string;
+}
+
+export interface MyNode {
   id: number;
-  /** 拥有者地址 */
-  address: string;
-  /** 节点类型: genesis, super, city, community */
-  node_type: string;
-  /** 支付的美元金额 */
-  usd_amount: string;
-  /** 锁仓的TCM数量 */
-  tcm_locked: string;
-  /** 算力值 */
-  hash_power: string;
-  /** 下线节点数量 */
-  ref_count: number;
-  /** 状态: 1=激活, 0=过期 */
-  status: number;
-  /** 过期时间 (2年有效期) */
-  expires_at: string;
-  /** 创建时间 */
-  created_at: string;
+  node_tier_id: number;
+  tier_name: string;
+  shares_count: number;
+  status: string;
+  purchased_at: number;
 }
 
-/**
- * 算力信息响应
- */
-export interface HashpowerResponse {
-  /** 记录ID */
-  id: number;
-  /** 区块链地址 */
-  address: string;
-  /** 总算力 */
-  total_hash_power: string;
-  /** 有效算力 */
-  effective_hash_power: string;
-  /** 节点算力 */
-  node_hash_power: string;
-  /** 持币算力 */
-  hold_hash_power: string;
-  /** 更新时间 */
-  updated_at: string;
+export interface MyNodesResponse {
+  nodes: MyNode[];
 }
 
-/**
- * 充值地址响应
- */
-export interface DepositAddressResponse {
-  address: string;
-  // chain removed in V3 docs example
-  memo?: string; // V3 示例有 memo
+export interface ClaimNodeBonusRequest {
+  node_holding_id: number;
 }
 
-/**
- * 提现申请请求
- */
+export interface ClaimNodeBonusResponse {
+  tc_bonus: string;
+  tcm_bonus: string;
+  claimed_at: number;
+}
+
+export interface NodeRewardsResponse {
+  total_rewards: string;
+  pending: string;
+  claimed: string;
+}
+
+// --- 挖矿与算力 ---
+
+export interface UserHashrateResponse {
+  address: string;
+  current_hashrate: string;
+  total_hashrate: string;
+  transfer_count: number;
+  last_update_time: number;
+}
+
+export interface TotalHashrateResponse {
+  total_hashrate: string;
+}
+
+export interface HashrateShareResponse {
+  address: string;
+  share: number;
+  share_percentage: string;
+}
+
+export interface DailyRewardResponse {
+  address: string;
+  user_hashrate: string;
+  total_hashrate: string;
+  user_share: number;
+  daily_pool: string;
+  estimated_reward: string;
+}
+
+export interface MiningPendingResponse {
+  pending_amount: string;
+  record_count: number;
+}
+
+export interface MiningClaimResponse {
+  claimed_amount: string;
+  records_claimed: number;
+  new_tcm_balance: string;
+}
+
+// --- 提现 ---
+
+export interface InjectionStatusResponse {
+  has_injected: boolean;
+  required_amount: string;
+  injected_amount: string;
+  remaining: string;
+}
+
+export interface InjectPoolRequest {
+  amount: string;
+}
+
+export interface InjectPoolResponse {
+  injection_id: number;
+  amount: string;
+  status: string;
+}
+
 export interface WithdrawRequest {
-  to_address: string;
   amount: string;
+  destination_address: string;
 }
 
-/**
- * 提现申请响应
- */
 export interface WithdrawResponse {
-  /** 提现记录ID */
-  withdraw_id: number;
-  /** 链上交易哈希 */
-  tx_hash: string;
-  /** 提现金额 (wei单位) */
+  request_id: number;
   amount: string;
-  /** 手续费 (10%) */
-  fee: string;
-  /** 实际到账金额 */
-  actual_amount: string;
+  destination_address: string;
+  status: string;
+  created_at: number;
 }
 
-/**
- * 转账响应
- */
-export interface TransferResponse {
-  transaction_id: number;
-  from_address: string;
-  to_address: string;
+export interface WithdrawStatusResponse {
+  request_id: string; // doc example string "2001", type uint64? use string/number
+  status: string;
   amount: string;
-  burn_amount: string;
-  receive_amount: string;
+  destination_address: string;
+  created_at: number;
+  processed_at: number | null;
 }
 
-/**
- * 分红记录
- */
-export interface DividendRecord {
-  /** 分红记录ID */
-  id: number;
-  /** 用户地址 */
-  address: string;
-  /** 分红金额 (wei单位) */
+export interface WithdrawHistoryRecord {
+  request_id: number;
   amount: string;
-  /** 分红类型: hash_power=算力分红, hold=持币分红, swap=Swap分红, ref=推荐奖励 */
-  dividend_type: string;
-  /** 状态: 0=未领取, 1=已领取 */
-  status: number;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
+  status: string;
+  created_at: number;
+  processed_at: number;
 }
 
-/**
- * 分红页面概览响应
- */
-export interface DividendOverviewResponse {
-  dividend_count: number;
-  dividends: DividendRecord[];
-  pending_dividend: string;
-}
-
-/**
- * 节点记录 (用于节点列表和算力历史)
- * 与 BuyNodeResponse 结构相同
- */
-export type NodeRecord = BuyNodeResponse;
-
-/**
- * 提现历史记录
- */
-export interface WithdrawRecord {
-  /** 提现记录ID */
-  id: number;
-  /** 提现用户地址 */
-  address: string;
-  /** 接收地址 */
-  to_address: string;
-  /** 提现金额 (wei单位) */
-  amount: string;
-  /** 手续费 (10%) */
-  fee: string;
-  /** 实际到账金额 */
-  actual_amount: string;
-  /** 链上交易哈希 */
-  tx_hash: string;
-  /** 状态: 0=pending, 1=processing, 2=completed, 3=failed */
-  status: number;
-  /** 处理时间 */
-  processed_at: string;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
+export interface WithdrawHistoryResponse {
+  total: number;
+  page: number;
+  limit: number;
+  withdrawals: WithdrawHistoryRecord[];
 }

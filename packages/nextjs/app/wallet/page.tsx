@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeftIcon, CubeIcon, Square2StackIcon, UsersIcon } from "@heroicons/react/24/outline";
-import { useBalance } from "~~/hooks/api/useAssets";
 import { useUserProfile } from "~~/hooks/api/useAuth";
-import { useNodeList } from "~~/hooks/api/useNode";
+import { useMyNodes } from "~~/hooks/api/useNodes";
+// Updated import
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -16,8 +16,8 @@ export default function WalletPage() {
   const { t, language } = useGlobalState();
   const queryClient = useQueryClient();
   const wasAuthenticated = useRef(isAuthenticated);
-  const { data: balanceData, isLoading } = useBalance();
-  const { data: nodeData, isLoading: isNodeLoading } = useNodeList();
+  // Remove useBalance, use UserProfile from authStore
+  const { data: nodeData, isLoading: isNodeLoading } = useMyNodes();
   const { mutate: fetchProfile } = useUserProfile();
 
   useEffect(() => {
@@ -28,40 +28,46 @@ export default function WalletPage() {
 
   useEffect(() => {
     if (wasAuthenticated.current && !isAuthenticated) {
-      queryClient.removeQueries({ queryKey: ["balance"] });
-      queryClient.removeQueries({ queryKey: ["node-list"] });
+      // queryClient.removeQueries({ queryKey: ["balance"] }); // no longer needed
+      queryClient.removeQueries({ queryKey: ["myNodes"] });
     }
     wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, queryClient]);
 
-  const balance = balanceData?.data?.balance ?? balanceData?.data;
-  const usdtBalance = balance?.usdt_balance || "0.00";
-  const tcmBalance = balance?.tcm_balance || "0.00";
+  const usdtBalance = "0.00"; // v6 API has no USDT balance? It has tc_balance and tcm_balance? v6 doc: tcp_balance, tc_balance.
+  // v6 Profile: tcm_balance, tc_balance.
+  // Let's assume TC is the main currency replacing USDT or just display TC.
+  // The UI had USDT and TC. V6 has TCM (Token) and TC (Coin?).
+  // Let's map USDT card to TC balance? And TC card to TCM?
+  // Doc: tc_balance (TC代币), tcm_balance (TCM代币).
+  // WalletPage has USDT and TC. I will swap USDT -> TC, and TC -> TCM to align with profile.
+  const tcBalance = user?.tc_balance || "0.00";
+  const tcmBalance = user?.tcm_balance || "0.00";
 
-  // Get the first active node (or handle multiple if design allows, currently assuming single summary)
-  const firstNode = nodeData?.data?.[0];
+  // Node Data: MyNode[]
+  const firstNode = nodeData?.data?.nodes?.[0]; // MyNodesResponse { nodes: MyNode[] }
 
-  // Calculate total referral count across all nodes
-  const totalRefCount = nodeData?.data?.reduce((acc, curr) => acc + curr.ref_count, 0) || 0;
+  const totalRefCount = 0; // v6 MyNode doesn't explicitly return ref_count in MyNode type?
+  // MyNode: { id, node_tier_id, tier_name, shares_count, status, purchased_at }
+  // Ref count not in list. Omit for now or hardcode 0.
 
-  // Format node type display
   const displayNodeType = firstNode
     ? language === "zh"
-      ? firstNode.node_type === "genesis"
+      ? firstNode.tier_name === "genesis" // tier_name
         ? "创世节点"
-        : firstNode.node_type === "super"
+        : firstNode.tier_name === "super"
           ? "超级节点"
-          : firstNode.node_type === "city"
+          : firstNode.tier_name === "city"
             ? "城市节点"
-            : firstNode.node_type === "community"
+            : firstNode.tier_name === "community"
               ? "社区节点"
-              : firstNode.node_type
-      : firstNode.node_type.charAt(0).toUpperCase() + firstNode.node_type.slice(1) + " Node"
+              : firstNode.tier_name
+      : firstNode.tier_name.charAt(0).toUpperCase() + firstNode.tier_name.slice(1) + " Node"
     : t.wallet.assets.node;
 
   const copyAddress = () => {
-    if (user?.address) {
-      navigator.clipboard.writeText(user.address);
+    if (user?.void_address) {
+      navigator.clipboard.writeText(user.void_address);
       notification.success("Address copied!");
     }
   };
@@ -85,9 +91,9 @@ export default function WalletPage() {
                 <UsersIcon className="w-6 h-6" />
               </div>
               <div className="flex-1 overflow-hidden">
-                <h2 className="text-lg font-bold text-white truncate">{user?.username || "Guest"}</h2>
+                <h2 className="text-lg font-bold text-white truncate">{user?.void_account || "Guest"}</h2>
                 <div className="flex items-center gap-2 text-gray-400 text-xs">
-                  <span className="truncate">{user?.address || "No Address"}</span>
+                  <span className="truncate">{user?.void_address || "No Address"}</span>
                   <button onClick={copyAddress} className="btn btn-ghost btn-xs text-[#27E903] p-0 min-h-0 h-auto">
                     <Square2StackIcon className="w-4 h-4" />
                   </button>
@@ -97,39 +103,35 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* USDT Card */}
+        {/* TC Balance Card (replacing USDT) */}
         <div className="card bg-[#09181a] border border-[#4ADE80]/30 shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#4ADE80] flex items-center justify-center text-black font-bold text-xl">
-                T
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-[#4ADE80] font-bold text-xl">
-                {isLoading ? <span className="loading loading-spinner loading-xs"></span> : usdtBalance}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* TC Card */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
-          <div className="card-body flex-row items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#F97316] flex items-center justify-center text-white font-bold text-xl">
                 TC
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white font-bold text-xl">
-                {isLoading ? <span className="loading loading-spinner loading-xs"></span> : tcmBalance}
-              </div>
+              <div className="text-[#4ADE80] font-bold text-xl">{tcBalance}</div>
             </div>
           </div>
         </div>
 
-        {/* Genesis Node */}
+        {/* TCM Balance Card */}
+        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
+          <div className="card-body flex-row items-center justify-between p-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#F97316] flex items-center justify-center text-white font-bold text-xl">
+                TCM
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-white font-bold text-xl">{tcmBalance}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Node Card */}
         <div className="card bg-[#09181a] border border-white/10 shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
@@ -142,40 +144,6 @@ export default function WalletPage() {
                 {isNodeLoading ? <span className="loading loading-spinner loading-xs"></span> : displayNodeType}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Team Card */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
-          <div className="card-body flex-row items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#3B82F6] flex items-center justify-center text-white">
-                <UsersIcon className="w-7 h-7" />
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-white font-bold text-xl">
-                {isNodeLoading ? <span className="loading loading-spinner loading-xs"></span> : totalRefCount}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Invite Code Card */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
-          <div className="card-body flex-row items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#D97706]/80 flex items-center justify-center text-white">
-                <UsersIcon className="w-7 h-7" />
-                <div className="absolute ml-4 mt-4 bg-white text-black text-[10px] px-1 rounded-full">+</div>
-              </div>
-              <div className="text-gray-400 text-sm truncate max-w-[150px] sm:max-w-[200px]">
-                123456789101123565186165489561
-              </div>
-            </div>
-            <button className="btn btn-ghost btn-circle btn-sm text-white">
-              <Square2StackIcon className="w-6 h-6" />
-            </button>
           </div>
         </div>
       </div>

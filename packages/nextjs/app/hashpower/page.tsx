@@ -1,17 +1,23 @@
 "use client";
 
 import { CustomLoginButton } from "~~/components/auth/CustomLoginButton";
-import { useHashpower, useHashpowerHistory } from "~~/hooks/api/useNodes";
+import {
+  useClaimRewards,
+  useHashrateShare,
+  useMiningPending,
+  useTotalHashrate,
+  useUserHashrate,
+} from "~~/hooks/api/useMining";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 
-export default function HashpowerPage() {
+export default function MiningPage() {
   const { isAuthenticated } = useAuthStore();
   const { t } = useGlobalState();
 
   return (
-    <div className="container mx-auto p-10">
-      <h1 className="text-4xl font-bold mb-8 text-center text-[#39FF14]">{t.hashpower.title}</h1>
+    <div className="container mx-auto p-10 max-w-7xl">
+      <h1 className="text-4xl font-bold mb-8 text-center text-[#39FF14]">Mining Center</h1>
 
       {!isAuthenticated ? (
         <div className="flex flex-col items-center gap-4">
@@ -19,110 +25,84 @@ export default function HashpowerPage() {
           <CustomLoginButton />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-10">
-          <HashpowerStats />
-          <HashpowerHistory />
+        <div className="space-y-8">
+          <HashrateStats />
+          <RewardSection />
         </div>
       )}
     </div>
   );
 }
 
-const HashpowerStats = () => {
-  const { t } = useGlobalState();
-  const { data: hashpowerData, isLoading } = useHashpower();
+const HashrateStats = () => {
+  const { data: userData, isLoading: isUserLoading } = useUserHashrate();
+  const { data: totalData } = useTotalHashrate();
+  const { data: shareData } = useHashrateShare();
 
-  const stats = hashpowerData?.data;
+  const userStats = userData?.data;
+  const totalHashrate = totalData?.data?.total_hashrate;
+  const myShare = shareData?.data?.share; // ratio string or number?
 
-  // 如果加载中显示骨架屏或Loading
-  if (isLoading) {
-    return <div className="loading loading-spinner loading-lg text-primary mx-auto block"></div>;
-  }
+  if (isUserLoading) return <div className="loading loading-spinner text-primary mx-auto block"></div>;
 
   return (
-    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-6 text-accent">{t.hashpower.title}</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-accent/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.total}</div>
-          <div className="stat-value text-accent text-3xl font-mono">{stats?.total_hash_power || "0"}</div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* My Hashrate */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">My Hashrate</h2>
+        <div className="text-3xl font-bold text-[#39FF14] font-mono mt-2">{userStats?.current_hashrate || "0"}</div>
+        <div className="text-xs text-gray-500 mt-2 space-y-1">
+          {/* Breakdown stats are not available in v6 user/hashrate endpoint yet */}
         </div>
+      </div>
 
-        {/* Effective Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-success/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.effective}</div>
-          <div className="stat-value text-success text-3xl font-mono">{stats?.effective_hash_power || "0"}</div>
-        </div>
+      {/* Total Hashrate */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">Network Hashrate</h2>
+        <div className="text-3xl font-bold text-blue-400 font-mono mt-2">{totalHashrate || "0"}</div>
+        <div className="text-sm text-gray-500 mt-2">Powering the future</div>
+      </div>
 
-        {/* Node Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-info/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.node}</div>
-          <div className="stat-value text-info text-3xl font-mono">{stats?.node_hash_power || "0"}</div>
+      {/* My Share */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">My Share</h2>
+        <div className="text-3xl font-bold text-yellow-500 font-mono mt-2">
+          {myShare ? `${(Number(myShare) * 100).toFixed(4)}%` : "0%"}
         </div>
-
-        {/* Hold Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-warning/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.hold}</div>
-          <div className="stat-value text-warning text-3xl font-mono">{stats?.hold_hash_power || "0"}</div>
-        </div>
+        <div className="text-sm text-gray-500 mt-2">Of total network</div>
       </div>
     </div>
   );
 };
 
-const HashpowerHistory = () => {
-  const { t } = useGlobalState();
-  // 分页获取历史记录，默认第一页
-  const { data: historyData, isLoading } = useHashpowerHistory(1, 20);
+const RewardSection = () => {
+  const { data: pendingData, refetch: refetchPending } = useMiningPending();
+  const { mutate: claim, isPending: isClaiming } = useClaimRewards();
 
-  const historyList = historyData?.data?.list || [];
+  const pendingAmount = pendingData?.data?.pending_amount || "0";
+
+  const handleClaim = () => {
+    claim(undefined, {
+      onSuccess: () => refetchPending(),
+    });
+  };
 
   return (
     <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-secondary">{t.hashpower.history.title}</h2>
-
-      {isLoading ? (
-        <div className="loading loading-spinner loading-md text-secondary mx-auto block my-10"></div>
-      ) : historyList.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">{t.hashpower.history.noData}</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr className="bg-base-200 text-white">
-                <th>{t.hashpower.history.id}</th>
-                <th>{t.hashpower.history.type}</th>
-                <th>{t.hashpower.history.amount} (USD)</th>
-                <th>{t.hashpower.history.status}</th>
-                <th>{t.hashpower.history.time}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historyList.map((record: any) => (
-                <tr key={record.id} className="hover:bg-base-200/50">
-                  <td className="font-mono text-gray-400">#{record.id}</td>
-                  <td>
-                    <span className="badge badge-outline badge-accent uppercase font-bold text-xs">
-                      {record.node_type}
-                    </span>
-                  </td>
-                  <td className="font-bold text-white">${record.usd_amount}</td>
-                  <td>
-                    <div
-                      className={`badge ${record.status === 1 ? "badge-success gap-2" : "badge-error gap-2"} badge-sm`}
-                    >
-                      {record.status === 1 ? "Active" : "Expired"}
-                    </div>
-                  </td>
-                  <td className="text-gray-400 text-sm">{new Date(record.created_at).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <h2 className="text-2xl font-bold text-white mb-4">Mining Rewards</h2>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-black/30 p-6 rounded-xl border border-white/5">
+        <div>
+          <div className="text-gray-400 mb-1">Pending Rewards (TCM)</div>
+          <div className="text-4xl font-bold text-[#39FF14] font-mono">{pendingAmount}</div>
         </div>
-      )}
+        <button
+          className="btn btn-primary btn-lg bg-[#39FF14] text-black font-bold border-none hover:bg-[#32e612] px-10"
+          onClick={handleClaim}
+          disabled={isClaiming || Number(pendingAmount) <= 0}
+        >
+          {isClaiming ? "Claiming..." : "Claim Rewards"}
+        </button>
+      </div>
     </div>
   );
 };
