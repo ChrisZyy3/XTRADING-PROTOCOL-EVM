@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { LoginModal } from "./LoginModal";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useConnect } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { useLogout } from "~~/hooks/api/useAuth";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -12,15 +12,17 @@ import { notification } from "~~/utils/scaffold-eth";
 export const CustomLoginButton = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { mutate: logout } = useLogout();
   const { t } = useGlobalState();
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = () => {
-    logout();
-    queryClient.clear();
-    notification.success(t.auth.logoutSuccess);
+    logout(undefined, {
+      onSettled: () => {
+        notification.success(t.auth.logoutSuccess);
+      },
+    });
   };
 
   // If authenticated, show User Profile (similar to previous AuthButton)

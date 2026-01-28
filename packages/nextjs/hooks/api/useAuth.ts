@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "~~/services/store/authStore";
 import { authEndpoints } from "~~/services/web2/endpoints";
 import { LoginRequest, RegisterRequest } from "~~/types/api";
@@ -83,6 +83,29 @@ export const useUserProfile = () => {
     onSuccess: response => {
       if (token) {
         setUser(response.data);
+      }
+    },
+  });
+};
+
+/**
+ * 登出 Hook
+ * 始终清理本地认证状态与缓存，即使后端请求失败。
+ */
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+  const logout = useAuthStore(state => state.logout);
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        await authEndpoints.logout();
+      } catch (error) {
+        console.error("Logout request failed", error);
+      } finally {
+        // 确保本地状态与缓存清理
+        logout();
+        queryClient.clear();
       }
     },
   });
