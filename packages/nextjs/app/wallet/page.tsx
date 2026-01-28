@@ -115,7 +115,7 @@ export default function WalletPage() {
               <div className="w-12 h-12 rounded-full bg-[#34D399] flex items-center justify-center text-white">
                 <CubeIcon className="w-7 h-7" />
               </div>
-              <span className="text-gray-400 font-bold">{t.hashpower.stats.total}</span>
+              <span className="text-gray-400 font-bold">{t.hashpower.stats.myHashrate}</span>
             </div>
             <div className="text-right">
               <div className="text-white font-bold text-xl">{totalHashrate}</div>

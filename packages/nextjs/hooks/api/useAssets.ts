@@ -6,16 +6,35 @@ import { notification } from "~~/utils/scaffold-eth";
 
 export const useTransfer = () => {
   const queryClient = useQueryClient();
+  const setUser = useAuthStore(state => state.setUser);
 
   return useMutation({
     mutationFn: (data: TransferRequest) => assetEndpoints.transfer(data),
-    onSuccess: response => {
+    onSuccess: async response => {
       const { burned_amount, to_amount, mining_pool_amount, from_hashrate } = response.data;
-      notification.success(
-        `Transfer success! Burn: ${burned_amount}, To: ${to_amount}, Pool: ${mining_pool_amount}, HP+: ${from_hashrate}`,
-      );
+
+      const { useGlobalState } = await import("~~/services/store/store");
+      const t = useGlobalState.getState().t;
+
+      const message = t.transfer.successMsg
+        .replace("{burn}", String(burned_amount))
+        .replace("{toAmount}", String(to_amount))
+        .replace("{pool}", String(mining_pool_amount))
+        .replace("{hp}", String(from_hashrate));
+
+      notification.success(message, { duration: 3000 });
       queryClient.invalidateQueries({ queryKey: ["transferHistory"] });
-      // Suggest refetching profile somehow?
+
+      // Refresh user profile to update balances
+      try {
+        // We can't use useUserProfile hook inside callback easily without rules of hooks issues if we wanted that hook's mutation ref.
+        // Instead, just call the endpoint directly and update store.
+        const { authEndpoints } = await import("~~/services/web2/endpoints");
+        const profileRes = await authEndpoints.getProfile();
+        setUser(profileRes.data);
+      } catch (e) {
+        console.error("Failed to refresh profile after transfer", e);
+      }
     },
     onError: (error: any) => {
       console.error("Transfer failed", error);

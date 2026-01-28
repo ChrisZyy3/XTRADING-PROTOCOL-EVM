@@ -21,12 +21,14 @@ export default function TransferPage() {
   const [toAddress, setToAddress] = useState("");
   const [amount, setAmount] = useState("");
 
-  const tcmBalance = user?.tcm_balance || "0.00";
-  const tcBalance = user?.tc_balance || "0.00"; // display TC instead of USDT?
-  // v5/API-6 doc says user has tcm_balance, tc_balance. No usdt_balance mentioned in v6 UserProfile (2.1).
-  // v5 had usdt_balance. v6 removed it?
-  // Let's assume TC is the secondary balance to show, or removed USDT card.
-  // I'll show TC Balance instead of USDT Balance.
+  const formatNumber = (numStr?: string) => {
+    if (!numStr) return "0.00";
+    const num = parseFloat(numStr);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
+
+  const tcmBalance = formatNumber(user?.tcm_balance);
+  const tcBalance = formatNumber(user?.tc_balance);
 
   const wasAuthenticated = useRef(isAuthenticated);
 
@@ -42,6 +44,16 @@ export default function TransferPage() {
     wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, queryClient]);
 
+  // Import authEndpoints dynamically or use hook if available.
+  // Since we are inside component, we can use useUserProfile hook result if we exposed refetch,
+  // but useUserProfile in this file is not imported.
+  // Let's use the same pattern as useAssets: import endpoints directly or use useUserProfile from hooks if we add it.
+  // Actually, useUserProfile is available in hooks/api/useAuth.ts
+
+  // Adding import for useUserProfile
+  // We need to add `import { useUserProfile } from "~~/hooks/api/useAuth";` at top of file first?
+  // Or just use direct API call for simplicity in refresh handler? Direct call is easier to combine with Promise.all.
+
   const handleRefresh = async () => {
     if (!isAuthenticated) {
       notification.error(t.deposit.loginPrompt);
@@ -50,11 +62,15 @@ export default function TransferPage() {
     if (isRefreshing) return;
     setIsRefreshing(true);
     try {
-      // Re-fetch profile logic? can't easily refetch profile from store without action.
-      // But maybe we can call getProfile directly here?
-      // Or if we exposed fetchProfile in store?
-      // I'll skip profile refresh for now or implement it later.
-      await Promise.all([queryClient.refetchQueries({ queryKey: ["transferHistory"] })]);
+      const { authEndpoints } = await import("~~/services/web2/endpoints");
+
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ["transferHistory"] }),
+        authEndpoints.getProfile().then(res => setUser(res.data)),
+      ]);
+      notification.success(t.transfer.refreshSuccess, { duration: 3000 });
+    } catch (error) {
+      console.error("Refresh failed", error);
     } finally {
       setIsRefreshing(false);
     }
@@ -62,7 +78,7 @@ export default function TransferPage() {
 
   const handleTransfer = () => {
     if (!toAddress || !amount) {
-      notification.error("Please fill in all fields");
+      notification.error(t.transfer.fillFields);
       return;
     }
     // Assuming Transfer API handles amount as string directly
@@ -82,7 +98,7 @@ export default function TransferPage() {
               <ChevronLeftIcon className="w-5 h-5" />
             </Link>
             <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              Transfer Assets
+              {t.transfer.title}
             </h1>
           </div>
           <button
@@ -98,15 +114,17 @@ export default function TransferPage() {
 
         {/* Balance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* USDT Card */}
+          {/* TC Card */}
           <div className="group relative overflow-hidden rounded-2xl bg-[#09181a] border border-white/5 p-6 transition-all hover:border-[#39FF14]/30 hover:shadow-[0_0_20px_rgba(57,255,20,0.1)]">
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <WalletIcon className="w-24 h-24 text-[#39FF14]" />
             </div>
             <div className="relative z-10 flex flex-col gap-2">
-              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">TC Balance</span>
+              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">{t.transfer.tcBalance}</span>
               <span className="text-3xl font-bold font-mono text-white">{tcBalance}</span>
-              <span className="text-xs text-[#39FF14] bg-[#39FF14]/10 px-2 py-1 rounded w-fit mt-1">Available</span>
+              <span className="text-xs text-[#39FF14] bg-[#39FF14]/10 px-2 py-1 rounded w-fit mt-1">
+                {t.transfer.available}
+              </span>
             </div>
           </div>
 
@@ -116,9 +134,11 @@ export default function TransferPage() {
               <WalletIcon className="w-24 h-24 text-[#F97316]" />
             </div>
             <div className="relative z-10 flex flex-col gap-2">
-              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">TCM Balance</span>
+              <span className="text-gray-400 text-sm font-medium tracking-wide uppercase">{t.transfer.tcmBalance}</span>
               <span className="text-3xl font-bold font-mono text-white">{tcmBalance}</span>
-              <span className="text-xs text-[#F97316] bg-[#F97316]/10 px-2 py-1 rounded w-fit mt-1">Available</span>
+              <span className="text-xs text-[#F97316] bg-[#F97316]/10 px-2 py-1 rounded w-fit mt-1">
+                {t.transfer.available}
+              </span>
             </div>
           </div>
         </div>
@@ -132,12 +152,12 @@ export default function TransferPage() {
             <div className="p-2 rounded-lg bg-[#39FF14]/10 text-[#39FF14]">
               <PaperAirplaneIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-xl font-bold">New Transfer</h2>
+            <h2 className="text-xl font-bold">{t.transfer.newTransfer}</h2>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400 font-medium ml-1">Recipient Address</label>
+              <label className="text-sm text-gray-400 font-medium ml-1">{t.transfer.recipient}</label>
               <input
                 type="text"
                 placeholder="0x..."
@@ -148,7 +168,7 @@ export default function TransferPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-gray-400 font-medium ml-1">Amount</label>
+              <label className="text-sm text-gray-400 font-medium ml-1">{t.transfer.amount}</label>
               <div className="relative">
                 <input
                   type="text"
@@ -164,7 +184,7 @@ export default function TransferPage() {
                   MAX
                 </button>
               </div>
-              <p className="text-xs text-gray-500 ml-1">Transfer Fee: 20% (Burned)</p>
+              <p className="text-xs text-gray-500 ml-1">{t.transfer.feeHint}</p>
             </div>
 
             <button
@@ -172,7 +192,7 @@ export default function TransferPage() {
               onClick={handleTransfer}
               disabled={isTransferPending}
             >
-              {isTransferPending ? <span className="loading loading-spinner"></span> : "Confirm Transfer"}
+              {isTransferPending ? <span className="loading loading-spinner"></span> : t.transfer.confirm}
             </button>
           </div>
         </div>
@@ -183,30 +203,30 @@ export default function TransferPage() {
             <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
               <ClockIcon className="w-6 h-6" />
             </div>
-            <h2 className="text-xl font-bold">Recent History</h2>
+            <h2 className="text-xl font-bold">{t.transfer.recentHistory}</h2>
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-white/5">
             <table className="table w-full">
               <thead className="bg-[#051113] text-gray-400">
                 <tr>
-                  <th className="bg-transparent border-b border-white/5">Time</th>
-                  <th className="bg-transparent border-b border-white/5">To</th>
-                  <th className="bg-transparent border-b border-white/5 text-right">Amount</th>
-                  <th className="bg-transparent border-b border-white/5 text-center">Status</th>
+                  <th className="bg-transparent border-b border-white/5">{t.transfer.time}</th>
+                  <th className="bg-transparent border-b border-white/5">{t.transfer.to}</th>
+                  <th className="bg-transparent border-b border-white/5 text-right">{t.transfer.amount}</th>
+                  <th className="bg-transparent border-b border-white/5 text-center">{t.transfer.status}</th>
                 </tr>
               </thead>
               <tbody>
                 {isHistoryLoading ? (
                   <tr>
                     <td colSpan={4} className="text-center py-8 text-gray-500">
-                      Loading history...
+                      {t.transfer.loadingHistory}
                     </td>
                   </tr>
                 ) : historyData?.data?.list?.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="text-center py-8 text-gray-500">
-                      No transfers found
+                      {t.transfer.noHistory}
                     </td>
                   </tr>
                 ) : (
@@ -224,7 +244,7 @@ export default function TransferPage() {
                         <span
                           className={`badge badge-sm ${record.status === 1 ? "badge-success bg-[#39FF14]/20 text-[#39FF14] border-none" : "badge-error bg-red-500/20 text-red-400 border-none"}`}
                         >
-                          {record.status === 1 ? "Success" : "Failed"}
+                          {record.status === 1 ? t.transfer.success : t.transfer.failed}
                         </span>
                       </td>
                     </tr>

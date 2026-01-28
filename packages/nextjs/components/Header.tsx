@@ -14,11 +14,9 @@ export const HeaderMenuLinks = () => {
   const { t } = useGlobalState();
 
   const links = [
-    { label: t.nav.team, href: "/team" },
     { label: t.nav.wallet, href: "/wallet" },
     { label: t.nav.transfer, href: "/transfer" },
     { label: t.nav.deposit, href: "/deposit" },
-    { label: t.nav.dividend, href: "/dividend" },
     { label: t.nav.hashpower, href: "/hashpower" },
     { label: t.nav.node, href: "/node" },
   ];
@@ -114,12 +112,18 @@ export const Header = () => {
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-black rounded-box w-32 border border-white/10"
           >
             <li>
-              <button onClick={() => handleLanguageChange("en")} className={language === "en" ? "active" : ""}>
+              <button
+                onClick={() => handleLanguageChange("en")}
+                className={`${language === "en" ? "bg-[#39FF14] text-black font-bold" : "text-white hover:bg-white/10"}`}
+              >
                 English
               </button>
             </li>
             <li>
-              <button onClick={() => handleLanguageChange("zh")} className={language === "zh" ? "active" : ""}>
+              <button
+                onClick={() => handleLanguageChange("zh")}
+                className={`${language === "zh" ? "bg-[#39FF14] text-black font-bold" : "text-white hover:bg-white/10"}`}
+              >
                 中文
               </button>
             </li>

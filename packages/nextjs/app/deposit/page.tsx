@@ -2,13 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowPathIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { useInjectPool, useInjectionStatus, useRequestWithdraw, useWithdrawHistory } from "~~/hooks/api/usePayment";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import {
+  useWithdrawHistory,
+  useWithdrawInject,
+  useWithdrawInjectionStatus,
+  useWithdrawRequest,
+} from "~~/hooks/api/useWithdraw";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
-export default function DepositPage() {
+export default function WithdrawPage() {
   const { isAuthenticated, user } = useAuthStore();
   const { t } = useGlobalState();
   const queryClient = useQueryClient();
@@ -17,29 +22,32 @@ export default function DepositPage() {
   useEffect(() => {
     if (wasAuthenticated.current && !isAuthenticated) {
       queryClient.removeQueries({ queryKey: ["withdrawHistory"] });
-      queryClient.removeQueries({ queryKey: ["injectionStatus"] });
+      queryClient.removeQueries({ queryKey: ["withdrawInjectionStatus"] });
     }
     if (!wasAuthenticated.current && isAuthenticated) {
-      queryClient.invalidateQueries({ queryKey: ["injectionStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["withdrawInjectionStatus"] });
     }
     wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, queryClient]);
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <h1 className="text-4xl font-bold mb-8 text-center text-[#39FF14]">{t.deposit.title}</h1>
+    <div className="container mx-auto p-6 max-w-7xl animate-fade-in-up">
+      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#39FF14] uppercase">{t.withdraw.title}</h1>
 
       {!isAuthenticated ? (
-        <div className="text-center text-xl text-gray-500">{t.deposit.loginPrompt}</div>
+        <div className="flex flex-col items-center gap-6 mt-20">
+          <div className="text-center text-xl text-gray-400">{t.withdraw.loginPrompt}</div>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Deposit Section now just shows user address */}
-          <DepositAddressSection userAddress={user?.void_address || ""} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Injection Status & Actions */}
+          <InjectionSection balance={user?.tcm_balance} />
 
-          {/* Withdraw Section handles Injection + Withdraw Request */}
-          <WithdrawSection />
+          {/* Withdraw Form */}
+          <WithdrawFormSection balance={user?.tcm_balance} />
 
-          <div className="lg:col-span-2">
+          {/* Withdrawal History */}
+          <div className="md:col-span-2">
             <WithdrawHistorySection />
           </div>
         </div>
@@ -48,49 +56,25 @@ export default function DepositPage() {
   );
 }
 
-const DepositAddressSection = ({ userAddress }: { userAddress: string }) => {
+const InjectionSection = ({ balance }: { balance?: string }) => {
   const { t } = useGlobalState();
-  const [copied, setCopied] = useState(false);
+  const {
+    data: injectionData,
+    isLoading: isInjectionLoading,
+    refetch: refetchInjection,
+  } = useWithdrawInjectionStatus();
+  const { mutate: injectPool, isPending: isInjecting } = useWithdrawInject();
 
-  const handleCopy = () => {
-    if (userAddress) {
-      navigator.clipboard.writeText(userAddress);
-      setCopied(true);
-      notification.success(t.deposit.depositSection.copied);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  return (
-    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.depositSection.title}</h2>
-      <p className="mb-4 text-gray-400 text-sm">Transfer TCM to your address to deposit.</p>
-
-      <div className="flex gap-2 items-center bg-black/50 p-3 rounded-lg border border-white/10">
-        <div className="flex-1 font-mono text-white break-all text-sm">{userAddress || "Loading..."}</div>
-        <button onClick={handleCopy} className="btn btn-ghost btn-sm text-[#39FF14]">
-          {copied ? "✓" : <DocumentDuplicateIcon className="w-5 h-5" />}
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const WithdrawSection = () => {
-  const { t } = useGlobalState(); // Ensure translations exist for new labels or use defaults
-  const { data: injectionData, isLoading: isInjectionLoading, refetch: refetchInjection } = useInjectionStatus();
-  const { mutate: injectPool, isPending: isInjecting } = useInjectPool();
-  const { mutate: requestWithdraw, isPending: isRequesting } = useRequestWithdraw();
-
-  // Withdraw Form State
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawAddress, setWithdrawAddress] = useState("");
-
-  // Injection Form State
   const [injectAmount, setInjectAmount] = useState("");
-
   const status = injectionData?.data;
-  // status: { has_injected, required_amount, injected_amount, remaining }
+
+  // status structure: { has_injected, required_amount, injected_amount, remaining }
+
+  const formatNumber = (numStr?: string) => {
+    if (!numStr) return "0.00";
+    const num = parseFloat(numStr);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
 
   const handleInject = () => {
     if (!injectAmount) return;
@@ -105,11 +89,116 @@ const WithdrawSection = () => {
     );
   };
 
+  if (isInjectionLoading)
+    return (
+      <div className="card bg-[#0b1210] border border-[#203731] p-6 h-64 flex justify-center items-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+
+  return (
+    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-white">{t.withdraw.injection.title}</h2>
+        <button onClick={() => refetchInjection()} className="btn btn-ghost btn-xs text-gray-400 hover:text-white">
+          <ArrowPathIcon className="w-4 h-4" />
+        </button>
+      </div>
+
+      <p className="text-gray-400 text-sm mb-6">{t.withdraw.injection.desc}</p>
+
+      {!status?.has_injected ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+              <div className="text-xs text-gray-500">{t.withdraw.injection.injected}</div>
+              <div className="text-lg font-mono text-white">{formatNumber(status?.injected_amount)}</div>
+            </div>
+            <div className="bg-black/30 p-3 rounded-lg border border-white/5">
+              <div className="text-xs text-gray-500">{t.withdraw.injection.remaining}</div>
+              <div className="text-lg font-mono text-yellow-500">{formatNumber(status?.remaining)}</div>
+            </div>
+          </div>
+
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text text-gray-400">{t.withdraw.injection.required}</span>
+              <span className="label-text-alt text-gray-500">
+                {t.withdraw.form.balance} <span className="text-white">{formatNumber(balance)}</span>
+              </span>
+            </label>
+            <div className="join w-full">
+              <input
+                type="text"
+                className="input input-bordered join-item w-full bg-black/50 border-[#203731] text-white focus:border-[#39FF14]"
+                value={injectAmount}
+                onChange={e => setInjectAmount(e.target.value)}
+                placeholder={formatNumber(status?.remaining)}
+              />
+              <button
+                className="btn join-item bg-[#203731] border-[#203731] text-white hover:bg-[#2a453d]"
+                onClick={() => setInjectAmount(status?.remaining || "")}
+              >
+                Max
+              </button>
+            </div>
+          </div>
+
+          <button
+            className="btn btn-warning w-full font-bold mt-2"
+            onClick={handleInject}
+            disabled={isInjecting || !injectAmount}
+          >
+            {isInjecting ? <span className="loading loading-spinner loading-xs"></span> : t.withdraw.injection.button}
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-8 text-center space-y-4">
+          <div className="w-16 h-16 rounded-full bg-green-900/30 flex items-center justify-center border-2 border-green-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-green-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-green-500">{t.withdraw.injection.success}</h3>
+          <p className="text-gray-400 text-sm">You can now request withdrawals.</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const WithdrawFormSection = ({ balance }: { balance?: string }) => {
+  const { t } = useGlobalState();
+  const { mutate: requestWithdraw, isPending: isRequesting } = useWithdrawRequest();
+  const { data: injectionData } = useWithdrawInjectionStatus();
+
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+
+  const hasInjected = injectionData?.data?.has_injected;
+
+  const formatNumber = (numStr?: string) => {
+    if (!numStr) return "0.00";
+    const num = parseFloat(numStr);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
+
   const handleWithdraw = () => {
     if (!withdrawAmount || !withdrawAddress) {
       notification.error("Please fill all fields");
       return;
     }
+    if (!hasInjected) {
+      notification.error("You must complete the liquidity injection first.");
+      return;
+    }
+
     requestWithdraw(
       { amount: withdrawAmount, destination_address: withdrawAddress },
       {
@@ -121,142 +210,148 @@ const WithdrawSection = () => {
     );
   };
 
-  if (isInjectionLoading)
-    return <div className="card bg-base-100 shadow-xl border border-gray-700 p-6 animate-pulse h-64"></div>;
-
   return (
-    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-[#39FF14]">{t.deposit.withdrawSection.title}</h2>
-        <button onClick={() => refetchInjection()} className="btn btn-ghost btn-xs">
-          <ArrowPathIcon className="w-4 h-4" />
-        </button>
-      </div>
+    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
+      <h2 className="text-xl font-bold text-[#39FF14] mb-6">{t.withdraw.form.title}</h2>
 
-      {!status?.has_injected ? (
-        // Injection Required State
-        <div className="space-y-4">
-          <div className="alert alert-warning">
-            <span>You must inject 20% to the base pool before withdrawing.</span>
-          </div>
-          <div className="stats shadow bg-black/30 w-full">
-            <div className="stat place-items-center">
-              <div className="stat-title">Remaining to Inject</div>
-              <div className="stat-value text-warning text-lg font-mono">{status?.remaining || "0"}</div>
-            </div>
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Injection Amount</span>
-            </label>
-            <input
-              type="text"
-              className="input input-bordered w-full"
-              value={injectAmount}
-              onChange={e => setInjectAmount(e.target.value)}
-              placeholder={status?.remaining}
-            />
-          </div>
-
-          <button
-            className="btn btn-warning w-full font-bold"
-            onClick={handleInject}
-            disabled={isInjecting || !injectAmount}
-          >
-            {isInjecting ? "Injecting..." : "Inject to Pool"}
-          </button>
+      <div className="space-y-4">
+        {/* Destination Address */}
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text text-gray-400">{t.withdraw.form.address}</span>
+          </label>
+          <input
+            type="text"
+            className="input input-bordered w-full bg-black/50 border-[#203731] text-white focus:border-[#39FF14] font-mono placeholder:text-gray-700"
+            value={withdrawAddress}
+            onChange={e => setWithdrawAddress(e.target.value)}
+            placeholder="0x..."
+            disabled={!hasInjected}
+          />
         </div>
-      ) : (
-        // Withdraw Form State
-        <div className="space-y-4">
-          <div className="alert alert-success bg-[#39FF14]/10 text-[#39FF14] border-[#39FF14]/20 py-2">
-            <span>✓ Base Pool Injected</span>
-          </div>
 
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">To Address</span>
-            </label>
+        {/* Amount */}
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text text-gray-400">{t.withdraw.form.amount}</span>
+            <span className="label-text-alt text-gray-500">
+              {t.withdraw.form.balance} <span className="text-white">{formatNumber(balance)}</span>
+            </span>
+          </label>
+          <div className="relative">
             <input
               type="text"
-              className="input input-bordered w-full font-mono"
-              value={withdrawAddress}
-              onChange={e => setWithdrawAddress(e.target.value)}
-              placeholder="0x..."
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Amount</span>
-            </label>
-            <input
-              type="text"
-              className="input input-bordered w-full font-mono"
+              className="input input-bordered w-full bg-black/50 border-[#203731] text-white focus:border-[#39FF14] font-mono pr-16"
               value={withdrawAmount}
               onChange={e => setWithdrawAmount(e.target.value)}
               placeholder="0.00"
+              disabled={!hasInjected}
             />
+            <span className="absolute right-4 top-3 text-gray-500 text-sm font-bold">TCM</span>
           </div>
-
-          <button
-            className="btn btn-primary w-full bg-[#39FF14] border-none text-black font-bold hover:bg-[#32e612]"
-            onClick={handleWithdraw}
-            disabled={isRequesting}
-          >
-            {isRequesting ? "Submitting..." : "Request Withdraw"}
-          </button>
         </div>
-      )}
+
+        <button
+          className={`btn w-full font-bold mt-4 border-none text-black ${
+            hasInjected ? "bg-[#39FF14] hover:bg-[#32e612]" : "btn-disabled bg-gray-800 text-gray-500"
+          }`}
+          onClick={handleWithdraw}
+          disabled={isRequesting || !hasInjected}
+        >
+          {isRequesting ? <span className="loading loading-spinner loading-xs"></span> : t.withdraw.form.button}
+        </button>
+        {!hasInjected && (
+          <p className="text-center text-xs text-yellow-600 mt-2">{t.withdraw.form.injectionRequired}</p>
+        )}
+      </div>
     </div>
   );
 };
 
 const WithdrawHistorySection = () => {
   const { t } = useGlobalState();
-  const { data: historyData } = useWithdrawHistory();
+  const { data: historyData, isLoading } = useWithdrawHistory();
+
+  const formatNumber = (numStr?: string) => {
+    if (!numStr) return "0.00";
+    const num = parseFloat(numStr);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
   const withdrawals = historyData?.data?.withdrawals || [];
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "badge-warning";
+      case "approved":
+        return "badge-info";
+      case "completed":
+        return "badge-success";
+      case "rejected":
+        return "badge-error";
+      default:
+        return "badge-ghost";
+    }
+  };
+
+  const statusMap = (status: string) => {
+    // @ts-ignore
+    return t.withdraw.status?.[status] || status;
+  };
+
   return (
-    <div className="card bg-base-100 shadow-xl border border-gray-700 p-6 mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-[#39FF14]">{t.deposit.history.title}</h2>
-      <div className="overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Address</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {withdrawals.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center text-gray-500">
-                  No history
-                </td>
+    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
+      <h2 className="text-xl font-bold text-white mb-6">{t.withdraw.history.title}</h2>
+
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <span className="loading loading-spinner text-primary"></span>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="table table-zebra w-full">
+            <thead>
+              <tr className="text-gray-400 border-b border-[#203731]">
+                <th className="bg-transparent">{t.withdraw.history.id}</th>
+                <th className="bg-transparent">{t.withdraw.history.date}</th>
+                <th className="bg-transparent">{t.withdraw.history.amount}</th>
+                <th className="bg-transparent">{t.withdraw.history.address}</th>
+                <th className="bg-transparent text-right">{t.withdraw.history.status}</th>
               </tr>
-            ) : (
-              withdrawals.map((item: any) => (
-                <tr key={item.request_id}>
-                  <td>{item.request_id}</td>
-                  <td>{new Date(item.created_at * 1000).toLocaleString()}</td>
-                  <td className="font-mono">{item.amount}</td>
-                  <td className="font-mono text-xs">{item.destination_address}</td>
-                  <td>
-                    <span className={`badge ${item.status === "completed" ? "badge-success" : "badge-warning"}`}>
-                      {item.status}
-                    </span>
+            </thead>
+            <tbody>
+              {withdrawals.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center text-gray-500 py-8 bg-transparent">
+                    {t.withdraw.history.noData}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                withdrawals.map((item: any) => (
+                  <tr key={item.request_id} className="hover:bg-white/5 border-b border-[#203731]">
+                    <td className="bg-transparent text-white font-mono">#{item.request_id}</td>
+                    <td className="bg-transparent text-gray-300 text-sm">
+                      {new Date(item.created_at * 1000).toLocaleString()}
+                    </td>
+                    <td className="bg-transparent text-[#39FF14] font-mono font-bold">
+                      {formatNumber(item.amount)} TCM
+                    </td>
+                    <td
+                      className="bg-transparent text-gray-400 font-mono text-xs max-w-[150px] truncate"
+                      title={item.destination_address}
+                    >
+                      {item.destination_address}
+                    </td>
+                    <td className="bg-transparent text-right">
+                      <div className={`badge ${getStatusColor(item.status)} gap-2`}>{statusMap(item.status)}</div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
