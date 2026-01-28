@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "~~/services/store/authStore";
 import { nodeEndpoints } from "~~/services/web2/endpoints";
 import { BuyNodeRequest, ClaimNodeBonusRequest } from "~~/types/api";
 import { notification } from "~~/utils/scaffold-eth";
@@ -7,6 +8,9 @@ export const useAvailableNodes = () => {
   return useQuery({
     queryKey: ["availableNodes"],
     queryFn: () => nodeEndpoints.getAvailableNodes(),
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -28,9 +32,14 @@ export const usePurchaseNode = () => {
 };
 
 export const useMyNodes = () => {
+  const { token } = useAuthStore();
   return useQuery({
     queryKey: ["myNodes"],
     queryFn: () => nodeEndpoints.getMyNodes(),
+    enabled: !!token,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -50,8 +59,13 @@ export const useClaimBonus = () => {
 };
 
 export const useNodeRewards = () => {
+  const { token } = useAuthStore();
   return useQuery({
     queryKey: ["nodeRewards"],
     queryFn: () => nodeEndpoints.getRewards(),
+    enabled: !!token,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };

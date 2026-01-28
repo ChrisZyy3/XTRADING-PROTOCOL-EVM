@@ -16,8 +16,6 @@ export default function WalletPage() {
   const { t, language } = useGlobalState();
   const queryClient = useQueryClient();
   const wasAuthenticated = useRef(isAuthenticated);
-  // Remove useBalance, use UserProfile from authStore
-  const { data: nodeData, isLoading: isNodeLoading } = useMyNodes();
   const { mutate: fetchProfile } = useUserProfile();
 
   useEffect(() => {
@@ -28,42 +26,21 @@ export default function WalletPage() {
 
   useEffect(() => {
     if (wasAuthenticated.current && !isAuthenticated) {
-      // queryClient.removeQueries({ queryKey: ["balance"] }); // no longer needed
       queryClient.removeQueries({ queryKey: ["myNodes"] });
+      // Clear profile data if needed, but Zustand store handles auth state usually
     }
     wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, queryClient]);
 
-  const usdtBalance = "0.00"; // v6 API has no USDT balance? It has tc_balance and tcm_balance? v6 doc: tcp_balance, tc_balance.
-  // v6 Profile: tcm_balance, tc_balance.
-  // Let's assume TC is the main currency replacing USDT or just display TC.
-  // The UI had USDT and TC. V6 has TCM (Token) and TC (Coin?).
-  // Let's map USDT card to TC balance? And TC card to TCM?
-  // Doc: tc_balance (TC代币), tcm_balance (TCM代币).
-  // WalletPage has USDT and TC. I will swap USDT -> TC, and TC -> TCM to align with profile.
-  const tcBalance = user?.tc_balance || "0.00";
-  const tcmBalance = user?.tcm_balance || "0.00";
+  const formatNumber = (numStr?: string) => {
+    if (!numStr) return "0.00";
+    const num = parseFloat(numStr);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  };
 
-  // Node Data: MyNode[]
-  const firstNode = nodeData?.data?.nodes?.[0]; // MyNodesResponse { nodes: MyNode[] }
-
-  const totalRefCount = 0; // v6 MyNode doesn't explicitly return ref_count in MyNode type?
-  // MyNode: { id, node_tier_id, tier_name, shares_count, status, purchased_at }
-  // Ref count not in list. Omit for now or hardcode 0.
-
-  const displayNodeType = firstNode
-    ? language === "zh"
-      ? firstNode.tier_name === "genesis" // tier_name
-        ? "创世节点"
-        : firstNode.tier_name === "super"
-          ? "超级节点"
-          : firstNode.tier_name === "city"
-            ? "城市节点"
-            : firstNode.tier_name === "community"
-              ? "社区节点"
-              : firstNode.tier_name
-      : firstNode.tier_name.charAt(0).toUpperCase() + firstNode.tier_name.slice(1) + " Node"
-    : t.wallet.assets.node;
+  const tcBalance = formatNumber(user?.tc_balance);
+  const tcmBalance = formatNumber(user?.tcm_balance);
+  const totalHashrate = formatNumber(user?.total_hashrate);
 
   const copyAddress = () => {
     if (user?.void_address) {
@@ -91,8 +68,8 @@ export default function WalletPage() {
                 <UsersIcon className="w-6 h-6" />
               </div>
               <div className="flex-1 overflow-hidden">
-                <h2 className="text-lg font-bold text-white truncate">{user?.void_account || "Guest"}</h2>
-                <div className="flex items-center gap-2 text-gray-400 text-xs">
+                {/* Username removed as per request */}
+                <div className="flex items-center gap-2 text-gray-400 text-sm">
                   <span className="truncate">{user?.void_address || "No Address"}</span>
                   <button onClick={copyAddress} className="btn btn-ghost btn-xs text-[#27E903] p-0 min-h-0 h-auto">
                     <Square2StackIcon className="w-4 h-4" />
@@ -103,7 +80,7 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* TC Balance Card (replacing USDT) */}
+        {/* TC Balance Card */}
         <div className="card bg-[#09181a] border border-[#4ADE80]/30 shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
@@ -131,18 +108,17 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* Node Card */}
+        {/* Total Hashrate Card (replacing Node) */}
         <div className="card bg-[#09181a] border border-white/10 shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#34D399] flex items-center justify-center text-white">
                 <CubeIcon className="w-7 h-7" />
               </div>
+              <span className="text-gray-400 font-bold">{t.hashpower.stats.total}</span>
             </div>
             <div className="text-right">
-              <div className="text-white font-bold">
-                {isNodeLoading ? <span className="loading loading-spinner loading-xs"></span> : displayNodeType}
-              </div>
+              <div className="text-white font-bold text-xl">{totalHashrate}</div>
             </div>
           </div>
         </div>

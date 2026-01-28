@@ -14,6 +14,7 @@ export const translations = {
       deposit: "Deposit",
       dividend: "Dividend",
       hashpower: "Hashpower",
+      node: "My Nodes",
     },
     header: {
       refresh: "Refresh",
@@ -229,6 +230,7 @@ export const translations = {
       deposit: "充值",
       dividend: "分红",
       hashpower: "算力",
+      node: "节点",
     },
     header: {
       refresh: "刷新",

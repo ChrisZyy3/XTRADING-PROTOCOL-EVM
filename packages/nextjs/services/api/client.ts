@@ -114,13 +114,14 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // 如果是登录接口本身的 401 (密码错误等)，不应该提示会话过期
       const isLoginRequest = error.config?.url?.includes("/login");
+      const isNodeAvailableRequest = error.config?.url?.includes("/node/available");
 
-      if (!isLoginRequest) {
+      if (!isLoginRequest && !isNodeAvailableRequest) {
         // 401 Unauthorized (且非登录请求): token 过期或无效，执行登出
         useAuthStore.getState().logout();
         queryClient.clear();
         notification.error(backendMessage || FALLBACK_MESSAGES.sessionExpired[lang]);
-      } else {
+      } else if (isLoginRequest) {
         // 登录请求失败，直接显示后端返回的错误 (如: 地址或密码错误)
         notification.error(backendMessage || FALLBACK_MESSAGES.loginFailed[lang]);
       }
