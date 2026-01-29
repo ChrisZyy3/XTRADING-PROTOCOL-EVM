@@ -2,6 +2,8 @@ import { apiClient } from "~~/services/api/client";
 import {
   ApiResponse,
   AuthResponse,
+  BindReferralRequest,
+  BindReferralResponse,
   BuyNodeRequest,
   BuyNodeResponse,
   ClaimNodeBonusRequest,
@@ -14,10 +16,13 @@ import {
   LoginRequest,
   MiningClaimResponse,
   MiningPendingResponse,
+  MyChainResponse,
   MyNodesResponse,
+  MyReferralsResponse,
   NodeAvailableResponse,
   NodeRewardsResponse,
   PaginationResponse,
+  ReferralCodeResponse,
   RegisterRequest,
   TotalHashrateResponse,
   TransferRecord,
@@ -149,5 +154,27 @@ export const withdrawEndpoints = {
   // 提币历史
   getHistory: async (page = 1, limit = 20): Promise<ApiResponse<WithdrawHistoryResponse>> => {
     return apiClient.get("/withdraw/history", { params: { page, limit } });
+  },
+};
+
+/**
+ * 推荐系统 API (V7 Referral)
+ */
+export const referralEndpoints = {
+  // 获取我的推荐码
+  getMyCode: async (): Promise<ApiResponse<ReferralCodeResponse>> => {
+    return apiClient.get("/referral/my-code");
+  },
+  // 获取我的直接推荐
+  getMyReferrals: async (): Promise<ApiResponse<MyReferralsResponse>> => {
+    return apiClient.get("/referral/my-referrals");
+  },
+  // 获取我的推荐链
+  getMyChain: async (): Promise<ApiResponse<MyChainResponse>> => {
+    return apiClient.get("/referral/my-chain");
+  },
+  // 绑定推荐关系
+  bindReferral: async (data: BindReferralRequest): Promise<ApiResponse<BindReferralResponse>> => {
+    return apiClient.post("/referral/bind", data);
   },
 };

@@ -4,33 +4,34 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeftIcon, CubeIcon, Square2StackIcon, UsersIcon } from "@heroicons/react/24/outline";
+import { CustomLoginButton } from "~~/components/auth/CustomLoginButton";
 import { useUserProfile } from "~~/hooks/api/useAuth";
-import { useMyNodes } from "~~/hooks/api/useNodes";
 // Updated import
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export default function WalletPage() {
-  const { user, isAuthenticated } = useAuthStore();
-  const { t, language } = useGlobalState();
+  const { user, isAuthenticated, token } = useAuthStore();
+  const { t } = useGlobalState();
   const queryClient = useQueryClient();
-  const wasAuthenticated = useRef(isAuthenticated);
-  const { mutate: fetchProfile } = useUserProfile();
+  const wasAuthenticated = useRef(isAuthenticated && !!token);
+  const { mutate: fetchProfile, isPending, isError } = useUserProfile();
+  const hasAuth = isAuthenticated && !!token;
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (hasAuth && !user && !isPending && !isError) {
       fetchProfile();
     }
-  }, [fetchProfile, isAuthenticated]);
+  }, [fetchProfile, hasAuth, user, isPending, isError]);
 
   useEffect(() => {
-    if (wasAuthenticated.current && !isAuthenticated) {
+    if (wasAuthenticated.current && !hasAuth) {
       queryClient.removeQueries({ queryKey: ["myNodes"] });
       // Clear profile data if needed, but Zustand store handles auth state usually
     }
-    wasAuthenticated.current = isAuthenticated;
-  }, [isAuthenticated, queryClient]);
+    wasAuthenticated.current = hasAuth;
+  }, [hasAuth, queryClient]);
 
   const formatNumber = (numStr?: string) => {
     if (!numStr) return "0.00";
@@ -48,6 +49,25 @@ export default function WalletPage() {
       notification.success("Address copied!");
     }
   };
+
+  if (!hasAuth) {
+    return (
+      <div className="flex flex-col flex-grow w-full bg-[#051113] min-h-screen px-4 py-6">
+        <div className="max-w-md mx-auto w-full space-y-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Link href="/" className="btn btn-circle btn-ghost btn-sm bg-[#121c1e] text-white hover:bg-[#1a2628]">
+              <ChevronLeftIcon className="w-5 h-5" />
+            </Link>
+            <h1 className="text-2xl font-bold text-white">{t.wallet.title}</h1>
+          </div>
+          <div className="flex flex-col items-center gap-4 mt-10">
+            <div className="text-center text-gray-400">{t.node.loginPrompt}</div>
+            <CustomLoginButton />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-grow w-full bg-[#051113] min-h-screen px-4 py-6">

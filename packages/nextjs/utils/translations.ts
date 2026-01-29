@@ -15,10 +15,11 @@ export const translations = {
       dividend: "Dividend",
       hashpower: "Hashpower",
       node: "My Nodes",
+      referral: "Referral",
     },
     node: {
       title: "My Nodes",
-      loginPrompt: "Please log in to view your nodes.",
+      loginPrompt: "Please log in.",
       rewards: {
         title: "Node Rewards",
         total: "Total Rewards",
@@ -39,6 +40,17 @@ export const translations = {
         3: "City Node",
         4: "Community Node",
       },
+    },
+    referral: {
+      title: "Referral System",
+      myCode: "My Referral Code",
+      bindTitle: "Bind Referral",
+      bindPlaceholder: "Enter referral code or address",
+      bindButton: "Bind",
+      myReferrals: "My Referrals",
+      totalReferrals: "Total Referrals",
+      chainLength: "Chain Length",
+      noReferrals: "No referrals yet.",
     },
     withdraw: {
       title: "Withdraw",
@@ -137,7 +149,7 @@ export const translations = {
       },
       pool: {
         title: "TCM POOL",
-        desc: "The TCM protocol, as the underlying payment network linking encrypted wallets, exchanges, and global merchants, will build a WEB3 highway for the encrypted world and commodity circulation, pioneering two core algorithms: circulation mining and circulation destruction. One of them is \"circulation is mining\", which has created a unique mechanism of global circulation transfer and mining, supporting multiple EVM wallets worldwide. Users can start mining by transferring tokens, and 10% of each transfer is released as mining pool tokens through a computing power protocol, thus achieving wealth effects of more circulation and more computing power with more payments. The second is' circulation is destruction ', where 10% of each transfer goes directly into the black hole, and the 10% released computing power is also destroyed simultaneously. As the number of payers increases, tokens become increasingly scarce, creating a strong deflationary effect that drives the continuous rise of TCM value and brings considerable returns to investors.",
+        desc: "The XTrading protocol, as the underlying payment network linking encrypted wallets, exchanges, and global merchants, will build a WEB3 highway for the encrypted world and commodity circulation, pioneering two core algorithms: circulation mining and circulation destruction. One of them is \"circulation is mining\", which has created a unique mechanism of global circulation transfer and mining, supporting multiple EVM wallets worldwide. Users can start mining by transferring tokens, and 10% of each transfer is released as mining pool tokens through a computing power protocol, thus achieving wealth effects of more circulation and more computing power with more payments. The second is' circulation is destruction ', where 10% of each transfer goes directly into the black hole, and the 10% released computing power is also destroyed simultaneously. As the number of payers increases, tokens become increasingly scarce, creating a strong deflationary effect that drives the continuous rise of TCM value and brings considerable returns to investors.",
       },
       mall: {
         title: "TCM MALL",
@@ -152,8 +164,8 @@ export const translations = {
       android: "Android",
     },
     footer: {
-      welcome: "Welcome To The TCM Ecosystem",
-      subtitle: "TCM Protocol Web3-Rwa",
+      welcome: "Welcome To XTrading",
+      subtitle: "XTrading Protocol Web3-Rwa",
       rights: "All Rights Reserved",
       links: {
         fork: "Fork me",
@@ -309,8 +321,8 @@ export const translations = {
       titleMain: "XTrading-Protocol",
       titleAccent: "",
       badge: "WEB3 - RWA",
-      subtitle: "Wallet payement mining protocol",
-      description: "Wallet payement mining protocol",
+      subtitle: "XTrading Protocol 钱包支付挖矿协议",
+      description: "XTrading Protocol 钱包支付挖矿协议",
     },
     nav: {
       team: "团队",
@@ -320,10 +332,11 @@ export const translations = {
       dividend: "分红",
       hashpower: "算力",
       node: "节点",
+      referral: "推荐",
     },
     node: {
       title: "我的节点",
-      loginPrompt: "请先登录后查看节点信息。",
+      loginPrompt: "请先登录后查看信息。",
       rewards: {
         title: "节点收益",
         total: "累计收益",
@@ -344,6 +357,17 @@ export const translations = {
         3: "城市节点",
         4: "社区节点",
       },
+    },
+    referral: {
+      title: "推荐系统",
+      myCode: "我的推荐码",
+      bindTitle: "绑定推荐人",
+      bindPlaceholder: "输入推荐码或地址",
+      bindButton: "绑定",
+      myReferrals: "我的推荐",
+      totalReferrals: "总推荐数",
+      chainLength: "推荐链长度",
+      noReferrals: "暂无推荐。",
     },
     withdraw: {
       title: "提现",
@@ -457,8 +481,8 @@ export const translations = {
       android: "Android",
     },
     footer: {
-      welcome: "Welcome To The TCM Ecosystem",
-      subtitle: "TCM Protocol Web3-Rwa",
+      welcome: "Welcome To The XTrading Ecosystem",
+      subtitle: "XTrading Protocol Web3-Rwa",
       rights: "版权所有",
       links: {
         fork: "Fork me",

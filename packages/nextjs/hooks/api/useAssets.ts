@@ -43,8 +43,11 @@ export const useTransfer = () => {
 };
 
 export const useTransferHistory = (page = 1, limit = 20) => {
+  const { isAuthenticated } = useAuthStore();
   return useQuery({
     queryKey: ["transferHistory", page, limit],
     queryFn: () => assetEndpoints.getTransferHistory(page, limit),
+    enabled: isAuthenticated,
+    retry: false,
   });
 };

@@ -19,6 +19,7 @@ export const HeaderMenuLinks = () => {
     { label: t.nav.deposit, href: "/deposit" },
     { label: t.nav.hashpower, href: "/hashpower" },
     { label: t.nav.node, href: "/node" },
+    { label: t.nav.referral, href: "/referral" },
   ];
 
   return (
@@ -73,7 +74,7 @@ export const Header = () => {
       <div className="navbar-start w-auto lg:w-1/2">
         <Link href="/" passHref className="flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="relative w-10 h-10">
-            <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
+            <Image src="/logo.png" alt="XTrading Protocol" fill className="rounded-full object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-white">

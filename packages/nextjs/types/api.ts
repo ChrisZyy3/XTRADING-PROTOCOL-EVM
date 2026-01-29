@@ -244,3 +244,44 @@ export interface WithdrawHistoryResponse {
   limit: number;
   withdrawals: WithdrawHistoryRecord[];
 }
+
+// --- 推荐系统 ---
+
+export interface ReferralCodeResponse {
+  referral_code: string;
+  void_address: string;
+  void_account: string;
+}
+
+export interface ReferralUser {
+  user_id: number;
+  void_address: string;
+  void_account: string;
+  created_at: number;
+}
+
+export interface MyReferralsResponse {
+  total: number;
+  referrals: ReferralUser[];
+}
+
+export interface ReferralChainNode {
+  user_id: number;
+  void_address: string;
+  void_account: string;
+}
+
+export interface MyChainResponse {
+  chain_length: number;
+  chain: ReferralChainNode[];
+}
+
+export interface BindReferralRequest {
+  referral_code?: string;
+  referrer_address?: string;
+}
+
+export interface BindReferralResponse {
+  referrer_id: number;
+  referee_id: number;
+}
