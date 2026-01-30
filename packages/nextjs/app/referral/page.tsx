@@ -23,8 +23,22 @@ export default function ReferralPage() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    notification.success("Copied to clipboard!");
+    // 降级方案：使用传统方法兼容 HTTP 环境
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      notification.success("Copied to clipboard!");
+    } catch (err) {
+      console.error("Copy failed:", err);
+      notification.error("Failed to copy");
+    }
+    document.body.removeChild(textArea);
   };
 
   if (!isAuthenticated) {

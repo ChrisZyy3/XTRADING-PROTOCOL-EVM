@@ -21,7 +21,7 @@ export const useGlobalState = create<GlobalState>()(
     (set, get) => ({
       language: "zh",
       t: translations.zh,
-      setLanguage: (lang: Language) => set({ language: lang, t: translations[lang] }),
+      setLanguage: (lang: Language) => set({ language: lang, t: translations[lang] || translations.zh }),
       nativeCurrencyPrice: 0,
       setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
       targetNetwork: scaffoldConfig.targetNetworks[0],
@@ -32,7 +32,8 @@ export const useGlobalState = create<GlobalState>()(
       partialize: state => ({ language: state.language }),
       onRehydrateStorage: () => state => {
         if (state) {
-          state.t = translations[state.language];
+          // Ensure translation object is always valid
+          state.t = translations[state.language] || translations.zh;
         }
       },
     },
