@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/api/v1/:path*",
+  //       destination: "https://xtrading.xin/api/v1/:path*",
+  //     },
+  //   ];
+  // },
 };
 
 const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";
