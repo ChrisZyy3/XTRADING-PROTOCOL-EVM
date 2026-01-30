@@ -400,7 +400,7 @@ export const translations = {
         noData: "暂无提现记录。",
       },
       status: {
-        pending: "审核中",
+        pending: "处理中",
         approved: "已通过",
         completed: "已完成",
         rejected: "已拒绝",
