@@ -73,10 +73,16 @@ export default function ReferralPage() {
             ) : (
               <div className="flex flex-col gap-2 mt-2">
                 <div className="bg-black/30 p-3 rounded-lg border border-white/5 flex justify-between items-center">
-                  <span className="text-xl font-mono text-[#27E903]">{myCodeData?.referral_code || "-"}</span>
+                  <span className="text-xl font-mono text-[#27E903]">
+                    {myCodeData?.referral_code
+                      ? myCodeData.referral_code.length > 10
+                        ? `${myCodeData.referral_code.slice(0, 4)}...${myCodeData.referral_code.slice(-4)}`
+                        : myCodeData.referral_code
+                      : "-"}
+                  </span>
                   <button
                     onClick={() => myCodeData?.referral_code && copyToClipboard(myCodeData.referral_code)}
-                    className="btn btn-ghost btn-sm text-gray-400 hover:text-white"
+                    className="btn btn-ghost btn-xs text-[#27E903] p-0 min-h-0 h-auto"
                   >
                     <Square2StackIcon className="w-4 h-4" />
                   </button>
