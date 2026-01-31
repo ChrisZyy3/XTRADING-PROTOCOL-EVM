@@ -86,7 +86,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 gap-2 sm:gap-4">
+      <div className="navbar-end grow gap-2 sm:gap-4">
         {/* Custom Login Button (Replaces Connect + Auth) */}
         <CustomLoginButton />
 

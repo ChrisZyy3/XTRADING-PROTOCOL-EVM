@@ -61,13 +61,13 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const handleRegister = () => {
     if (!registerData.account || registerData.account.length < 3) {
       // V6 doc says 3-50 chars. Old validation was <=8? V6 says "3-50个字符"
-      notification.error("Account must be at least 3 characters"); // Should use translation
+      notification.error(t.auth.accountTooShortMsg); // Should use translation
       return;
     }
 
     if (!registerData.password || registerData.password.length < 6) {
       // V6 doc: 6-50 chars
-      notification.error("Password must be at least 6 characters");
+      notification.error(t.auth.passwordTooShortMsg);
       return;
     }
 
@@ -127,15 +127,17 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <>
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">Account</span>
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                    {t.auth.accountLabel}
+                  </span>
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={loginAccount}
                     onChange={e => setLoginAccount(e.target.value)}
-                    placeholder="Enter account"
-                    className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                    placeholder={t.auth.enterAccountPlaceholder}
+                    className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   />
                 </div>
               </div>
@@ -147,7 +149,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="password"
                   placeholder={t.auth.enterPassword}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={loginPassword}
                   onChange={e => setLoginPassword(e.target.value)}
                 />
@@ -158,12 +160,14 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <>
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">Account</span>
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                    {t.auth.accountLabel}
+                  </span>
                 </label>
                 <input
                   type="text"
-                  placeholder="Set account name"
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  placeholder={t.auth.setAccountPlaceholder}
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.account}
                   onChange={e => setRegisterData({ ...registerData, account: e.target.value })}
                 />
@@ -176,7 +180,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="password"
                   placeholder={t.auth.setPassword}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.password}
                   onChange={e => setRegisterData({ ...registerData, password: e.target.value })}
                 />
@@ -191,7 +195,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="text"
                   placeholder={t.auth.referralAddress}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.refer}
                   onChange={e => setRegisterData({ ...registerData, refer: e.target.value })}
                 />
@@ -202,7 +206,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           <div className="mt-4">
             {activeTab === "login" ? (
               <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
+                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
                 onClick={handleLogin}
                 disabled={isLoginPending || !loginAccount}
               >
@@ -210,7 +214,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
               </button>
             ) : (
               <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
+                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
                 onClick={handleRegister}
                 disabled={isRegisterPending || !registerData.account}
               >

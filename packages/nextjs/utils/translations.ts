@@ -1,8 +1,8 @@
 export const translations = {
   en: {
     hero: {
-      titleMain: "TCM",
-      titleAccent: "PROTOCOL",
+      titleMain: "XTrading",
+      titleAccent: "Protocol",
       badge: "WEB3 - RWA",
       subtitle: "Wallet Payment Mining Protocol",
       description: "Wallet Payment Mining Protocol",
@@ -207,6 +207,11 @@ export const translations = {
       usernameTooShort: "Username must be longer than 8 characters",
       passwordTooShort: "Password must be at least 8 characters",
       logoutSuccess: "Logged out successfully",
+      accountLabel: "Account",
+      enterAccountPlaceholder: "Enter account",
+      setAccountPlaceholder: "Set account name",
+      accountTooShortMsg: "Account must be at least 3 characters",
+      passwordTooShortMsg: "Password must be at least 6 characters",
     },
     deposit: {
       title: "Deposit & Withdraw",
@@ -318,8 +323,8 @@ export const translations = {
   },
   zh: {
     hero: {
-      titleMain: "XTrading-Protocol",
-      titleAccent: "",
+      titleMain: "XTrading",
+      titleAccent: "Protocol",
       badge: "WEB3 - RWA",
       subtitle: "XTrading Protocol 钱包支付挖矿协议",
       description: "XTrading Protocol 钱包支付挖矿协议",
@@ -524,6 +529,11 @@ export const translations = {
       usernameTooShort: "用户名必须超过8个字符",
       passwordTooShort: "密码必须至少8个字符",
       logoutSuccess: "退出登录成功",
+      accountLabel: "账号",
+      enterAccountPlaceholder: "请输入账号",
+      setAccountPlaceholder: "设置账号名称",
+      accountTooShortMsg: "账号必须至少3个字符",
+      passwordTooShortMsg: "密码必须至少6个字符",
     },
     deposit: {
       title: "充值与提现",
