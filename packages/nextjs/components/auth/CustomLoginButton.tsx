@@ -60,7 +60,7 @@ export const CustomLoginButton = () => {
   return (
     <>
       <button
-        className="btn btn-sm bg-[#39FF14] hover:bg-[#39FF14]/80 text-black border-none rounded-[13px] px-4 font-bold"
+        className="btn btn-sm bg-[#39FF14] hover:bg-[#39FF14]/80 text-black border-none rounded-[13px] px-2 font-bold"
         onClick={() => setIsModalOpen(true)}
         type="button"
       >

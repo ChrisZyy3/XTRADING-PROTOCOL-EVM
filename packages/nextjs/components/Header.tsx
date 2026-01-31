@@ -86,7 +86,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow gap-2 sm:gap-4">
+      <div className="navbar-end grow gap-0 sm:gap-1">
         {/* Custom Login Button (Replaces Connect + Auth) */}
         <CustomLoginButton />
 
@@ -133,7 +133,7 @@ export const Header = () => {
 
         {/* Hamburger Menu (Mobile Only) - Moved to End */}
         <details className="dropdown dropdown-end" ref={burgerMenuRef}>
-          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
+          <summary className="btn btn-ghost lg:hidden hover:bg-transparent">
             <Bars3Icon className="h-1/2" />
           </summary>
           <ul
