@@ -65,17 +65,15 @@ export const PresaleNode = () => {
                   key={index}
                   className="rounded-2xl bg-[#061F19] border-[3px] border-[#203731] shadow-[0_12px_30px_rgba(0,0,0,0.4)] overflow-hidden"
                 >
-                  <div className="bg-[#27E903] text-black uppercase text-xs md:text-sm font-bold tracking-[0.2em] px-6 py-3 grid grid-cols-4 text-center">
+                  <div className="bg-[#27E903] text-black uppercase text-xs md:text-sm font-bold tracking-[0.2em] px-6 py-3 grid grid-cols-3 text-center">
                     <span>DID</span>
-                    <span>POWER</span>
                     <span>TC</span>
                     <span>PRICE (U)</span>
                   </div>
 
                   <div className="px-6 py-6">
-                    <div className="grid grid-cols-4 text-sm md:text-base text-center text-white">
+                    <div className="grid grid-cols-3 text-sm md:text-base text-center text-white">
                       <span className="text-[#27E903] font-semibold uppercase">{language === "zh" ? name : type}</span>
-                      <span>-</span>
                       <span>{item.tcm_bonus || "-"}</span>
                       <span>{price}</span>
                     </div>

@@ -23,7 +23,7 @@ export const useGlobalState = create<GlobalState>()(
       t: translations.zh,
       setLanguage: (lang: Language) => set({ language: lang, t: translations[lang] || translations.zh }),
       nativeCurrencyPrice: 0,
-      setNativeCurrencyPrice: (newValue: number): void => set(() => ({ nativeCurrencyPrice: newValue })),
+      setNativeCurrencyPrice: (newValue: number) => set(() => ({ nativeCurrencyPrice: newValue })),
       targetNetwork: scaffoldConfig.targetNetworks[0],
       setTargetNetwork: (newTargetNetwork: ChainWithAttributes) => set(() => ({ targetNetwork: newTargetNetwork })),
     }),
