@@ -12,10 +12,14 @@
 /* Custom Theme Override for DaisyUI */
 @plugin "daisyui/theme" {
   name: "dark";
-  --color-base-100: #0D1117; /* Very dark background */
-  --color-base-200: #14191E; /* Slightly lighter for cards */
-  --color-base-300: #1A2027; /* Even lighter */
-  --color-primary: #4ADE80; /* Green-400 */
+  --color-base-100: #0D1117;
+  /* Very dark background */
+  --color-base-200: #14191E;
+  /* Slightly lighter for cards */
+  --color-base-300: #1A2027;
+  /* Even lighter */
+  --color-primary: #4ADE80;
+  /* Green-400 */
   --color-primary-content: #000000;
   --color-secondary: #1F2937;
   --color-accent: #22C55E;
@@ -34,7 +38,17 @@
     min-height: 100vh;
     background-color: var(--color-base-100);
     color: white;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-display {
+    font-family: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
   }
 }
 
@@ -52,13 +66,34 @@
   }
 
   .card-gradient {
-    background: linear-gradient(180deg, rgba(20,25,30,0.9) 0%, rgba(13,17,23,0.95) 100%);
+    background: linear-gradient(180deg, rgba(20, 25, 30, 0.9) 0%, rgba(13, 17, 23, 0.95) 100%);
     border: 1px solid rgba(74, 222, 128, 0.2);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
+
   .btn-tcm {
     @apply bg-green-400 text-black font-bold px-6 py-2 rounded-full hover:opacity-90 transition-opacity;
   }
-}
 
+  .card-premium {
+    background: rgba(13, 17, 23, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1), 0 0 20px rgba(74, 222, 128, 0.05);
+    /* Subtle green glow */
+    transition: all 0.3s ease;
+  }
+
+  .card-premium:hover {
+    border-color: rgba(74, 222, 128, 0.3);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2), 0 0 30px rgba(74, 222, 128, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+  }
+}

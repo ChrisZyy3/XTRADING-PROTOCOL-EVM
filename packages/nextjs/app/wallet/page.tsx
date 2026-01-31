@@ -77,11 +77,11 @@ export default function WalletPage() {
           <Link href="/" className="btn btn-circle btn-ghost btn-sm bg-[#121c1e] text-white hover:bg-[#1a2628]">
             <ChevronLeftIcon className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-white">{t.wallet.title}</h1>
+          <h1 className="text-2xl font-bold text-white font-display text-glow">{t.wallet.title}</h1>
         </div>
 
         {/* Profile Card */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm mb-6">
+        <div className="card card-premium shadow-sm mb-6">
           <div className="card-body p-4">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-full bg-[#27E903]/20 flex items-center justify-center text-[#27E903]">
@@ -101,7 +101,7 @@ export default function WalletPage() {
         </div>
 
         {/* TC Balance Card */}
-        <div className="card bg-[#09181a] border border-[#4ADE80]/30 shadow-sm">
+        <div className="card card-premium shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#4ADE80] flex items-center justify-center text-black font-bold text-xl">
@@ -115,7 +115,7 @@ export default function WalletPage() {
         </div>
 
         {/* TCM Balance Card */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
+        <div className="card card-premium shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#F97316] flex items-center justify-center text-white font-bold text-xl">
@@ -129,7 +129,7 @@ export default function WalletPage() {
         </div>
 
         {/* Total Hashrate Card (replacing Node) */}
-        <div className="card bg-[#09181a] border border-white/10 shadow-sm">
+        <div className="card card-premium shadow-sm">
           <div className="card-body flex-row items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#34D399] flex items-center justify-center text-white">

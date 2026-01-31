@@ -89,12 +89,12 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-sm bg-[#0A1813] border border-[#203731] rounded-2xl p-6 relative shadow-[#39FF14]/10 shadow-2xl">
+      <div className="w-full max-w-sm card-premium rounded-2xl p-6 relative shadow-[#39FF14]/10 shadow-2xl">
         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-white/70" onClick={onClose}>
           ✕
         </button>
 
-        <h3 className="font-bold text-xl mb-6 text-center text-white">
+        <h3 className="font-bold text-2xl mb-6 text-center text-white font-display text-glow">
           {activeTab === "login" ? t.auth.welcomeBack : t.auth.createAccount}
         </h3>
 

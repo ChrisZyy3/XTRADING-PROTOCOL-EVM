@@ -32,11 +32,13 @@ export default function WithdrawPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl animate-fade-in-up">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#39FF14] uppercase">{t.withdraw.title}</h1>
+      <h1 className="text-3xl md:text-5xl font-bold mb-12 text-center text-[#39FF14] uppercase font-display text-glow">
+        {t.withdraw.title}
+      </h1>
 
       {!isAuthenticated ? (
         <div className="flex flex-col items-center gap-6 mt-20">
-          <div className="text-center text-xl text-gray-400">{t.withdraw.loginPrompt}</div>
+          <div className="text-center text-xl text-gray-400 font-display">{t.withdraw.loginPrompt}</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -97,9 +99,9 @@ const InjectionSection = ({ balance }: { balance?: string }) => {
     );
 
   return (
-    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
+    <div className="card card-premium p-8 h-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-white">{t.withdraw.injection.title}</h2>
+        <h2 className="text-2xl font-bold text-white font-display mb-2">{t.withdraw.injection.title}</h2>
         <button onClick={() => refetchInjection()} className="btn btn-ghost btn-xs text-gray-400 hover:text-white">
           <ArrowPathIcon className="w-4 h-4" />
         </button>
@@ -211,8 +213,8 @@ const WithdrawFormSection = ({ balance }: { balance?: string }) => {
   };
 
   return (
-    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
-      <h2 className="text-xl font-bold text-[#39FF14] mb-6">{t.withdraw.form.title}</h2>
+    <div className="card card-premium p-8 h-full">
+      <h2 className="text-2xl font-bold text-[#39FF14] mb-6 font-display text-glow">{t.withdraw.form.title}</h2>
 
       <div className="space-y-4">
         {/* Destination Address */}
@@ -300,8 +302,8 @@ const WithdrawHistorySection = () => {
   };
 
   return (
-    <div className="card bg-[#0b1210] border border-[#203731] p-6 shadow-lg">
-      <h2 className="text-xl font-bold text-white mb-6">{t.withdraw.history.title}</h2>
+    <div className="card card-premium p-8">
+      <h2 className="text-2xl font-bold text-white mb-6 font-display">{t.withdraw.history.title}</h2>
 
       {isLoading ? (
         <div className="flex justify-center py-8">
