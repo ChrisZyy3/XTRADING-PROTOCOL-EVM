@@ -1,48 +1,71 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "~~/services/store/authStore";
 import { nodeEndpoints } from "~~/services/web2/endpoints";
-import { BuyNodeRequest } from "~~/types/api";
+import { BuyNodeRequest, ClaimNodeBonusRequest } from "~~/types/api";
 import { notification } from "~~/utils/scaffold-eth";
 
-export const useNodeTypes = () => {
+export const useAvailableNodes = () => {
   return useQuery({
-    queryKey: ["nodeTypes"],
-    queryFn: () => nodeEndpoints.getNodeTypes(),
+    queryKey: ["availableNodes"],
+    queryFn: () => nodeEndpoints.getAvailableNodes(),
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
-export const useNodeStock = () => {
-  return useQuery({
-    queryKey: ["node-stock"],
-    queryFn: () => nodeEndpoints.getNodeStock(),
-  });
-};
-
-export const useBuyNode = () => {
+export const usePurchaseNode = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: BuyNodeRequest) => nodeEndpoints.buyNode(data),
+    mutationFn: (data: BuyNodeRequest) => nodeEndpoints.purchaseNode(data),
     onSuccess: () => {
       notification.success("Node purchased successfully!");
-      queryClient.invalidateQueries({ queryKey: ["hashpower"] });
-      queryClient.invalidateQueries({ queryKey: ["balance"] }); // Buying costs money
+      queryClient.invalidateQueries({ queryKey: ["availableNodes"] });
+      queryClient.invalidateQueries({ queryKey: ["myNodes"] });
+      queryClient.invalidateQueries({ queryKey: ["userHashrate"] }); // Hashrate increases
     },
     onError: (error: any) => {
-      console.error("Buy node failed", error);
+      console.error("Purchase failed", error);
     },
   });
 };
 
-export const useHashpower = () => {
+export const useMyNodes = () => {
+  const { token } = useAuthStore();
   return useQuery({
-    queryKey: ["hashpower"],
-    queryFn: () => nodeEndpoints.getHashpower(),
+    queryKey: ["myNodes"],
+    queryFn: () => nodeEndpoints.getMyNodes(),
+    enabled: !!token,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
 
-export const useHashpowerHistory = (page = 1, pageSize = 10) => {
+export const useClaimBonus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ClaimNodeBonusRequest) => nodeEndpoints.claimBonus(data),
+    onSuccess: () => {
+      notification.success("Bonus claimed!");
+      queryClient.invalidateQueries({ queryKey: ["myNodes"] });
+    },
+    onError: (error: any) => {
+      console.error("Claim failed", error);
+    },
+  });
+};
+
+export const useNodeRewards = () => {
+  const { token } = useAuthStore();
   return useQuery({
-    queryKey: ["hashpowerHistory", page, pageSize],
-    queryFn: () => nodeEndpoints.getHashpowerHistory(page, pageSize),
+    queryKey: ["nodeRewards"],
+    queryFn: () => nodeEndpoints.getRewards(),
+    enabled: !!token,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };

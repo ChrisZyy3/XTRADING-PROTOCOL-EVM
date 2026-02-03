@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { LoginModal } from "./LoginModal";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { useLogout } from "~~/hooks/api/useAuth";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 export const AuthButton = () => {
   const { address } = useAccount();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { mutate: logout } = useLogout();
   const { t } = useGlobalState();
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // If wallet not connected, don't show anything (Header handles wallet connect)
@@ -22,9 +22,11 @@ export const AuthButton = () => {
   }
 
   const handleLogout = () => {
-    logout();
-    queryClient.clear();
-    notification.success(t.auth.logoutSuccess);
+    logout(undefined, {
+      onSettled: () => {
+        notification.success(t.auth.logoutSuccess);
+      },
+    });
   };
 
   // If wallet connected but not authenticated with backend
@@ -48,9 +50,9 @@ export const AuthButton = () => {
           <UserCircleIcon className="w-5 h-5 text-primary" />
         </div>
         <div className="flex flex-col items-start hidden sm:flex">
-          <span className="text-xs font-bold">{user?.username || "User"}</span>
+          <span className="text-xs font-bold">{user?.void_account || "User"}</span>
           <span className="text-[10px] opacity-70">
-            Addr: {user?.address?.slice(0, 6)}...{user?.address?.slice(-4)}
+            Addr: {user?.void_address?.slice(0, 6)}...{user?.void_address?.slice(-4)}
           </span>
         </div>
       </label>

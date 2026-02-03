@@ -1,16 +1,23 @@
 "use client";
 
 import { CustomLoginButton } from "~~/components/auth/CustomLoginButton";
-import { useHashpower, useHashpowerHistory } from "~~/hooks/api/useNodes";
+import {
+  useClaimRewards,
+  useDailyReward,
+  useHashrateShare,
+  useMiningPending,
+  useTotalHashrate,
+  useUserHashrate,
+} from "~~/hooks/api/useMining";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 
-export default function HashpowerPage() {
+export default function MiningPage() {
   const { isAuthenticated } = useAuthStore();
   const { t } = useGlobalState();
 
   return (
-    <div className="container mx-auto p-10">
+    <div className="container mx-auto p-10 max-w-7xl">
       <h1 className="text-4xl font-bold mb-8 text-center text-[#39FF14]">{t.hashpower.title}</h1>
 
       {!isAuthenticated ? (
@@ -19,110 +26,123 @@ export default function HashpowerPage() {
           <CustomLoginButton />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-10">
-          <HashpowerStats />
-          <HashpowerHistory />
+        <div className="space-y-8">
+          <HashrateStats />
+          <DailyRewardSection />
+          <RewardSection />
         </div>
       )}
     </div>
   );
 }
 
-const HashpowerStats = () => {
+const formatNumber = (numStr?: string | number) => {
+  if (!numStr) return "0.00";
+  const num = Number(numStr);
+  return isNaN(num) ? "0.00" : num.toFixed(2);
+};
+
+const HashrateStats = () => {
+  const { data: userData, isLoading: isUserLoading } = useUserHashrate();
+  const { data: totalData } = useTotalHashrate();
+  const { data: shareData } = useHashrateShare();
   const { t } = useGlobalState();
-  const { data: hashpowerData, isLoading } = useHashpower();
 
-  const stats = hashpowerData?.data;
+  const userStats = userData?.data;
+  const totalHashrate = totalData?.data?.total_hashrate;
+  const myShare = shareData?.data?.share;
 
-  // 如果加载中显示骨架屏或Loading
-  if (isLoading) {
-    return <div className="loading loading-spinner loading-lg text-primary mx-auto block"></div>;
-  }
+  if (isUserLoading) return <div className="loading loading-spinner text-primary mx-auto block"></div>;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* My Hashrate */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">{t.hashpower.stats.myHashrate}</h2>
+        <div className="text-3xl font-bold text-[#39FF14] font-mono mt-2">
+          {formatNumber(userStats?.current_hashrate)}
+        </div>
+      </div>
+
+      {/* Transfer Count */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">{t.hashpower.stats.transferCount}</h2>
+        <div className="text-3xl font-bold text-purple-400 font-mono mt-2">{userStats?.transfer_count || "0"}</div>
+        <div className="text-sm text-gray-500 mt-2">{t.hashpower.stats.transferSubtitle}</div>
+      </div>
+
+      {/* Total Hashrate */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">{t.hashpower.stats.networkHashrate}</h2>
+        <div className="text-3xl font-bold text-blue-400 font-mono mt-2">{formatNumber(totalHashrate)}</div>
+        <div className="text-sm text-gray-500 mt-2">{t.hashpower.stats.networkSubtitle}</div>
+      </div>
+
+      {/* My Share */}
+      <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
+        <h2 className="card-title text-gray-400">{t.hashpower.stats.myShare}</h2>
+        <div className="text-3xl font-bold text-yellow-500 font-mono mt-2">
+          {myShare ? `${(Number(myShare) * 100).toFixed(4)}%` : "0%"}
+        </div>
+        <div className="text-sm text-gray-500 mt-2">{t.hashpower.stats.shareSubtitle}</div>
+      </div>
+    </div>
+  );
+};
+
+const DailyRewardSection = () => {
+  const { data: dailyData } = useDailyReward();
+  const { t } = useGlobalState();
+  const reward = dailyData?.data;
 
   return (
     <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-6 text-accent">{t.hashpower.title}</h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-accent/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.total}</div>
-          <div className="stat-value text-accent text-3xl font-mono">{stats?.total_hash_power || "0"}</div>
+      <h2 className="text-2xl font-bold text-white mb-4">{t.hashpower.daily.title}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Daily Pool */}
+        <div className="bg-black/30 p-4 rounded-xl border border-white/5">
+          <div className="text-gray-400 mb-1">{t.hashpower.daily.pool}</div>
+          <div className="text-3xl font-bold text-blue-400 font-mono">{formatNumber(reward?.daily_pool)}</div>
         </div>
-
-        {/* Effective Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-success/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.effective}</div>
-          <div className="stat-value text-success text-3xl font-mono">{stats?.effective_hash_power || "0"}</div>
-        </div>
-
-        {/* Node Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-info/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.node}</div>
-          <div className="stat-value text-info text-3xl font-mono">{stats?.node_hash_power || "0"}</div>
-        </div>
-
-        {/* Hold Hashpower */}
-        <div className="stat bg-black/30 rounded-lg border border-warning/20">
-          <div className="stat-title text-gray-400">{t.hashpower.stats.hold}</div>
-          <div className="stat-value text-warning text-3xl font-mono">{stats?.hold_hash_power || "0"}</div>
+        {/* Estimated */}
+        <div className="bg-black/30 p-4 rounded-xl border border-white/5">
+          <div className="text-gray-400 mb-1">{t.hashpower.daily.estimated}</div>
+          <div className="text-3xl font-bold text-[#39FF14] font-mono">{formatNumber(reward?.estimated_reward)}</div>
         </div>
       </div>
     </div>
   );
 };
 
-const HashpowerHistory = () => {
+const RewardSection = () => {
+  const { data: pendingData, refetch: refetchPending } = useMiningPending();
+  const { mutate: claim, isPending: isClaiming } = useClaimRewards();
   const { t } = useGlobalState();
-  // 分页获取历史记录，默认第一页
-  const { data: historyData, isLoading } = useHashpowerHistory(1, 20);
 
-  const historyList = historyData?.data?.list || [];
+  const pendingAmount = pendingData?.data?.pending_amount || "0";
+
+  const handleClaim = () => {
+    claim(undefined, {
+      onSuccess: () => refetchPending(),
+    });
+  };
 
   return (
     <div className="card bg-base-100 shadow-xl border border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-4 text-secondary">{t.hashpower.history.title}</h2>
-
-      {isLoading ? (
-        <div className="loading loading-spinner loading-md text-secondary mx-auto block my-10"></div>
-      ) : historyList.length === 0 ? (
-        <div className="text-center text-gray-500 py-10">{t.hashpower.history.noData}</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table table-zebra w-full">
-            <thead>
-              <tr className="bg-base-200 text-white">
-                <th>{t.hashpower.history.id}</th>
-                <th>{t.hashpower.history.type}</th>
-                <th>{t.hashpower.history.amount} (USD)</th>
-                <th>{t.hashpower.history.status}</th>
-                <th>{t.hashpower.history.time}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historyList.map((record: any) => (
-                <tr key={record.id} className="hover:bg-base-200/50">
-                  <td className="font-mono text-gray-400">#{record.id}</td>
-                  <td>
-                    <span className="badge badge-outline badge-accent uppercase font-bold text-xs">
-                      {record.node_type}
-                    </span>
-                  </td>
-                  <td className="font-bold text-white">${record.usd_amount}</td>
-                  <td>
-                    <div
-                      className={`badge ${record.status === 1 ? "badge-success gap-2" : "badge-error gap-2"} badge-sm`}
-                    >
-                      {record.status === 1 ? "Active" : "Expired"}
-                    </div>
-                  </td>
-                  <td className="text-gray-400 text-sm">{new Date(record.created_at).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <h2 className="text-2xl font-bold text-white mb-4">{t.hashpower.rewards.title}</h2>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 rounded-xl border border-white/5">
+        <div>
+          <div className="text-gray-400 mb-1">{t.hashpower.rewards.pending}</div>
+          <div className="text-4xl font-bold text-[#39FF14] font-mono">{formatNumber(pendingAmount)}</div>
         </div>
-      )}
+        <button
+          className="btn btn-primary btn-lg bg-[#39FF14] text-black font-bold border-none hover:bg-[#32e612] disabled:bg-gray-600 disabled:text-white/50 px-10"
+          onClick={handleClaim}
+          disabled={isClaiming || Number(pendingAmount) <= 0}
+        >
+          {isClaiming ? t.hashpower.rewards.claiming : t.hashpower.rewards.claim}
+        </button>
+      </div>
     </div>
   );
 };

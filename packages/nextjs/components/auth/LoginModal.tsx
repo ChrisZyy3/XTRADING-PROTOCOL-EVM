@@ -12,32 +12,34 @@ interface LoginModalProps {
 
 export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const { t } = useGlobalState(); // 获取翻译函数 (Get translation function)
+  const { t } = useGlobalState();
 
   // Login State
   const { mutate: login, isPending: isLoginPending } = useLogin();
+  const [loginAccount, setLoginAccount] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   // Register State
   const { mutate: register, isPending: isRegisterPending } = useRegister();
   const [registerData, setRegisterData] = useState({
-    username: "",
+    account: "",
     password: "",
     refer: "",
   });
-  const [loginUsername, setLoginUsername] = useState("");
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setLoginPassword("");
-      setRegisterData({ username: "", password: "", refer: "" });
-      setLoginUsername("");
+      setRegisterData({ account: "", password: "", refer: "" });
+      setLoginAccount("");
     }
   }, [isOpen]);
 
   const handleLogin = () => {
-    if (!loginUsername) {
+    if (!loginAccount) {
+      // Assuming t.auth.pleaseEnterUsername is still generic "Please enter username/account"
+      // If translation key is strict, might need update. Using existing key for now.
       notification.error(t.auth.pleaseEnterUsername);
       return;
     }
@@ -47,7 +49,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     }
 
     login(
-      { username: loginUsername, password: loginPassword },
+      { account: loginAccount, password: loginPassword },
       {
         onSuccess: () => {
           onClose();
@@ -57,21 +59,23 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   };
 
   const handleRegister = () => {
-    if (!registerData.username || registerData.username.length <= 8) {
-      notification.error(t.auth.usernameTooShort);
+    if (!registerData.account || registerData.account.length < 3) {
+      // V6 doc says 3-50 chars. Old validation was <=8? V6 says "3-50个字符"
+      notification.error(t.auth.accountTooShortMsg); // Should use translation
       return;
     }
 
-    if (!registerData.password || registerData.password.length < 8) {
-      notification.error(t.auth.passwordTooShort);
+    if (!registerData.password || registerData.password.length < 6) {
+      // V6 doc: 6-50 chars
+      notification.error(t.auth.passwordTooShortMsg);
       return;
     }
 
     register(
       {
-        username: registerData.username,
+        account: registerData.account,
         password: registerData.password,
-        refer: registerData.refer, // Optional
+        refer: registerData.refer,
       },
       {
         onSuccess: () => {
@@ -85,13 +89,12 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      {/* Manual styling instead of daisyui 'modal-box' to ensure visibility */}
-      <div className="w-full max-w-sm bg-[#0A1813] border border-[#203731] rounded-2xl p-6 relative shadow-[#39FF14]/10 shadow-2xl">
+      <div className="w-full max-w-sm card-premium rounded-2xl p-6 relative shadow-[#39FF14]/10 shadow-2xl">
         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-white/70" onClick={onClose}>
           ✕
         </button>
 
-        <h3 className="font-bold text-xl mb-6 text-center text-white">
+        <h3 className="font-bold text-2xl mb-6 text-center text-white font-display text-glow">
           {activeTab === "login" ? t.auth.welcomeBack : t.auth.createAccount}
         </h3>
 
@@ -124,15 +127,17 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <>
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">{t.auth.username}</span>
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                    {t.auth.accountLabel}
+                  </span>
                 </label>
                 <div className="relative">
                   <input
                     type="text"
-                    value={loginUsername}
-                    onChange={e => setLoginUsername(e.target.value)}
-                    placeholder={t.auth.enterUsername}
-                    className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                    value={loginAccount}
+                    onChange={e => setLoginAccount(e.target.value)}
+                    placeholder={t.auth.enterAccountPlaceholder}
+                    className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   />
                 </div>
               </div>
@@ -144,7 +149,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="password"
                   placeholder={t.auth.enterPassword}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={loginPassword}
                   onChange={e => setLoginPassword(e.target.value)}
                 />
@@ -155,14 +160,16 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             <>
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">{t.auth.username}</span>
+                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                    {t.auth.accountLabel}
+                  </span>
                 </label>
                 <input
                   type="text"
-                  placeholder={t.auth.setUsername}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={registerData.username}
-                  onChange={e => setRegisterData({ ...registerData, username: e.target.value })}
+                  placeholder={t.auth.setAccountPlaceholder}
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  value={registerData.account}
+                  onChange={e => setRegisterData({ ...registerData, account: e.target.value })}
                 />
               </div>
 
@@ -173,7 +180,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="password"
                   placeholder={t.auth.setPassword}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.password}
                   onChange={e => setRegisterData({ ...registerData, password: e.target.value })}
                 />
@@ -188,7 +195,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <input
                   type="text"
                   placeholder={t.auth.referralAddress}
-                  className="input input-bordered w-full bg-black/50 border-white/10 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
                   value={registerData.refer}
                   onChange={e => setRegisterData({ ...registerData, refer: e.target.value })}
                 />
@@ -199,17 +206,17 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
           <div className="mt-4">
             {activeTab === "login" ? (
               <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
+                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
                 onClick={handleLogin}
-                disabled={isLoginPending || !loginUsername}
+                disabled={isLoginPending || !loginAccount}
               >
                 {isLoginPending ? t.auth.loggingIn : t.auth.loginButton}
               </button>
             ) : (
               <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:bg-gray-600 disabled:text-gray-400"
+                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
                 onClick={handleRegister}
-                disabled={isRegisterPending || !registerData.username}
+                disabled={isRegisterPending || !registerData.account}
               >
                 {isRegisterPending ? t.auth.creatingAccount : t.auth.registerButton}
               </button>

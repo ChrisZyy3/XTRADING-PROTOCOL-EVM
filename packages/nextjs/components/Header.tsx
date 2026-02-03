@@ -14,12 +14,12 @@ export const HeaderMenuLinks = () => {
   const { t } = useGlobalState();
 
   const links = [
-    { label: t.nav.team, href: "/team" },
     { label: t.nav.wallet, href: "/wallet" },
     { label: t.nav.transfer, href: "/transfer" },
     { label: t.nav.deposit, href: "/deposit" },
-    { label: t.nav.dividend, href: "/dividend" },
     { label: t.nav.hashpower, href: "/hashpower" },
+    { label: t.nav.node, href: "/node" },
+    { label: t.nav.referral, href: "/referral" },
   ];
 
   return (
@@ -74,7 +74,7 @@ export const Header = () => {
       <div className="navbar-start w-auto lg:w-1/2">
         <Link href="/" passHref className="flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="relative w-10 h-10">
-            <Image src="/logo.png" alt="TCM Protocol" fill className="rounded-full object-contain" />
+            <Image src="/logo.png" alt="XTrading Protocol" fill className="rounded-full object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight text-sm sm:text-lg tracking-tight text-white">
@@ -86,7 +86,7 @@ export const Header = () => {
           <HeaderMenuLinks />
         </ul>
       </div>
-      <div className="navbar-end grow mr-4 gap-2 sm:gap-4">
+      <div className="navbar-end grow gap-0 sm:gap-1">
         {/* Custom Login Button (Replaces Connect + Auth) */}
         <CustomLoginButton />
 
@@ -113,12 +113,18 @@ export const Header = () => {
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-black rounded-box w-32 border border-white/10"
           >
             <li>
-              <button onClick={() => handleLanguageChange("en")} className={language === "en" ? "active" : ""}>
+              <button
+                onClick={() => handleLanguageChange("en")}
+                className={`${language === "en" ? "bg-[#39FF14] text-black font-bold" : "text-white hover:bg-white/10"}`}
+              >
                 English
               </button>
             </li>
             <li>
-              <button onClick={() => handleLanguageChange("zh")} className={language === "zh" ? "active" : ""}>
+              <button
+                onClick={() => handleLanguageChange("zh")}
+                className={`${language === "zh" ? "bg-[#39FF14] text-black font-bold" : "text-white hover:bg-white/10"}`}
+              >
                 中文
               </button>
             </li>
@@ -127,7 +133,7 @@ export const Header = () => {
 
         {/* Hamburger Menu (Mobile Only) - Moved to End */}
         <details className="dropdown dropdown-end" ref={burgerMenuRef}>
-          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
+          <summary className="btn btn-ghost lg:hidden hover:bg-transparent">
             <Bars3Icon className="h-1/2" />
           </summary>
           <ul

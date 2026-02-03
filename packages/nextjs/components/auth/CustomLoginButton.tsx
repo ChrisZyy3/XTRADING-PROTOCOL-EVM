@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { LoginModal } from "./LoginModal";
-import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useConnect } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { useLogout } from "~~/hooks/api/useAuth";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -12,15 +12,17 @@ import { notification } from "~~/utils/scaffold-eth";
 export const CustomLoginButton = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const { mutate: logout } = useLogout();
   const { t } = useGlobalState();
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = () => {
-    logout();
-    queryClient.clear();
-    notification.success(t.auth.logoutSuccess);
+    logout(undefined, {
+      onSettled: () => {
+        notification.success(t.auth.logoutSuccess);
+      },
+    });
   };
 
   // If authenticated, show User Profile (similar to previous AuthButton)
@@ -32,9 +34,9 @@ export const CustomLoginButton = () => {
             <UserCircleIcon className="w-5 h-5 text-[#39FF14]" />
           </div>
           <div className="flex flex-col items-start hidden sm:flex">
-            <span className="text-xs font-bold text-white">{user.username || "User"}</span>
+            <span className="text-xs font-bold text-white">{user.void_account || "User"}</span>
             <span className="text-[10px] text-gray-400">
-              {user.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : ""}
+              {user.void_address ? `${user.void_address.slice(0, 6)}...${user.void_address.slice(-4)}` : ""}
             </span>
           </div>
         </label>
@@ -58,7 +60,7 @@ export const CustomLoginButton = () => {
   return (
     <>
       <button
-        className="btn btn-sm bg-[#39FF14] hover:bg-[#39FF14]/80 text-black border-none rounded-[13px] px-4 font-bold"
+        className="btn btn-sm bg-[#39FF14] hover:bg-[#39FF14]/80 text-black border-none rounded-[13px] px-2 font-bold"
         onClick={() => setIsModalOpen(true)}
         type="button"
       >
