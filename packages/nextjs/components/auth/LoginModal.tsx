@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLogin, useRegister } from "~~/hooks/api/useAuth";
+import { useAccount, useSignMessage } from "wagmi";
+import { useWalletLogin } from "~~/hooks/api/useAuth";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -11,78 +12,53 @@ interface LoginModalProps {
 }
 
 export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const { mutate: walletLogin, isPending: isLoginPending } = useWalletLogin();
   const { t } = useGlobalState();
-
-  // Login State
-  const { mutate: login, isPending: isLoginPending } = useLogin();
-  const [loginAccount, setLoginAccount] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-
-  // Register State
-  const { mutate: register, isPending: isRegisterPending } = useRegister();
-  const [registerData, setRegisterData] = useState({
-    account: "",
-    password: "",
-    refer: "",
-  });
+  const [referralCode, setReferralCode] = useState("");
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setLoginPassword("");
-      setRegisterData({ account: "", password: "", refer: "" });
-      setLoginAccount("");
+      setReferralCode("");
     }
   }, [isOpen]);
 
-  const handleLogin = () => {
-    if (!loginAccount) {
-      // Assuming t.auth.pleaseEnterUsername is still generic "Please enter username/account"
-      // If translation key is strict, might need update. Using existing key for now.
-      notification.error(t.auth.pleaseEnterUsername);
-      return;
-    }
-    if (!loginPassword) {
-      notification.error(t.auth.pleaseEnterPassword);
+  const handleWalletLogin = async () => {
+    if (!isConnected || !address) {
+      notification.error("Please connect your wallet first");
       return;
     }
 
-    login(
-      { account: loginAccount, password: loginPassword },
-      {
-        onSuccess: () => {
-          onClose();
+    try {
+      // 1. Generate timestamped message
+      // Format: YYYY-MM-DD HH:MM:SS
+      const now = new Date();
+      const timestamp = now.toISOString().replace("T", " ").substring(0, 19);
+      const message = `Login to XTG at ${timestamp}`;
+
+      // 2. Request signature
+      const signature = await signMessageAsync({ message });
+
+      // 3. Call backend API
+      walletLogin(
+        {
+          address,
+          signature,
+          message,
+          referral_code: referralCode || undefined,
         },
-      },
-    );
-  };
-
-  const handleRegister = () => {
-    if (!registerData.account || registerData.account.length < 3) {
-      // V6 doc says 3-50 chars. Old validation was <=8? V6 says "3-50个字符"
-      notification.error(t.auth.accountTooShortMsg); // Should use translation
-      return;
-    }
-
-    if (!registerData.password || registerData.password.length < 6) {
-      // V6 doc: 6-50 chars
-      notification.error(t.auth.passwordTooShortMsg);
-      return;
-    }
-
-    register(
-      {
-        account: registerData.account,
-        password: registerData.password,
-        refer: registerData.refer,
-      },
-      {
-        onSuccess: () => {
-          onClose();
+        {
+          onSuccess: () => {
+            onClose();
+          },
         },
-      },
-    );
+      );
+    } catch (error: any) {
+      console.error("Signature or Login failed", error);
+      notification.error("Login failed: " + (error?.message || "Unknown error"));
+    }
   };
 
   if (!isOpen) return null;
@@ -95,133 +71,38 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
         </button>
 
         <h3 className="font-bold text-2xl mb-6 text-center text-white font-display text-glow">
-          {activeTab === "login" ? t.auth.welcomeBack : t.auth.createAccount}
+          {t.auth.welcomeBack || "Welcome Back"}
         </h3>
 
-        {/* Tabs */}
-        <div className="tabs tabs-boxed bg-black/40 mb-6 p-1 border border-white/5 w-full">
-          <a
-            className={`tab flex-1 transition-all duration-300 ${
-              activeTab === "login" ? "bg-[#39FF14] !text-black font-bold rounded-lg" : "text-white/60 hover:text-white"
-            }`}
-            onClick={() => setActiveTab("login")}
-          >
-            {t.auth.login}
-          </a>
-          <a
-            className={`tab flex-1 transition-all duration-300 ${
-              activeTab === "register"
-                ? "bg-[#39FF14] !text-black font-bold rounded-lg"
-                : "text-white/60 hover:text-white"
-            }`}
-            onClick={() => setActiveTab("register")}
-          >
-            {t.auth.register}
-          </a>
-        </div>
-
-        {/* Content */}
         <div className="flex flex-col gap-4">
-          {activeTab === "login" ? (
-            // Login Form
-            <>
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
-                    {t.auth.accountLabel}
-                  </span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={loginAccount}
-                    onChange={e => setLoginAccount(e.target.value)}
-                    placeholder={t.auth.enterAccountPlaceholder}
-                    className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  />
-                </div>
-              </div>
+          <p className="text-center text-white/60 text-sm mb-4">
+            Sign a message with your wallet to verify ownership and log in securelessly.
+          </p>
 
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">{t.auth.password}</span>
-                </label>
-                <input
-                  type="password"
-                  placeholder={t.auth.enterPassword}
-                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={loginPassword}
-                  onChange={e => setLoginPassword(e.target.value)}
-                />
-              </div>
-            </>
-          ) : (
-            // Register Form
-            <>
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
-                    {t.auth.accountLabel}
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder={t.auth.setAccountPlaceholder}
-                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={registerData.account}
-                  onChange={e => setRegisterData({ ...registerData, account: e.target.value })}
-                />
-              </div>
+          {!isConnected ? <div className="alert alert-warning text-sm">Please connect your wallet first.</div> : null}
 
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">{t.auth.password}</span>
-                </label>
-                <input
-                  type="password"
-                  placeholder={t.auth.setPassword}
-                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={registerData.password}
-                  onChange={e => setRegisterData({ ...registerData, password: e.target.value })}
-                />
-              </div>
-
-              <div className="form-control">
-                <label className="label py-1">
-                  <span className="label-text text-white/80 text-xs uppercase tracking-wider">
-                    {t.auth.referralCode}
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  placeholder={t.auth.referralAddress}
-                  className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
-                  value={registerData.refer}
-                  onChange={e => setRegisterData({ ...registerData, refer: e.target.value })}
-                />
-              </div>
-            </>
-          )}
-
-          <div className="mt-4">
-            {activeTab === "login" ? (
-              <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
-                onClick={handleLogin}
-                disabled={isLoginPending || !loginAccount}
-              >
-                {isLoginPending ? t.auth.loggingIn : t.auth.loginButton}
-              </button>
-            ) : (
-              <button
-                className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
-                onClick={handleRegister}
-                disabled={isRegisterPending || !registerData.account}
-              >
-                {isRegisterPending ? t.auth.creatingAccount : t.auth.registerButton}
-              </button>
-            )}
+          <div className="form-control">
+            <label className="label py-1">
+              <span className="label-text text-white/80 text-xs uppercase tracking-wider">
+                Referral Code (Optional)
+              </span>
+            </label>
+            <input
+              type="text"
+              placeholder="XTG..."
+              className="input input-bordered border-2 w-full bg-[#11221c] border-white/20 focus:border-[#39FF14] focus:outline-none text-white text-sm"
+              value={referralCode}
+              onChange={e => setReferralCode(e.target.value)}
+            />
           </div>
+
+          <button
+            className="btn w-full bg-[#39FF14] hover:bg-[#39FF14]/80 !text-black border-none font-bold rounded-lg uppercase tracking-wide disabled:!bg-[#2c2c2c] disabled:!text-white/50"
+            onClick={handleWalletLogin}
+            disabled={isLoginPending || !isConnected}
+          >
+            {isLoginPending ? t.auth.loggingIn || "Logging in..." : t.auth.login || "Login"}
+          </button>
         </div>
       </div>
     </div>

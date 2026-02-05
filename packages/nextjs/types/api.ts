@@ -28,8 +28,9 @@ export interface PaginationResponse<T> {
 export interface AuthResponse {
   token: string;
   address: string;
-  session_id: string;
+  user_id: number;
   expires_at: number;
+  is_new_user?: boolean;
 }
 
 /**
@@ -46,20 +47,13 @@ export interface UserProfile {
 }
 
 /**
- * 登录请求参数
+ * 钱包登录请求参数
  */
-export interface LoginRequest {
-  account: string;
-  password: string;
-}
-
-/**
- * 注册请求参数
- */
-export interface RegisterRequest {
-  account: string;
-  password: string;
-  refer?: string;
+export interface WalletLoginRequest {
+  address: string;
+  signature: string;
+  message: string;
+  referral_code?: string;
 }
 
 // --- 转账模块 ---

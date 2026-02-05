@@ -13,7 +13,6 @@ import {
   InjectPoolRequest,
   InjectPoolResponse,
   InjectionStatusResponse,
-  LoginRequest,
   MiningClaimResponse,
   MiningPendingResponse,
   MyChainResponse,
@@ -23,12 +22,13 @@ import {
   NodeRewardsResponse,
   PaginationResponse,
   ReferralCodeResponse,
-  RegisterRequest,
   TotalHashrateResponse,
   TransferRecord,
   TransferRequest,
   TransferResponse,
   UserHashrateResponse,
+  UserProfile,
+  WalletLoginRequest,
   WithdrawHistoryResponse,
   WithdrawRequest,
   WithdrawResponse,
@@ -39,21 +39,15 @@ import {
  * 认证相关 API 接口封装
  */
 export const authEndpoints = {
-  login: async (data: LoginRequest): Promise<ApiResponse<AuthResponse>> => {
-    return apiClient.post("/auth/login", data);
-  },
-  register: async (data: RegisterRequest): Promise<ApiResponse<AuthResponse>> => {
-    return apiClient.post("/auth/register", data);
+  // 钱包签名登录
+  walletLogin: async (data: WalletLoginRequest): Promise<ApiResponse<AuthResponse>> => {
+    return apiClient.post("/auth/wallet-login", data);
   },
   logout: async (): Promise<ApiResponse<void>> => {
     return apiClient.post("/auth/logout");
   },
-  // 获取用户资料 - 在 V6 中通常不再单独调用 GET /user/profile 来获取 AuthResponse,
-  // 但文档列出了 GET /user/profile 返回用户数据
-  getProfile: async (): Promise<ApiResponse<any>> => {
-    // Types.ts defined UserProfile, but the endpoint returns separate structure?
-    // Doc 2.1 GET /user/profile response data structure is { id, void_account... }
-    // Let's use any for now or strictly UserProfile if I defined it strictly.
+  // 获取用户资料
+  getProfile: async (): Promise<ApiResponse<UserProfile>> => {
     return apiClient.get("/user/profile");
   },
   updateSession: async (): Promise<ApiResponse<{ session_id: string; expires_at: number }>> => {

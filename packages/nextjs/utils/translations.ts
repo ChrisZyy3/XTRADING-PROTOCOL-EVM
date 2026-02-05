@@ -183,6 +183,7 @@ export const translations = {
       // 登录弹窗标题 (Login modal titles)
       welcomeBack: "Welcome Back",
       createAccount: "Create Account",
+      signIn: "Sign in",
       // 标签页 (Tabs)
       login: "Login",
       register: "Register",
@@ -505,6 +506,7 @@ export const translations = {
       // 登录弹窗标题 (Login modal titles)
       welcomeBack: "欢迎回来",
       createAccount: "创建账户",
+      signIn: "签名",
       // 标签页 (Tabs)
       login: "登录",
       register: "注册",
