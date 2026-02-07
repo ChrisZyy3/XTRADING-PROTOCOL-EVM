@@ -1,9 +1,9 @@
 
-const http = require('http');
+const https = require('https');
 
 const options = {
-    hostname: '103.47.82.211',
-    port: 8080,
+    hostname: 'xtrading.xin',
+    port: 443,
     path: '/api/v1/node/available',
     method: 'GET',
     headers: {
@@ -11,7 +11,7 @@ const options = {
     }
 };
 
-const req = http.request(options, (res) => {
+const req = https.request(options, (res) => {
     console.log(`STATUS: ${res.statusCode}`);
     console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
 

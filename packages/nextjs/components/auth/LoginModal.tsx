@@ -5,6 +5,7 @@ import { useAccount, useSignMessage } from "wagmi";
 import { useWalletLogin } from "~~/hooks/api/useAuth";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
+import { buildWalletLoginMessage } from "~~/utils/walletAuth";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -33,10 +34,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
 
     try {
       // 1. Generate timestamped message
-      // Format: YYYY-MM-DD HH:MM:SS
-      const now = new Date();
-      const timestamp = now.toISOString().replace("T", " ").substring(0, 19);
-      const message = `Login to XTG at ${timestamp}`;
+      const message = buildWalletLoginMessage();
 
       // 2. Request signature
       const signature = await signMessageAsync({ message });
@@ -44,7 +42,7 @@ export const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       // 3. Call backend API
       walletLogin(
         {
-          address,
+          address: address.toLowerCase(),
           signature,
           message,
           referral_code: referralCode || undefined,

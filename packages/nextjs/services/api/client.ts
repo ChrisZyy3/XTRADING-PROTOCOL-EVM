@@ -5,7 +5,7 @@ import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
 
 // 从环境变量读取 API 基础路径，默认 fallback 到 localhost
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://103.47.82.211:8080/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://xtrading.xin/api/v1";
 
 const ERROR_CODE_MESSAGES: Record<"zh" | "en", Record<number, string>> = {
   zh: {
