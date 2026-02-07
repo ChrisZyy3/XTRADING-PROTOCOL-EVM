@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount, useSignMessage } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
@@ -23,35 +24,58 @@ export const CustomLoginButton = () => {
   const { mutate: walletLogin, isPending: isLoginPending } = useWalletLogin();
   const { mutate: logout } = useLogout();
 
-  const handleLogin = async () => {
-    if (!isConnected || !address) {
-      if (openConnectModal) {
-        openConnectModal();
-      } else {
-        notification.error("Wallet connection not available");
+  // We wrap handleLogin in useCallback to avoid unnecessary re-renders and fix the dependency warning
+  const handleLogin = React.useCallback(
+    async (isAuto = false) => {
+      if (!isConnected || !address) {
+        if (openConnectModal) {
+          openConnectModal();
+        } else {
+          notification.error("Wallet connection not available");
+        }
+        return;
       }
-      return;
+
+      try {
+        // 1. Generate timestamped message
+        const message = buildWalletLoginMessage();
+
+        // 2. Request signature
+        const signature = await signMessageAsync({ message });
+
+        // 3. Call backend API
+        walletLogin({
+          address: address,
+          signature,
+          message,
+          // No referral code for direct login
+        });
+      } catch (error: any) {
+        console.error("Signature or Login failed", error);
+        // Only show error notification if it was a manual login attempt
+        if (!isAuto) {
+          notification.error("Login failed: " + (error?.message || "Unknown error"));
+        }
+      }
+    },
+    [isConnected, address, openConnectModal, signMessageAsync, walletLogin],
+  );
+
+  // Auto-login trigger
+  // We use a ref to prevent double-firing in strict mode or rapid re-renders
+  const hasAutoTriggered = React.useRef(false);
+
+  React.useEffect(() => {
+    if (isConnected && address && !isAuthenticated && !isLoginPending && !hasAutoTriggered.current) {
+      hasAutoTriggered.current = true;
+      handleLogin(true);
     }
 
-    try {
-      // 1. Generate timestamped message
-      const message = buildWalletLoginMessage();
-
-      // 2. Request signature
-      const signature = await signMessageAsync({ message });
-
-      // 3. Call backend API
-      walletLogin({
-        address: address,
-        signature,
-        message,
-        // No referral code for direct login
-      });
-    } catch (error: any) {
-      console.error("Signature or Login failed", error);
-      notification.error("Login failed: " + (error?.message || "Unknown error"));
+    // Reset trigger if disconnected
+    if (!isConnected) {
+      hasAutoTriggered.current = false;
     }
-  };
+  }, [isConnected, address, isAuthenticated, isLoginPending, handleLogin]);
 
   const handleLogout = () => {
     logout();
@@ -101,7 +125,7 @@ export const CustomLoginButton = () => {
         {/* Sign In Part */}
         <button
           className="btn btn-sm bg-[#39FF14] hover:bg-[#39FF14]/80 text-black border-none rounded-[10px] px-3 font-bold min-h-8 h-8"
-          onClick={handleLogin}
+          onClick={() => handleLogin(false)}
           disabled={isLoginPending}
           type="button"
         >
