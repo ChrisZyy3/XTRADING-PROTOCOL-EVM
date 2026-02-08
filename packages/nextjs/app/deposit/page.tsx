@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { parseEther } from "viem";
 import {
   useWithdrawHistory,
-  useWithdrawInject,
   useWithdrawInjectionStatus,
-  useWithdrawRequest,
 } from "~~/hooks/api/useWithdraw";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { useAuthStore } from "~~/services/store/authStore";
 import { useGlobalState } from "~~/services/store/store";
 import { notification } from "~~/utils/scaffold-eth";
@@ -65,7 +65,9 @@ const InjectionSection = ({ balance }: { balance?: string }) => {
     isLoading: isInjectionLoading,
     refetch: refetchInjection,
   } = useWithdrawInjectionStatus();
-  const { mutate: injectPool, isPending: isInjecting } = useWithdrawInject();
+
+  // Replace API hook with Contract hook
+  const { writeContractAsync: depositAsync, isMining: isInjecting } = useScaffoldWriteContract("TCMTokenWithVault");
 
   const [injectAmount, setInjectAmount] = useState("");
   const status = injectionData?.data;
@@ -78,17 +80,19 @@ const InjectionSection = ({ balance }: { balance?: string }) => {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   };
 
-  const handleInject = () => {
+  const handleInject = async () => {
     if (!injectAmount) return;
-    injectPool(
-      { amount: injectAmount },
-      {
-        onSuccess: () => {
-          setInjectAmount("");
-          refetchInjection();
-        },
-      },
-    );
+    try {
+      await depositAsync({
+        functionName: "deposit",
+        args: [parseEther(injectAmount)],
+      });
+      setInjectAmount("");
+      // Construct a delay or poll to refresh status, relying on backend to pick up event
+      setTimeout(() => refetchInjection(), 5000);
+    } catch (e) {
+      console.error("Injection failed", e);
+    }
   };
 
   if (isInjectionLoading)
@@ -177,11 +181,17 @@ const InjectionSection = ({ balance }: { balance?: string }) => {
 
 const WithdrawFormSection = ({ balance }: { balance?: string }) => {
   const { t } = useGlobalState();
-  const { mutate: requestWithdraw, isPending: isRequesting } = useWithdrawRequest();
+  // Replace API hook with Contract hook
+  const { writeContractAsync: withdrawAsync, isMining: isRequesting } = useScaffoldWriteContract("TCMTokenWithVault");
   const { data: injectionData } = useWithdrawInjectionStatus();
 
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawAddress, setWithdrawAddress] = useState("");
+  // Address is no longer needed inputs for the user, as the contract will msg.sender to the user?
+  // API-10 says: Call withdraw(amount). It doesn't specify to address. Usually withdraws to msg.sender.
+  // The UI had an address input. API-10 10.2 says "Frontend calls withdraw(amount)".
+  // If the contract function is withdraw(amount), then destination is implicit (msg.sender).
+  // I will hide the address input or keep it read-only as "Your Address".
+  // Actually, let's look at the ABI I added: withdraw(amount). No address param.
 
   const hasInjected = injectionData?.data?.has_injected;
 
@@ -191,9 +201,9 @@ const WithdrawFormSection = ({ balance }: { balance?: string }) => {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   };
 
-  const handleWithdraw = () => {
-    if (!withdrawAmount || !withdrawAddress) {
-      notification.error("Please fill all fields");
+  const handleWithdraw = async () => {
+    if (!withdrawAmount) {
+      notification.error("Please enter amount");
       return;
     }
     if (!hasInjected) {
@@ -201,15 +211,15 @@ const WithdrawFormSection = ({ balance }: { balance?: string }) => {
       return;
     }
 
-    requestWithdraw(
-      { amount: withdrawAmount, destination_address: withdrawAddress },
-      {
-        onSuccess: () => {
-          setWithdrawAmount("");
-          setWithdrawAddress("");
-        },
-      },
-    );
+    try {
+      await withdrawAsync({
+        functionName: "withdraw",
+        args: [parseEther(withdrawAmount)],
+      });
+      setWithdrawAmount("");
+    } catch (e) {
+      console.error("Withdraw failed", e);
+    }
   };
 
   return (
@@ -217,20 +227,14 @@ const WithdrawFormSection = ({ balance }: { balance?: string }) => {
       <h2 className="text-2xl font-bold text-[#39FF14] mb-6 font-display text-glow">{t.withdraw.form.title}</h2>
 
       <div className="space-y-4">
-        {/* Destination Address */}
+        {/* Destination Address - REMOVED or READONLY since contract withdraws to sender */}
+        {/* 
         <div className="form-control">
           <label className="label">
             <span className="label-text text-gray-400">{t.withdraw.form.address}</span>
           </label>
-          <input
-            type="text"
-            className="input input-bordered w-full bg-black/50 border-[#203731] text-white focus:border-[#39FF14] font-mono placeholder:text-gray-700"
-            value={withdrawAddress}
-            onChange={e => setWithdrawAddress(e.target.value)}
-            placeholder="0x..."
-            disabled={!hasInjected}
-          />
         </div>
+        */}
 
         {/* Amount */}
         <div className="form-control">
@@ -254,9 +258,8 @@ const WithdrawFormSection = ({ balance }: { balance?: string }) => {
         </div>
 
         <button
-          className={`btn w-full font-bold mt-4 border-none text-black ${
-            hasInjected ? "bg-[#39FF14] hover:bg-[#32e612]" : "btn-disabled bg-gray-800 text-gray-500"
-          }`}
+          className={`btn w-full font-bold mt-4 border-none text-black ${hasInjected ? "bg-[#39FF14] hover:bg-[#32e612]" : "btn-disabled bg-gray-800 text-gray-500"
+            }`}
           onClick={handleWithdraw}
           disabled={isRequesting || !hasInjected}
         >

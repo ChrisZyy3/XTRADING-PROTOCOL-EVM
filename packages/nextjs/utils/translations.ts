@@ -321,6 +321,28 @@ export const translations = {
         claiming: "Claiming...",
       },
     },
+    newDeposit: {
+      title: "Deposit",
+      loginPrompt: "Please login first",
+      depositToVault: "Deposit to Vault",
+      description: "Deposit TCM tokens into the Vault. You may need to approve the contract first.",
+      wallet: "Wallet",
+      bnb: "BNB",
+      tcmBalance: "TCM Balance",
+      vaultBalance: "Vault Balance",
+      allowance: "Allowance",
+      unlimited: "Unlimited",
+      depositAmount: "Deposit Amount (TCM)",
+      max: "Max",
+      approve: "Approve TCM",
+      deposit: "Deposit",
+      note: {
+        title: "Note:",
+        line1: "Ensure you are connected to BSC Testnet.",
+        line2: "You need BNB for gas fees.",
+        line3: "Approving is only required once per amount/contract."
+      }
+    },
   },
   zh: {
     hero: {
@@ -643,6 +665,28 @@ export const translations = {
         claim: "领取奖励",
         claiming: "领取中...",
       },
+    },
+    newDeposit: {
+      title: "充值",
+      loginPrompt: "请先登录",
+      depositToVault: "充值到底池",
+      description: "将 TCM 代币充值到底池。您可能需要先批准合约。",
+      wallet: "钱包地址",
+      bnb: "BNB",
+      tcmBalance: "TCM 余额",
+      vaultBalance: "底池余额",
+      allowance: "授权额度",
+      unlimited: "无限",
+      depositAmount: "充值金额 (TCM)",
+      max: "最大",
+      approve: "授权 TCM",
+      deposit: "充值",
+      note: {
+        title: "注意:",
+        line1: "确保您已连接到 BSC 测试网。",
+        line2: "您需要 BNB 作为 Gas 费。",
+        line3: "每个金额/合约仅需授权一次。"
+      }
     },
   },
 };

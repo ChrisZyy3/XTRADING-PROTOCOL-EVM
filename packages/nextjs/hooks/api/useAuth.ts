@@ -75,15 +75,16 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      try {
-        await authEndpoints.logout();
-      } catch (error) {
-        console.error("Logout request failed", error);
-      } finally {
-        // 确保本地状态与缓存清理
-        logout();
-        queryClient.clear();
-      }
+      // API-10: Backend logout endpoint is removed.
+      // Just clear local state and cache.
+      logout();
+      queryClient.clear();
+      // Optionally disconnect wallet if needed, but usually useDisconnect from wagmi is separate.
+      // The user said "disconnect wallet connection", which might mean useDisconnect().
+      // However, CustomLoginButton handles UI. useLogout here is business logic.
+      // Let's just clear state for now as requested "clear cache".
+      // If we need to actually disconnect Wagmi, we need useDisconnect hook here or in component.
+      // The component calls this hook.
     },
   });
 };

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTG 充值测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .network-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.loading {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .balance-display {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .balance-item:last-child {
+            border-bottom: none;
+        }
+
+        .balance-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .balance-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .fee-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 XTG 充值测试</h1>
+        <p class="subtitle">BSC Testnet - TCM Token Vault</p>
+
+        <div class="network-info">
+            <strong>⚠️ 网络要求:</strong> 请确保 MetaMask 连接到 BSC Testnet<br>
+            <small>RPC URL: https://data-seed-prebsc-1-s1.binance.org:8545/</small>
+        </div>
+
+        <!-- 步骤 1: 连接钱包 -->
+        <div class="section">
+            <h3><span class="step-number">1</span>连接钱包</h3>
+            <button id="connectBtn" onclick="connectWallet()">连接 MetaMask</button>
+            <div id="walletStatus" class="status info">未连接钱包</div>
+        </div>
+
+        <!-- 步骤 2: 查看余额 -->
+        <div class="section">
+            <h3><span class="step-number">2</span>查看余额</h3>
+            <button id="balanceBtn" onclick="checkBalances()" disabled>刷新余额</button>
+            <div id="balanceResult" class="balance-display" style="display: none;">
+                <div class="balance-item">
+                    <span class="balance-label">钱包地址:</span>
+                    <span class="balance-value" id="walletAddress">-</span>
+                </div>
+                <div class="balance-item">
+                    <span class="balance-label">TCM 代币余额:</span>
+                    <span class="balance-value" id="tokenBalance">-</span>
+                </div>
+                <div class="balance-item">
+                    <span class="balance-label">已授权额度:</span>
+                    <span class="balance-value" id="allowanceAmount">-</span>
+                </div>
+                <div class="balance-item">
+                    <span class="balance-label">BNB 余额:</span>
+                    <span class="balance-value" id="bnbBalance">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤 3: 授权合约 -->
+        <div class="section">
+            <h3><span class="step-number">3</span>授权合约</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                💡 首次充值需要授权合约使用您的 TCM 代币（仅需一次）
+            </p>
+            <button id="approveBtn" onclick="approveContract()" disabled>授权合约</button>
+            <div id="approveResult"></div>
+        </div>
+
+        <!-- 步骤 4: 充值 -->
+        <div class="section">
+            <h3><span class="step-number">4</span>充值到 Vault</h3>
+            <div class="input-group">
+                <label for="depositAmount">充值数量 (TCM)</label>
+                <input
+                    type="number"
+                    id="depositAmount"
+                    placeholder="例如: 100"
+                    step="0.000000000000000001"
+                    min="0"
+                >
+            </div>
+            <button id="depositBtn" onclick="deposit()" disabled>充值</button>
+            <div id="depositResult"></div>
+        </div>
+
+        <!-- 说明 -->
+        <div class="section">
+            <h3>📝 充值说明</h3>
+            <div style="color: #666; font-size: 14px; line-height: 1.8;">
+                <p><strong>充值流程:</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>连接 MetaMask 钱包</li>
+                    <li>授权合约使用 TCM 代币（首次需要，之后可跳过）</li>
+                    <li>输入充值数量并确认</li>
+                    <li>在 MetaMask 中确认交易</li>
+                    <li>等待交易确认（约 3-5 秒）</li>
+                    <li>区块链监听器自动更新您的虚拟余额</li>
+                </ol>
+
+                <p style="margin-top: 15px;"><strong>注意事项:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>请确保在 BSC Testnet 测试网操作</li>
+                    <li>需要足够的 BNB 支付 gas 费用</li>
+                    <li>充值的最小单位是 1 wei (10^-18 TCM)</li>
+                    <li>充值后虚拟余额会在约 12 秒内更新</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script>
+        // 合约配置
+        const CONFIG = {
+            TCM_TOKEN_ADDRESS: '0x6dE2c12780F547A9f8dD3A7b83C82A2d41FC38C8', // BSC Testnet
+            CHAIN_ID: 97, // BSC Testnet
+            CHAIN_NAME: 'BSC Testnet'
+        };
+
+        // 全局变量
+        let provider = null;
+        let signer = null;
+        let userAddress = null;
+        let tokenContract = null;
+
+        // TCM Token ABI (只需要用到的函数)
+        const TCM_TOKEN_ABI = [
+            // 查询余额
+            "function balanceOf(address owner) view returns (uint256)",
+            // 授权
+            "function approve(address spender, uint256 amount) returns (bool)",
+            // 查询授权额度
+            "function allowance(address owner, address spender) view returns (uint256)",
+            // 充值到 vault
+            "function deposit(uint256 amount)",
+            // 查询 vault 余额
+            "function vaultBalanceOf(address owner) view returns (uint256)",
+            // 代币信息
+            "function name() view returns (string)",
+            "function symbol() view returns (string)",
+            "function decimals() view returns (uint8)"
+        ];
+
+        // 1. 连接钱包
+        async function connectWallet() {
+            const statusDiv = document.getElementById('walletStatus');
+            const connectBtn = document.getElementById('connectBtn');
+
+            try {
+                connectBtn.classList.add('loading');
+                statusDiv.className = 'status info';
+                statusDiv.innerHTML = '⏳ 正在连接钱包...';
+
+                // 检查是否安装 MetaMask
+                if (!window.ethereum) {
+                    throw new Error('请先安装 MetaMask 钱包插件');
+                }
+
+                // 请求连接
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+
+                // 检查网络
+                const network = await provider.getNetwork();
+                if (network.chainId !== CONFIG.CHAIN_ID) {
+                    throw new Error(`请切换到 ${CONFIG.CHAIN_NAME} (Chain ID: ${CONFIG.CHAIN_ID})`);
+                }
+
+                // 创建合约实例
+                tokenContract = new ethers.Contract(
+                    CONFIG.TCM_TOKEN_ADDRESS,
+                    TCM_TOKEN_ABI,
+                    signer
+                );
+
+                // 成功
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `✅ 钱包已连接<br><small>${userAddress}</small>`;
+
+                // 启用其他按钮
+                document.getElementById('balanceBtn').disabled = false;
+                document.getElementById('approveBtn').disabled = false;
+                document.getElementById('depositBtn').disabled = false;
+
+                // 自动刷新余额
+                await checkBalances();
+
+            } catch (error) {
+                console.error('连接失败:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ 连接失败: ${error.message}`;
+            } finally {
+                connectBtn.classList.remove('loading');
+            }
+        }
+
+        // 2. 查看余额
+        async function checkBalances() {
+            const resultDiv = document.getElementById('balanceResult');
+            const balanceBtn = document.getElementById('balanceBtn');
+
+            try {
+                balanceBtn.classList.add('loading');
+                resultDiv.style.display = 'block';
+
+                // 获取代币余额
+                const tokenBalance = await tokenContract.balanceOf(userAddress);
+                const tokenDecimals = await tokenContract.decimals();
+                const tokenSymbol = await tokenContract.symbol();
+
+                // 获取授权额度 (授权给自己调用 deposit)
+                const allowance = await tokenContract.allowance(
+                    userAddress,
+                    CONFIG.TCM_TOKEN_ADDRESS
+                );
+
+                // 获取 BNB 余额
+                const bnbBalance = await provider.getBalance(userAddress);
+
+                // 获取 vault 余额
+                const vaultBalance = await tokenContract.vaultBalanceOf(userAddress);
+
+                // 显示结果
+                document.getElementById('walletAddress').textContent =
+                    `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                document.getElementById('tokenBalance').textContent =
+                    `${formatToken(tokenBalance, tokenDecimals)} ${tokenSymbol}`;
+                document.getElementById('allowanceAmount').textContent =
+                    `${formatToken(allowance, tokenDecimals)} ${tokenSymbol}`;
+                document.getElementById('bnbBalance').textContent =
+                    `${formatBNB(bnbBalance)} BNB`;
+
+                // 显示 vault 余额提示
+                if (parseFloat(formatToken(vaultBalance, tokenDecimals)) > 0) {
+                    document.getElementById('tokenBalance').innerHTML +=
+                        `<br><small style="color: #666;">Vault: ${formatToken(vaultBalance, tokenDecimals)} ${tokenSymbol}</small>`;
+                }
+
+            } catch (error) {
+                console.error('查询余额失败:', error);
+                resultDiv.innerHTML = `<div class="status error">❌ 查询失败: ${error.message}</div>`;
+            } finally {
+                balanceBtn.classList.remove('loading');
+            }
+        }
+
+        // 3. 授权合约
+        async function approveContract() {
+            const resultDiv = document.getElementById('approveResult');
+            const approveBtn = document.getElementById('approveBtn');
+
+            try {
+                approveBtn.classList.add('loading');
+                resultDiv.className = 'status info';
+                resultDiv.innerHTML = '⏳ 正在授权...';
+
+                // 获取代币精度
+                const tokenDecimals = await tokenContract.decimals();
+                const maxAmount = ethers.BigNumber.from(2).pow(256).sub(1); // 无限授权
+
+                // 调用 approve 函数
+                const tx = await tokenContract.approve(
+                    CONFIG.TCM_TOKEN_ADDRESS, // spender 是合约地址
+                    maxAmount
+                );
+
+                resultDiv.innerHTML = `⏳ 交易已提交，等待确认...<br><small>TX: ${tx.hash}</small>`;
+
+                // 等待交易确认
+                await tx.wait();
+
+                resultDiv.className = 'status success';
+                resultDiv.innerHTML = `✅ 授权成功！<br><small>TX: ${tx.hash}</small>`;
+
+                // 刷新余额
+                setTimeout(() => checkBalances(), 2000);
+
+            } catch (error) {
+                console.error('授权失败:', error);
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = `❌ 授权失败: ${error.message}`;
+            } finally {
+                approveBtn.classList.remove('loading');
+            }
+        }
+
+        // 4. 充值
+        async function deposit() {
+            const resultDiv = document.getElementById('depositResult');
+            const depositBtn = document.getElementById('depositBtn');
+            const amountInput = document.getElementById('depositAmount');
+
+            try {
+                const amount = amountInput.value.trim();
+
+                // 验证输入
+                if (!amount || parseFloat(amount) <= 0) {
+                    throw new Error('请输入有效的充值数量');
+                }
+
+                depositBtn.classList.add('loading');
+                resultDiv.className = 'status info';
+                resultDiv.innerHTML = '⏳ 正在充值...';
+
+                // 获取代币精度
+                const tokenDecimals = await tokenContract.decimals();
+
+                // 转换为 wei
+                const amountWei = ethers.utils.parseUnits(amount, tokenDecimals);
+
+                // 检查余额
+                const balance = await tokenContract.balanceOf(userAddress);
+                if (balance.lt(amountWei)) {
+                    throw new Error('代币余额不足');
+                }
+
+                // 调用 deposit 函数
+                const tx = await tokenContract.deposit(amountWei);
+
+                resultDiv.innerHTML = `⏳ 交易已提交，等待确认...<br>
+                    <small>TX: ${tx.hash}</small>
+                    <p class="fee-info">💡 约 12 秒后区块链监听器会自动更新您的虚拟余额</p>
+                `;
+
+                // 等待交易确认
+                const receipt = await tx.wait();
+
+                resultDiv.className = 'status success';
+                resultDiv.innerHTML = `✅ 充值成功！<br>
+                    <small>TX: ${tx.hash}</small><br>
+                    <small>Block: ${receipt.blockNumber}</small><br>
+                    <small>Gas Used: ${receipt.gasUsed.toString()}</small><br>
+                    <br>
+                    <strong>💡 区块链监听器将在约 12 秒后自动更新您的虚拟余额</strong>
+                    <br><br>
+                    <button onclick="checkBalances()" style="padding: 8px 16px; font-size: 14px;">刷新余额查看</button>
+                `;
+
+                // 清空输入
+                amountInput.value = '';
+
+                // 5 秒后自动刷新余额
+                setTimeout(() => checkBalances(), 5000);
+
+            } catch (error) {
+                console.error('充值失败:', error);
+                resultDiv.className = 'status error';
+
+                // 用户拒绝交易
+                if (error.code === 4001) {
+                    resultDiv.innerHTML = `❌ 您已取消交易`;
+                } else {
+                    resultDiv.innerHTML = `❌ 充值失败: ${error.message}`;
+                }
+            } finally {
+                depositBtn.classList.remove('loading');
+            }
+        }
+
+        // 格式化代币数量
+        function formatToken(amount, decimals) {
+            const formatted = ethers.utils.formatUnits(amount, decimals);
+            const num = parseFloat(formatted);
+
+            if (num === 0) return '0';
+            if (num < 0.000001) return formatted;
+            if (num < 1) return parseFloat(formatted).toFixed(6);
+            return parseFloat(formatted).toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6
+            });
+        }
+
+        // 格式化 BNB
+        function formatBNB(amount) {
+            const formatted = ethers.utils.formatEther(amount);
+            const num = parseFloat(formatted);
+
+            if (num < 0.001) return '< 0.001';
+            return parseFloat(formatted).toFixed(4);
+        }
+
+        // 监听账户变化
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    // 用户断开连接
+                    location.reload();
+                } else {
+                    // 用户切换账户
+                    location.reload();
+                }
+            });
+
+            window.ethereum.on('chainChanged', () => {
+                // 用户切换网络
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

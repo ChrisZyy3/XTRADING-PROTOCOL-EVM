@@ -16,7 +16,7 @@ export const HeaderMenuLinks = () => {
   const links = [
     { label: t.nav.wallet, href: "/wallet" },
     { label: t.nav.transfer, href: "/transfer" },
-    { label: t.nav.deposit, href: "/deposit" },
+    { label: t.nav.deposit, href: "/newDeposit" },
     { label: t.nav.hashpower, href: "/hashpower" },
     { label: t.nav.node, href: "/node" },
     { label: t.nav.referral, href: "/referral" },
@@ -31,9 +31,8 @@ export const HeaderMenuLinks = () => {
             <Link
               href={href}
               passHref
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+              className={`${isActive ? "bg-secondary shadow-md" : ""
+                } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
             >
               <span>{label}</span>
             </Link>

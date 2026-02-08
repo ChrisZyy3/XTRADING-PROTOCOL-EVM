@@ -38,7 +38,13 @@ export interface AuthResponse {
  */
 export interface UserProfile {
   id: number;
+  /**
+   * @deprecated Use wallet_address instead
+   */
   void_account: string;
+  /**
+   * @deprecated Use wallet_address instead
+   */
   void_address: string;
   tcm_balance: string;
   tc_balance: string;

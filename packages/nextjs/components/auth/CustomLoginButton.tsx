@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { ArrowRightOnRectangleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 import { useLogout, useWalletLogin } from "~~/hooks/api/useAuth";
 import { useAuthStore } from "~~/services/store/authStore";
@@ -21,6 +21,7 @@ export const CustomLoginButton = () => {
 
   // Login Hooks
   const { signMessageAsync } = useSignMessage();
+  const { disconnect } = useDisconnect();
   const { mutate: walletLogin, isPending: isLoginPending } = useWalletLogin();
   const { mutate: logout } = useLogout();
 
@@ -61,8 +62,9 @@ export const CustomLoginButton = () => {
     [isConnected, address, openConnectModal, signMessageAsync, walletLogin],
   );
 
-  // Auto-login trigger
-  // We use a ref to prevent double-firing in strict mode or rapid re-renders
+  // Auto-login trigger REMOVED to prevent re-sign loop after logout.
+  // User must manually click "Sign in" to authenticate.
+  /*
   const hasAutoTriggered = React.useRef(false);
 
   React.useEffect(() => {
@@ -76,18 +78,24 @@ export const CustomLoginButton = () => {
       hasAutoTriggered.current = false;
     }
   }, [isConnected, address, isAuthenticated, isLoginPending, handleLogin]);
+  */
 
   const handleLogout = () => {
+    disconnect();
     logout();
   };
 
-  // 1. Authenticated -> Show User Profile & Logout
-  if (user && isAuthenticated) {
+  // 1. Authenticated -> Show User Profile (or Wallet Address) & Logout
+  if (isAuthenticated) {
+    // If user profile is loaded, use void_account or void_address
+    // If not loaded yet, fallback to connected wallet address
+    const displayName = user?.void_account || user?.void_address || address || "User";
+
     return (
       <div className="dropdown dropdown-end">
         <label tabIndex={0} className="btn btn-sm btn-ghost gap-2 text-white hover:bg-white/10">
           <UserCircleIcon className="h-5 w-5 text-[#39FF14]" />
-          <span className="font-bold">{user.void_account || user.void_address?.slice(0, 6)}</span>
+          <span className="font-bold">{displayName.slice(0, 6)}...{displayName.slice(-4)}</span>
         </label>
         <ul
           tabIndex={0}
