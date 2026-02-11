@@ -16,10 +16,15 @@ export default function ReferralPage() {
   const { data: myCodeData, isLoading: isLoadingCode } = useMyReferralCode();
   const { data: myReferralsData, isLoading: isLoadingReferrals } = useMyReferrals();
   const { mutate: bindReferral, isPending: isBinding } = useBindReferral();
+  const hasBindInput = bindInput.trim().length > 0;
+  const bindButtonClass = hasBindInput
+    ? "bg-[#27E903] text-black hover:bg-[#20bd02] border-[#27E903]"
+    : "bg-[#2A2F3A] text-[#8E95A3] hover:bg-[#2A2F3A] border-[#2A2F3A]";
 
   const handleBind = () => {
-    if (!bindInput) return;
-    bindReferral({ referral_code: bindInput });
+    const value = bindInput.trim();
+    if (!value) return;
+    bindReferral({ referral_code: value });
   };
 
   const copyToClipboard = (text: string) => {
@@ -109,9 +114,9 @@ export default function ReferralPage() {
                 onChange={e => setBindInput(e.target.value)}
               />
               <button
-                className="btn bg-[#27E903] text-black hover:bg-[#20bd02] border-none"
+                className={`btn border-none transition-all duration-200 disabled:opacity-100 disabled:cursor-not-allowed ${bindButtonClass}`}
                 onClick={handleBind}
-                disabled={isBinding || !bindInput}
+                disabled={isBinding || !hasBindInput}
               >
                 {isBinding ? <span className="loading loading-spinner loading-xs"></span> : t.referral.bindButton}
               </button>

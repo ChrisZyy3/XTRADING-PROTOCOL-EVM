@@ -221,21 +221,39 @@ export interface WithdrawResponse {
   created_at: number;
 }
 
+export interface WithdrawSignedRequest {
+  amount: string;
+}
+
+export interface WithdrawSignedResponse {
+  order_id: string;
+  amount: string;
+  fee_amount: string;
+  net_amount: string;
+  deadline: number | string;
+  signature: string;
+  contract_address: string;
+  message: string;
+}
+
 export interface WithdrawStatusResponse {
   request_id: string; // doc example string "2001", type uint64? use string/number
   status: string;
   amount: string;
-  destination_address: string;
-  created_at: number;
-  processed_at: number | null;
+  destination_address?: string;
+  created_at: number | string;
+  processed_at?: number | string | null;
 }
 
 export interface WithdrawHistoryRecord {
-  request_id: number;
+  request_id?: number;
+  id?: number;
   amount: string;
   status: string;
-  created_at: number;
-  processed_at: number;
+  tx_hash?: string;
+  destination_address?: string;
+  created_at: number | string;
+  processed_at?: number | string | null;
 }
 
 export interface WithdrawHistoryResponse {

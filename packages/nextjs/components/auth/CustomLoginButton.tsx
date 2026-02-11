@@ -62,23 +62,31 @@ export const CustomLoginButton = () => {
     [isConnected, address, openConnectModal, signMessageAsync, walletLogin],
   );
 
-  // Auto-login trigger REMOVED to prevent re-sign loop after logout.
-  // User must manually click "Sign in" to authenticate.
-  /*
-  const hasAutoTriggered = React.useRef(false);
+  const prevConnectedRef = React.useRef(isConnected);
+  const autoSignAttemptedAddressRef = React.useRef<string | undefined>(undefined);
 
+  // Auto-sign when wallet just connected.
+  // This keeps manual "Sign in" as fallback when user rejects the first signature request.
   React.useEffect(() => {
-    if (isConnected && address && !isAuthenticated && !isLoginPending && !hasAutoTriggered.current) {
-      hasAutoTriggered.current = true;
-      handleLogin(true);
+    const justConnected = !prevConnectedRef.current && isConnected;
+    prevConnectedRef.current = isConnected;
+
+    if (!isConnected) {
+      autoSignAttemptedAddressRef.current = undefined;
+      return;
     }
 
-    // Reset trigger if disconnected
-    if (!isConnected) {
-      hasAutoTriggered.current = false;
+    if (!justConnected || !address || isAuthenticated || isLoginPending) {
+      return;
     }
+
+    if (autoSignAttemptedAddressRef.current === address) {
+      return;
+    }
+
+    autoSignAttemptedAddressRef.current = address;
+    handleLogin(true);
   }, [isConnected, address, isAuthenticated, isLoginPending, handleLogin]);
-  */
 
   const handleLogout = () => {
     disconnect();
@@ -93,9 +101,11 @@ export const CustomLoginButton = () => {
 
     return (
       <div className="dropdown dropdown-end">
-        <label tabIndex={0} className="btn btn-sm btn-ghost gap-2 text-white hover:bg-white/10">
-          <UserCircleIcon className="h-5 w-5 text-[#39FF14]" />
-          <span className="font-bold">{displayName.slice(0, 6)}...{displayName.slice(-4)}</span>
+        <label tabIndex={0} className="btn btn-sm btn-ghost gap-0 sm:gap-2 px-2 sm:px-3 text-white hover:bg-white/10">
+          <UserCircleIcon className="h-6 w-6 text-[#39FF14]" />
+          <span className="hidden sm:inline font-bold">
+            {displayName.slice(0, 6)}...{displayName.slice(-4)}
+          </span>
         </label>
         <ul
           tabIndex={0}

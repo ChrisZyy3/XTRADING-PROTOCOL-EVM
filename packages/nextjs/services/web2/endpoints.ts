@@ -32,6 +32,8 @@ import {
   WithdrawHistoryResponse,
   WithdrawRequest,
   WithdrawResponse,
+  WithdrawSignedRequest,
+  WithdrawSignedResponse,
   WithdrawStatusResponse,
 } from "~~/types/api";
 
@@ -129,6 +131,10 @@ export const miningEndpoints = {
  * 提现 API (V6 Injection)
  */
 export const withdrawEndpoints = {
+  // Signed withdrawal request (new flow)
+  requestSignedWithdraw: async (data: WithdrawSignedRequest): Promise<ApiResponse<WithdrawSignedResponse>> => {
+    return apiClient.post("/withdraw/request-signed", data);
+  },
   // 检查注入状态
   getInjectionStatus: async (): Promise<ApiResponse<InjectionStatusResponse>> => {
     return apiClient.get("/withdraw/injection-status");
