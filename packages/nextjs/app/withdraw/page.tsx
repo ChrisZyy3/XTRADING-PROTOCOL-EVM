@@ -114,6 +114,16 @@ export default function WithdrawPage() {
     },
   });
 
+  const { data: contractTokenBalance, refetch: refetchContractTokenBalance } = useReadContract({
+    address: (contractAddress || ZERO_ADDRESS) as `0x${string}`,
+    abi: WITHDRAW_SIGNED_ABI,
+    functionName: "balanceOf",
+    args: [(contractAddress || ZERO_ADDRESS) as `0x${string}`],
+    query: {
+      enabled: Boolean(contractAddress),
+    },
+  });
+
   const { data: withdrawFeeBps } = useReadContract({
     address: (contractAddress || ZERO_ADDRESS) as `0x${string}`,
     abi: WITHDRAW_SIGNED_ABI,
@@ -218,6 +228,7 @@ export default function WithdrawPage() {
       queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
       refetchVaultBalance(),
       refetchWalletTokenBalance(),
+      refetchContractTokenBalance(),
     ]);
   };
 
@@ -286,7 +297,11 @@ export default function WithdrawPage() {
 
       notification.success(ui.success);
     } catch (error: any) {
-      notification.error(error?.message || ui.failed);
+      console.error("Withdraw error details:", error);
+      // Extract the first sentence from the error message (e.g., "User rejected the request") to keep it concise
+      // 从错误信息中提取第一句话（例如“用户拒绝了请求”），以保持简洁
+      const errorMessage = error?.message?.split(".")?.[0];
+      notification.error(errorMessage || ui.failed);
     } finally {
       setIsSubmitting(false);
     }
@@ -380,7 +395,11 @@ export default function WithdrawPage() {
               </div>
 
               <button
-                className="btn w-full font-bold border-none text-black bg-[#39FF14] hover:bg-[#32e612]"
+                className={`btn w-full font-bold border-none transition-all duration-200 ${
+                  isSubmitting || isWriting
+                    ? "bg-[#204736] text-white cursor-not-allowed opacity-80"
+                    : "text-black bg-[#39FF14] hover:bg-[#32e612]"
+                }`}
                 onClick={handleSubmit}
                 disabled={!address || isSubmitting || isWriting}
               >

@@ -62,7 +62,7 @@ const DepositSection = ({ balance }: { balance: string }) => {
 
   const { data: vaultBalance, refetch: refetchVaultBalance } = useScaffoldReadContract({
     contractName: "TCMTokenWithVault",
-    functionName: "vaultBalanceOf",
+    functionName: "getVaultBalance",
     args: [address],
   });
 
@@ -167,13 +167,15 @@ const DepositSection = ({ balance }: { balance: string }) => {
         <div className="flex justify-between">
           <span className="text-gray-500">{t.newDeposit.tcmBalance}:</span>
           <span className="text-[#39FF14]">
-            {tokenBalance ? parseFloat(formatUnits(tokenBalance, tokenDecimals || 18)).toFixed(2) : "..."} TCM
+            {tokenBalance !== undefined ? parseFloat(formatUnits(tokenBalance, tokenDecimals || 18)).toFixed(2) : "..."}{" "}
+            TCM
           </span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-500">{t.newDeposit.vaultBalance}:</span>
           <span className="text-blue-400">
-            {vaultBalance ? parseFloat(formatUnits(vaultBalance, tokenDecimals || 18)).toFixed(2) : "..."} TCM
+            {vaultBalance !== undefined ? parseFloat(formatUnits(vaultBalance, tokenDecimals || 18)).toFixed(2) : "..."}{" "}
+            TCM
           </span>
         </div>
         <div className="flex justify-between">
@@ -181,7 +183,7 @@ const DepositSection = ({ balance }: { balance: string }) => {
           <span className={allowance && allowance > 0n ? "text-green-400" : "text-red-400"}>
             {allowance && allowance > BigInt("1000000000000000000000000000000")
               ? t.newDeposit.unlimited
-              : allowance
+              : allowance !== undefined
                 ? parseFloat(formatUnits(allowance, tokenDecimals || 18)).toLocaleString() + " TCM"
                 : "..."}
           </span>
